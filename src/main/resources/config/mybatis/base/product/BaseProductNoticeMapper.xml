@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.product.BaseProductNoticeMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.product.BaseProductNotice">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="notice_type_id" jdbcType="BIGINT" property="noticeTypeId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="send_time" jdbcType="TIMESTAMP" property="sendTime" />
+    <result column="is_send" jdbcType="TINYINT" property="isSend" />
+    <result column="is_timing_send" jdbcType="TINYINT" property="isTimingSend" />
+    <result column="audit_user_id" jdbcType="BIGINT" property="auditUserId" />
+    <result column="audit_date" jdbcType="TIMESTAMP" property="auditDate" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="apply_user_id" jdbcType="BIGINT" property="applyUserId" />
+    <result column="apply_date" jdbcType="TIMESTAMP" property="applyDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, product_id, title, content, notice_type_id, status, send_time, is_send, 
+    is_timing_send, audit_user_id, audit_date, reason, apply_user_id, apply_date, create_user_id, 
+    create_date, update_user_id, update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNoticeExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from product_notice
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_notice
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_notice
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNoticeExample">
+    delete from product_notice
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductNotice" useGeneratedKeys="true">
+    insert into product_notice (id, tenant_id, product_id, 
+      title, content, notice_type_id, 
+      status, send_time, is_send, 
+      is_timing_send, audit_user_id, audit_date, 
+      reason, apply_user_id, apply_date, 
+      create_user_id, create_date, update_user_id, 
+      update_date, is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, 
+      #{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{noticeTypeId,jdbcType=BIGINT}, 
+      #{status,jdbcType=INTEGER}, #{sendTime,jdbcType=TIMESTAMP}, #{isSend,jdbcType=TINYINT}, 
+      #{isTimingSend,jdbcType=TINYINT}, #{auditUserId,jdbcType=BIGINT}, #{auditDate,jdbcType=TIMESTAMP}, 
+      #{reason,jdbcType=VARCHAR}, #{applyUserId,jdbcType=BIGINT}, #{applyDate,jdbcType=TIMESTAMP}, 
+      #{createUserId,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductNotice" useGeneratedKeys="true">
+    insert into product_notice
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="noticeTypeId != null">
+        notice_type_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="sendTime != null">
+        send_time,
+      </if>
+      <if test="isSend != null">
+        is_send,
+      </if>
+      <if test="isTimingSend != null">
+        is_timing_send,
+      </if>
+      <if test="auditUserId != null">
+        audit_user_id,
+      </if>
+      <if test="auditDate != null">
+        audit_date,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="applyUserId != null">
+        apply_user_id,
+      </if>
+      <if test="applyDate != null">
+        apply_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeTypeId != null">
+        #{noticeTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sendTime != null">
+        #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isSend != null">
+        #{isSend,jdbcType=TINYINT},
+      </if>
+      <if test="isTimingSend != null">
+        #{isTimingSend,jdbcType=TINYINT},
+      </if>
+      <if test="auditUserId != null">
+        #{auditUserId,jdbcType=BIGINT},
+      </if>
+      <if test="auditDate != null">
+        #{auditDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="applyUserId != null">
+        #{applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="applyDate != null">
+        #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNoticeExample" resultType="java.lang.Integer">
+    select count(*) from product_notice
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update product_notice
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.productId != null">
+        product_id = #{record.productId,jdbcType=BIGINT},
+      </if>
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.noticeTypeId != null">
+        notice_type_id = #{record.noticeTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.sendTime != null">
+        send_time = #{record.sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isSend != null">
+        is_send = #{record.isSend,jdbcType=TINYINT},
+      </if>
+      <if test="record.isTimingSend != null">
+        is_timing_send = #{record.isTimingSend,jdbcType=TINYINT},
+      </if>
+      <if test="record.auditUserId != null">
+        audit_user_id = #{record.auditUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.auditDate != null">
+        audit_date = #{record.auditDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applyUserId != null">
+        apply_user_id = #{record.applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.applyDate != null">
+        apply_date = #{record.applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update product_notice
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      product_id = #{record.productId,jdbcType=BIGINT},
+      title = #{record.title,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=VARCHAR},
+      notice_type_id = #{record.noticeTypeId,jdbcType=BIGINT},
+      status = #{record.status,jdbcType=INTEGER},
+      send_time = #{record.sendTime,jdbcType=TIMESTAMP},
+      is_send = #{record.isSend,jdbcType=TINYINT},
+      is_timing_send = #{record.isTimingSend,jdbcType=TINYINT},
+      audit_user_id = #{record.auditUserId,jdbcType=BIGINT},
+      audit_date = #{record.auditDate,jdbcType=TIMESTAMP},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      apply_user_id = #{record.applyUserId,jdbcType=BIGINT},
+      apply_date = #{record.applyDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.product.BaseProductNotice">
+    update product_notice
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeTypeId != null">
+        notice_type_id = #{noticeTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sendTime != null">
+        send_time = #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isSend != null">
+        is_send = #{isSend,jdbcType=TINYINT},
+      </if>
+      <if test="isTimingSend != null">
+        is_timing_send = #{isTimingSend,jdbcType=TINYINT},
+      </if>
+      <if test="auditUserId != null">
+        audit_user_id = #{auditUserId,jdbcType=BIGINT},
+      </if>
+      <if test="auditDate != null">
+        audit_date = #{auditDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="applyUserId != null">
+        apply_user_id = #{applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="applyDate != null">
+        apply_date = #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProductNotice">
+    update product_notice
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      product_id = #{productId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      notice_type_id = #{noticeTypeId,jdbcType=BIGINT},
+      status = #{status,jdbcType=INTEGER},
+      send_time = #{sendTime,jdbcType=TIMESTAMP},
+      is_send = #{isSend,jdbcType=TINYINT},
+      is_timing_send = #{isTimingSend,jdbcType=TINYINT},
+      audit_user_id = #{auditUserId,jdbcType=BIGINT},
+      audit_date = #{auditDate,jdbcType=TIMESTAMP},
+      reason = #{reason,jdbcType=VARCHAR},
+      apply_user_id = #{applyUserId,jdbcType=BIGINT},
+      apply_date = #{applyDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.product.BaseProductNoticeExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product_notice
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

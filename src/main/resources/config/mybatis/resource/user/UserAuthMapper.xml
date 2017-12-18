@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.resource.user.UserAuthMapper">
+  <resultMap id="authMenuDto" type="com.yundao.tenant.dto.resource.AuthMenuDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+  </resultMap>
+
+  <resultMap id="authApiDto" type="com.yundao.tenant.dto.resource.api.AuthApiDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="url_type" jdbcType="INTEGER" property="urlType" />
+    <result column="is_whitelist" jdbcType="INTEGER" property="isWhitelist" />
+  </resultMap>
+	
+	<select id="selectUserMenus" resultMap="authMenuDto">
+      SELECT DISTINCT r.id,r.name,r.code,r.url FROM user_role ur LEFT JOIN role_resource rr ON ur.role_id=rr.role_id
+      LEFT JOIN  resource r ON r.id=rr.resource_id WHERE ur.user_account_id=${userId} AND r.is_delete=0 AND
+      ur.is_delete=0
+    </select>
+
+    <select id="selectUserApis" resultMap="authApiDto">
+      SELECT ar.id,ar.name,ar.code,ar.url,ar.url_type,ar.is_whitelist FROM api_resource ar WHERE ar.is_whitelist=1 AND ar.is_delete=0
+      UNION
+      SELECT ar.id,ar.name,ar.code,ar.url,ar.url_type,ar.is_whitelist FROM api_resource_rel arr
+      LEFT JOIN api_resource ar ON arr.api_id=ar.id
+      WHERE arr.resource_id IN
+      <foreach collection="resourceIds" item="resourceId" separator="," open="(" close=")">
+        ${resourceId}
+      </foreach>
+      AND ar.is_delete=0;
+    </select>
+
+</mapper>

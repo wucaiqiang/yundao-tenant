@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.product.BaseProductExamineMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.product.BaseProductExamine">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="apply_user_id" jdbcType="BIGINT" property="applyUserId" />
+    <result column="issued_status" jdbcType="INTEGER" property="issuedStatus" />
+    <result column="req_issued_status" jdbcType="INTEGER" property="reqIssuedStatus" />
+    <result column="approve_id" jdbcType="BIGINT" property="approveId" />
+    <result column="approve_date" jdbcType="TIMESTAMP" property="approveDate" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="business_type" jdbcType="VARCHAR" property="businessType" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, product_id, apply_user_id, issued_status, req_issued_status, approve_id, 
+    approve_date, reason, status, business_type, create_user_id, create_date, update_user_id, 
+    update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductExamineExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from product_examine
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_examine
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_examine
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductExamineExample">
+    delete from product_examine
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductExamine" useGeneratedKeys="true">
+    insert into product_examine (id, tenant_id, product_id, 
+      apply_user_id, issued_status, req_issued_status, 
+      approve_id, approve_date, reason, 
+      status, business_type, create_user_id, 
+      create_date, update_user_id, update_date, 
+      is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, 
+      #{applyUserId,jdbcType=BIGINT}, #{issuedStatus,jdbcType=INTEGER}, #{reqIssuedStatus,jdbcType=INTEGER}, 
+      #{approveId,jdbcType=BIGINT}, #{approveDate,jdbcType=TIMESTAMP}, #{reason,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{businessType,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductExamine" useGeneratedKeys="true">
+    insert into product_examine
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="applyUserId != null">
+        apply_user_id,
+      </if>
+      <if test="issuedStatus != null">
+        issued_status,
+      </if>
+      <if test="reqIssuedStatus != null">
+        req_issued_status,
+      </if>
+      <if test="approveId != null">
+        approve_id,
+      </if>
+      <if test="approveDate != null">
+        approve_date,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="applyUserId != null">
+        #{applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="issuedStatus != null">
+        #{issuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="reqIssuedStatus != null">
+        #{reqIssuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="approveId != null">
+        #{approveId,jdbcType=BIGINT},
+      </if>
+      <if test="approveDate != null">
+        #{approveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductExamineExample" resultType="java.lang.Integer">
+    select count(*) from product_examine
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update product_examine
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.productId != null">
+        product_id = #{record.productId,jdbcType=BIGINT},
+      </if>
+      <if test="record.applyUserId != null">
+        apply_user_id = #{record.applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.issuedStatus != null">
+        issued_status = #{record.issuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.reqIssuedStatus != null">
+        req_issued_status = #{record.reqIssuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.approveId != null">
+        approve_id = #{record.approveId,jdbcType=BIGINT},
+      </if>
+      <if test="record.approveDate != null">
+        approve_date = #{record.approveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessType != null">
+        business_type = #{record.businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update product_examine
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      product_id = #{record.productId,jdbcType=BIGINT},
+      apply_user_id = #{record.applyUserId,jdbcType=BIGINT},
+      issued_status = #{record.issuedStatus,jdbcType=INTEGER},
+      req_issued_status = #{record.reqIssuedStatus,jdbcType=INTEGER},
+      approve_id = #{record.approveId,jdbcType=BIGINT},
+      approve_date = #{record.approveDate,jdbcType=TIMESTAMP},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      business_type = #{record.businessType,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.product.BaseProductExamine">
+    update product_examine
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="applyUserId != null">
+        apply_user_id = #{applyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="issuedStatus != null">
+        issued_status = #{issuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="reqIssuedStatus != null">
+        req_issued_status = #{reqIssuedStatus,jdbcType=INTEGER},
+      </if>
+      <if test="approveId != null">
+        approve_id = #{approveId,jdbcType=BIGINT},
+      </if>
+      <if test="approveDate != null">
+        approve_date = #{approveDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProductExamine">
+    update product_examine
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      product_id = #{productId,jdbcType=BIGINT},
+      apply_user_id = #{applyUserId,jdbcType=BIGINT},
+      issued_status = #{issuedStatus,jdbcType=INTEGER},
+      req_issued_status = #{reqIssuedStatus,jdbcType=INTEGER},
+      approve_id = #{approveId,jdbcType=BIGINT},
+      approve_date = #{approveDate,jdbcType=TIMESTAMP},
+      reason = #{reason,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      business_type = #{businessType,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.product.BaseProductExamineExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product_examine
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

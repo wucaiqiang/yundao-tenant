@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.field.FieldMapper">
+	<resultMap id="BaseResultMap" type="com.yundao.tenant.dto.field.FieldDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="code" jdbcType="VARCHAR" property="name" />
+		<result column="name" jdbcType="VARCHAR" property="label" />
+		<result column="type" property="type" />
+		<result column="type_code" property="typeCode" />
+		<result column="type_name" property="typeName" />
+		<result column="is_mandatory" property="isMandatory" />
+	</resultMap>
+
+
+
+
+	<select id="getFieldByTypeId" resultMap="BaseResultMap">
+		SELECT
+		of.id,
+		f.`code`,
+		f.`name`,
+		fy.type AS type,
+		fy.`code` AS type_code,
+		fy.`name` AS type_name,
+		of.is_mandatory
+		FROM
+		object_field of
+		LEFT JOIN field_group_rel fgr on of.id = fgr.object_field_id
+		LEFT
+		JOIN field_group fg on fgr.field_group_id = fg.id
+		LEFT JOIN field f on
+		of.field_id = f.id
+		LEFT JOIN field_type fy ON of.field_type_id = fy.id
+		WHERE
+		of.is_delete = 0
+		and of.is_enabled = 1
+		AND fgr.is_delete = 0
+		and fg.is_delete = 0
+		AND
+		fg.id = #{fieldGroupId}
+		order by fgr.sequence asc
+	</select>
+	<select id="selectFieldDetailFieldCode" resultMap="BaseResultMap">
+		SELECT
+		of.id,
+		f.`code`,
+		f.`name`,
+		fy.type AS type,
+		fy.`code` AS type_code,
+		fy.`name` AS type_name,
+		of.is_mandatory
+		FROM
+		object_field of
+		LEFT JOIN field f on of.field_id = f.id
+		LEFT JOIN field_type fy ON
+		of.field_type_id = fy.id
+		WHERE
+		of.is_delete = 0
+		and of.is_enabled = 1
+		and f.code in
+		<foreach collection="fieldCodes" item="code" separator=","
+			open="(" close=")" index="">
+			#{code}
+		</foreach>
+	</select>
+</mapper>

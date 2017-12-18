@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.roadshow.RoadshowMapper">
+
+	<resultMap id="RoadshowResult"
+		type="com.yundao.tenant.model.base.roadshow.BaseRoadshow"
+		extends="com.yundao.tenant.mapper.base.roadshow.BaseRoadshowMapper.BaseResultMap">
+	</resultMap>
+	<resultMap id="RoadshowResDto" type="com.yundao.tenant.dto.roadshow.RoadshowResDto"
+		extends="RoadshowResult">
+		<result column="platformName" jdbcType="VARCHAR" property="platformName" />
+		<result column="platformCode" jdbcType="VARCHAR" property="platformCode" />
+		<result column="productName" jdbcType="VARCHAR" property="productName" />
+	</resultMap>
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	<sql id="orderby">
+		<choose>
+			<when
+				test="orderColumn != null and orderColumn !='' and sort !=null and sort !=''">
+				ORDER BY
+				<choose>
+					<when test="orderColumn=='createDate'">
+						r.create_date ${sort},
+					</when>
+					<when test="orderColumn=='updateDate'">
+						r.update_date ${sort},
+					</when>
+					<otherwise>
+						r.${orderColumn} ${sort},
+					</otherwise>
+				</choose>
+				r.id DESC
+			</when>
+			<otherwise>
+				ORDER BY r.sequence asc, r.update_date DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<select id="selectPage" parameterType="com.yundao.tenant.dto.roadshow.RoadshowReqDto"
+		resultMap="RoadshowResDto">
+		select
+		DISTINCT r.*
+		from roadshow r
+		left join user_detail ud on
+		r.create_user_id
+		=
+		ud.user_account_id
+		left join roadshow_column_rel rcr
+		on
+		r.id=rcr.roadshow_id
+		left join roadshow_column rc on rcr.column_id
+		=rc.id
+		left join roadshow_product_rel rpr on
+		r.id=rpr.roadshow_id
+		left join product p on p.id=rpr.product_id
+		left
+		join platform pf on pf.id=r.platform_id
+		<include refid="condition"></include>
+		<include refid="orderby"></include>
+		<include refid="limitSql"></include>
+	</select>
+	<select id="selectCount" resultType="int">
+		select
+		COUNT(r.id)
+		from roadshow r
+		left join user_detail ud on
+		r.create_user_id
+		=
+		ud.user_account_id
+		left join roadshow_column_rel rcr
+		on
+		r.id=rcr.roadshow_id
+		left join roadshow_column rc on rcr.column_id
+		=rc.id
+		left join roadshow_product_rel rpr on
+		r.id=rpr.roadshow_id
+		left
+		join product p on p.id=rpr.product_id
+		left
+		join platform pf on
+		pf.id=r.platform_id
+		<include refid="condition"></include>
+	</select>
+	<sql id="condition">
+		<where>
+			IFNULL(r.is_delete,0) != 1 and IFNULL(ud.is_delete,0) !=1 and
+			IFNULL(rcr.is_delete,0) !=1 and
+			IFNULL(rpr.is_delete,0) !=1 and
+			IFNULL(p.is_delete,0) !=1 and IFNULL(pf.is_delete,0) !=1
+			<if test="title !=null and title != ''">
+				AND r.title like '%${title}%'
+			</if>
+			<if test="sponsor !=null and sponsor != ''">
+				AND r.sponsor like '%${sponsor}%'
+			</if>
+			<if test="speaker !=null and speaker != ''">
+				AND r.speaker like '%${speaker}%'
+			</if>
+			<if test="productName !=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="updateUserName !=null and updateUserName != ''">
+				AND ud.real_name like '%${updateUserName}%'
+			</if>
+			<if test="statusList !=null">
+				and r.status in
+				<foreach close=")" collection="statusList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="platformIdList !=null">
+				and r.platform_id in
+				<foreach close=")" collection="platformIdList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="columnIdList !=null">
+				and IFNULL(rc.status,0) !=0 and rc.id in
+				<foreach close=")" collection="columnIdList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="releaseTime !=null ">
+				<![CDATA[
+                AND r.release_time <=#{releaseTime}
+                ]]>
+			</if>
+			<if test="createDateBegin !=null ">
+				<![CDATA[
+                AND r.create_date >=#{createDateBegin}
+                ]]>
+			</if>
+			<if test="createDateEnd !=null ">
+				<![CDATA[
+                AND r.create_date <=#{createDateEnd}
+                ]]>
+			</if>
+			<if test="updateDateBegin !=null ">
+				<![CDATA[
+                AND r.update_date >=#{updateDateBegin}
+                ]]>
+			</if>
+			<if test="updateDateEnd !=null ">
+				<![CDATA[
+                AND r.update_date <=#{updateDateEnd}
+                ]]>
+			</if>
+		</where>
+	</sql>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.select.SelectConfigMapper">
+
+	<resultMap id="dataObjectDto" type="com.yundao.tenant.dto.select.SelectConfigDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="objectFieldCode" jdbcType="VARCHAR" property="objectFieldCode" />
+		<result column="value" jdbcType="INTEGER" property="value" />
+		<result column="label" jdbcType="VARCHAR" property="label" />
+	</resultMap>
+
+	<!--获取所有选项数据 -->
+	<select id="selectList" resultMap="dataObjectDto">
+		SELECT sc.id,f.code AS 'objectFieldCode',sc.value,sc.label FROM
+		select_config sc INNER JOIN
+		object_field of ON
+		sc.object_field_id=of.id
+		INNER JOIN field f ON f.id=of.field_id
+		AND sc.is_delete=0 AND of.is_delete=0
+	</select>
+	<select id="selectByFieldCodeAndValue" resultMap="dataObjectDto">
+		SELECT sc.id,f.code AS 'objectFieldCode',sc.value,sc.label FROM
+		select_config sc INNER JOIN
+		object_field of ON
+		sc.object_field_id=of.id
+		INNER JOIN field f ON f.id=of.field_id
+		where  sc.is_delete=0 AND of.is_delete=0
+		and f.code=#{fieldCode} and sc.value=#{value}
+	</select>
+</mapper>

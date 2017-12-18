@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+        http://www.springframework.org/schema/util 
+        http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="driverClassName">
+			<value>${spring.datasource.driver-class-name}</value>
+		</property>
+		<property name="url">
+			<value>${spring.datasource.url}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="maxActive">
+			<value>${max.active}</value>
+		</property>
+		<property name="initialSize">
+			<value>${initial.size}</value>
+		</property>
+		<property name="maxWait">
+			<value>${max.wait}</value>
+		</property>
+		<property name="minIdle">
+			<value>${min.idle}</value>
+		</property>
+		<property name="removeAbandoned">
+			<value>${remove.abandoned}</value>
+		</property>
+		<property name="removeAbandonedTimeout">
+			<value>${remove.abandoned.timeout}</value>
+		</property>
+		<property name="connectionProperties">
+			<value>${connection.properties}</value>
+		</property>
+	</bean>
+
+</beans>

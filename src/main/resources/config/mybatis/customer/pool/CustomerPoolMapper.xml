@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.customer.pool.CustomerPoolMapper">
+
+    <resultMap id="customerPoolPageDto" type="com.yundao.tenant.dto.customer.pool.CustomerPoolPageResDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="number" jdbcType="VARCHAR" property="number" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="sex" jdbcType="INTEGER" property="sex" />
+        <result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+        <result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+        <result column="level" jdbcType="INTEGER" property="level" />
+        <result column="dealDate" jdbcType="VARCHAR" property="dealDate" />
+        <result column="fpName" jdbcType="VARCHAR" property="fpName" />
+        <result column="fpId" jdbcType="BIGINT" property="fpId" />
+        <result column="create_date" jdbcType="VARCHAR" property="createDate" />
+    </resultMap>
+
+
+    <resultMap id="customerPassPayDto" type="com.yundao.tenant.dto.customer.pool.CustomerPassPayDto">
+        <result column="customer_id"  property="customerId" />
+        <result column="pay_date"  property="payDate" />
+        <result column="declaration_id"  property="declarationId" />
+    </resultMap>
+
+
+    <!--查询客户审核通过并且没有作废的报单-->
+    <select id="getCustomerPassPayDtos" resultMap="customerPassPayDto">
+		SELECT
+			 c.id as customer_id,
+			  d.id as declaration_id, 
+			  d.pay_date
+		FROM
+			declaration d
+		LEFT JOIN customer c ON c.id = d.customer_id
+		LEFT JOIN declaration_discard dd on d.id = dd.declaration_id
+		where d.is_delete = 0
+		and d.`status` = 2
+		and dd.id is NULL
+		and d.customer_id  in 
+		       <foreach close=")" collection="customerIds" item="item" open="(" separator=",">
+	               #{item}
+	           </foreach>
+		ORDER BY d.pay_date desc
+    </select>
+
+
+
+    <!--分页列表-->
+    <select id="selectCustomerPage" resultMap="customerPoolPageDto">
+        SELECT t.dealDate,c.id,c.name,c.number,c.mobile,c.sex,cd.province_code,cd.city_code,c.level,c.create_date,ud.real_name AS
+        fpName,ud.user_account_id AS fpId
+    FROM customer c LEFT JOIN customer_detail cd ON c.id=cd.id
+    LEFT JOIN user_customer uc ON c.id=uc.customer_id AND uc.is_delete=0
+    LEFT JOIN user_detail ud ON uc.user_id=ud.user_account_id
+        LEFT JOIN (
+        SELECT d.customer_id,MAX(d.create_date) AS dealDate FROM declaration d LEFT JOIN declaration_discard dd ON d.id=dd.declaration_id WHERE
+        dd.id IS NULL AND d.status=2 GROUP BY d.customer_id
+        ) t
+        ON t.customer_id=c.id
+    <include refid="myCustomerPage_where" ></include>
+    <include refid="myCustomerPage_orderby"></include>
+    <include refid="limitSql"></include>
+    </select>
+
+    <!--页列表总条数-->
+    <select id="selectCustomerPageCount" resultType="int">
+        SELECT COUNT(*)
+        FROM customer c LEFT JOIN customer_detail cd ON c.id=cd.id
+        LEFT JOIN user_customer uc ON c.id=uc.customer_id AND uc.is_delete=0
+        LEFT JOIN user_detail ud ON uc.user_id=ud.user_account_id
+        LEFT JOIN (
+        SELECT d.customer_id,MAX(d.create_date) AS dealDate FROM declaration d LEFT JOIN declaration_discard dd ON d.id=dd.declaration_id WHERE
+        dd.id IS NULL AND d.status=2 GROUP BY d.customer_id
+        ) t
+        ON t.customer_id=c.id
+        <include refid="myCustomerPage_where" ></include>
+    </select>
+
+    <sql id="myCustomerPage_where">
+        <where>
+            c.is_delete=0
+            <if test="name!=null and name!=''">
+                AND c.name LIKE CONCAT('%', #{name},'%')
+            </if>
+            <if test="number!=null and number!=''">
+                AND c.number LIKE CONCAT('%', #{number},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                AND c.mobile=#{mobile}
+            </if>
+            <if test="sexs!=null and sexs!=''">
+                AND c.sex IN (${sexs})
+            </if>
+            <choose>
+                <when test="cityCodes!=null and cityCodes!='' and provinceCodes!=null and provinceCodes!=''">
+                    AND cd.city_code IN (${cityCodes})
+                </when>
+                <otherwise>
+                  <if test="cityCodes!=null and cityCodes!=''">
+                      AND cd.city_code IN (${cityCodes})
+                  </if>
+                  <if test="provinceCodes!=null and provinceCodes!=''">
+                      AND cd.province_code IN (${provinceCodes})
+                  </if>
+                </otherwise>
+            </choose>
+            <if test="levels!=null and levels!=''">
+                AND c.level IN(${levels})
+            </if>
+            <if test="fpName!=null and fpName!=''">
+                AND ud.real_name LIKE CONCAT('%', #{fpName},'%')
+            </if>
+            <if test="dealDateBegin!=null and dealDateBegin!=''">
+                <![CDATA[
+                AND t.dealDate >=#{dealDateBegin}
+                ]]>
+            </if>
+            <if test="dealDateEnd!=null and dealDateEnd!=''">
+                <![CDATA[
+                AND t.dealDate <=#{dealDateEnd}
+                ]]>
+            </if>
+            <if test='isDeals=="1"'>
+                AND t.dealDate IS NOT NULL
+            </if>
+            <if test='isDeals=="0"'>
+                AND t.dealDate IS NULL
+            </if>
+
+            <if test="createDateBegin!=null and createDateBegin!=''">
+                <![CDATA[
+                AND c.create_date >=#{createDateBegin}
+                ]]>
+            </if>
+            <if test="createDateEnd!=null and createDateEnd!=''">
+                <![CDATA[
+                AND c.create_date <=#{createDateEnd}
+                ]]>
+            </if>
+            <if test="scope!=null and scope=='unallot'">
+                AND uc.id IS NULL
+            </if>
+
+            <if test="permission==10">
+                AND uc.user_id=${userId}
+            </if>
+            <!--部门的-->
+            <if test="permission==30">
+                AND uc.user_id IN(${userIds})
+            </if>
+
+        </where>
+    </sql>
+
+    <sql id="myCustomerPage_orderby">
+        <choose>
+            <when test="orderColumn!=null and orderColumn!=''">
+                ORDER BY
+                <if test="orderColumn=='levels'">
+                    <choose>
+                        <when test="sort=='desc'">
+                           IF(c.level='' OR c.level IS NULL,-9999,c.level) DESC,
+                        </when>
+                        <otherwise>
+                          IF(c.level='' OR c.level IS NULL,9999,c.level),
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='createDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            c.create_date DESC,
+                        </when>
+                        <otherwise>
+                            c.create_date,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='dealDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.dealDate DESC,
+                        </when>
+                        <otherwise>
+                            t.dealDate,
+                        </otherwise>
+                    </choose>
+                </if>
+                c.id DESC
+            </when>
+            <otherwise>
+                ORDER BY c.create_date DESC, c.id DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+        LIMIT #{offset}, #{pageSize}
+    </sql>
+
+</mapper>

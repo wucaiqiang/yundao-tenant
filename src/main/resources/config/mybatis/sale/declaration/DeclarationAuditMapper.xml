@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.sale.declaration.DeclarationAuditMapper">
+  <resultMap id="auditPageDto" type="com.yundao.tenant.dto.sale.declaration.audit.DeclarationAuditPageResDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="productName" jdbcType="VARCHAR" property="productName" />
+    <result column="customerName" jdbcType="VARCHAR" property="customerName" />
+	  <result column="reservationSumAmount" jdbcType="VARCHAR" property="reservationSumAmount" />
+	  <result column="declarationSumAmount" jdbcType="VARCHAR" property="declarationSumAmount" />
+    <result column="deal_amount" jdbcType="VARCHAR" property="dealAmount" />
+    <result column="pay_date" jdbcType="VARCHAR" property="payDate" />
+    <result column="has_pay_evidence" jdbcType="INTEGER" property="hasPayEvidence" />
+    <result column="commit_date" jdbcType="VARCHAR" property="commitDate" />
+    <result column="reservationor" jdbcType="VARCHAR" property="reservationor" />
+    <result column="operation_date" jdbcType="VARCHAR" property="operationDate" />
+    <result column="audit_status" jdbcType="INTEGER" property="status" />
+    <result column="status" jdbcType="INTEGER" property="declarationStatus" />
+    <result column="disardId" jdbcType="BIGINT" property="disardId" />
+    <result column="fpId" jdbcType="BIGINT" property="fpId" />
+    <result column="customerId" jdbcType="BIGINT" property="customerId" />
+    <result column="productId" jdbcType="BIGINT" property="productId" />
+  </resultMap>
+
+	<!--获取审核分页数据-->
+	<select id="selectAuditPage" parameterType="map" resultMap="auditPageDto" >
+		SELECT d.id,d.number,c.name AS customerName,p.name AS productName,
+		(SELECT SUM(r2.reservation_amount) FROM reservation r2 WHERE r2.product_id=p.id AND r2.is_delete=0 AND r2.status=2) AS reservationSumAmount,
+		(SELECT SUM(d2.deal_amount) FROM declaration d2 WHERE d2.product_id=p.id AND d2.is_delete=0 ) AS declarationSumAmount,
+		d.deal_amount,
+		d.pay_date,
+		d.commit_date,
+		ud.real_name AS reservationor,
+		d.operation_date,
+		d.audit_status,
+		d.status,
+		dd.id AS disardId,
+		uc.user_id AS fpId,
+		c.id AS customerId,
+		p.id AS productId,
+		(CASE WHEN da.declaration_id  IS NULL THEN 0 ELSE 1 END) AS has_pay_evidence
+		FROM declaration d LEFT JOIN product p ON d.product_id=p.id
+		LEFT JOIN customer c ON d.customer_id=c.id
+		LEFT JOIN user_detail ud ON ud.user_account_id=d.user_id
+		LEFT JOIN declaration_discard dd ON dd.declaration_id=d.id
+		LEFT JOIN user_customer uc ON uc.customer_id=c.id AND uc.is_delete=0
+		LEFT JOIN workflow_business_rel wbr ON wbr.type='declaration' AND wbr.object_id=d.id AND wbr.is_delete=0
+		LEFT JOIN (SELECT da.declaration_id FROM declaration_attach da WHERE da.type=2 AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+	<include refid="selectAuditPage_where"></include>
+	<include refid="selectAudit_orderby"></include>
+	<include refid="limitSql"></include>
+	</select>
+
+	<!--获取审核分页数据总条数-->
+	<select id="selectAuditPageCount" resultType="int" >
+		SELECT COUNT(*)
+		FROM declaration d LEFT JOIN product p ON d.product_id=p.id
+		LEFT JOIN customer c ON d.customer_id=c.id
+		LEFT JOIN user_detail ud ON ud.user_account_id=d.user_id
+		LEFT JOIN declaration_discard dd ON dd.declaration_id=d.id
+		LEFT JOIN user_customer uc ON uc.customer_id=c.id AND uc.is_delete=0
+		LEFT JOIN workflow_business_rel wbr ON wbr.type='declaration' AND wbr.object_id=d.id AND wbr.is_delete=0
+		LEFT JOIN (SELECT da.declaration_id FROM declaration_attach da WHERE da.type=2 AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		<include refid="selectAuditPage_where"></include>
+	</select>
+
+	<sql id="selectAuditPage_where">
+		<where>
+			d.is_delete=0 and d.status != 0
+			<if test="number!=null and number!=''">
+				AND d.number LIKE CONCAT('%',#{number},'%')
+			</if>
+			<if test="customerName!=null and customerName!=''">
+				AND c.name LIKE CONCAT('%',#{customerName},'%')
+			</if>
+			<if test="productName!=null and productName!=''">
+				AND p.name LIKE CONCAT('%',#{productName},'%')
+			</if>
+			<if test="dealAmountBegin!=null and dealAmountBegin!=''">
+				<![CDATA[
+				AND d.deal_amount >=${dealAmountBegin}
+				]]>
+			</if>
+			<if test="dealAmountEnd!=null and dealAmountEnd!=''">
+				<![CDATA[
+				AND d.deal_amount <=${dealAmountEnd}
+				 ]]>
+			</if>
+			<if test="payDateBegin!=null and payDateBegin!=''">
+				<![CDATA[
+				AND d.pay_date >=#{payDateBegin}
+				]]>
+			</if>
+			<if test="payDateEnd!=null and payDateEnd!=''">
+				<![CDATA[
+				AND d.pay_date <=#{payDateEnd}
+				 ]]>
+			</if>
+			<if test='hasPayEvidences=="0"'>
+				AND da.declaration_id IS NULL
+			</if>
+			<if test='hasPayEvidences=="1"'>
+				AND da.declaration_id IS NOT NULL
+			</if>
+			<if test="commitDateBegin!=null and commitDateBegin!=''">
+				<![CDATA[
+				AND d.commit_date >=#{commitDateBegin}
+				]]>
+			</if>
+			<if test="commitDateEnd!=null and commitDateEnd!=''">
+				<![CDATA[
+				AND d.commit_date <=#{commitDateEnd}
+				 ]]>
+			</if>
+			<if test="reservationor!=null and reservationor!=''">
+				AND ud.real_name LIKE CONCAT('%',#{reservationor},'%')
+			</if>
+			<if test="operationDateBegin!=null and operationDateBegin!=''">
+				<![CDATA[
+				AND d.operation_date >=#{operationDateBegin}
+				]]>
+			</if>
+			<if test="operationDateEnd!=null and operationDateEnd!=''">
+				<![CDATA[
+				AND d.operation_date <=#{operationDateEnd}
+				 ]]>
+			</if>
+			<if test="scope!=null and scope=='unprocess'">
+				AND wbr.is_complete=0 AND d.audit_status!=3
+			</if>
+			<if test="statuss!=null and statuss!=''">
+				AND d.audit_status in (${statuss})
+			</if>
+			
+		</where>
+	</sql>
+
+	<sql id="selectAudit_orderby">
+		<choose>
+			<when test="orderColumn!=null and orderColumn!=''">
+				ORDER BY
+				<if test="orderColumn=='dealAmount'">
+					<choose>
+						<when test="sort=='desc'">
+							d.deal_amount DESC,
+						</when>
+						<otherwise>
+							d.deal_amount,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='payDate'">
+					<choose>
+						<when test="sort=='desc'">
+							d.pay_date DESC,
+						</when>
+						<otherwise>
+							d.pay_date,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='commitDate'">
+					<choose>
+						<when test="sort=='desc'">
+							d.commit_date DESC,
+						</when>
+						<otherwise>
+							d.commit_date,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='operationDate'">
+					<choose>
+						<when test="sort=='desc'">
+							d.operation_date DESC,
+						</when>
+						<otherwise>
+							d.operation_date,
+						</otherwise>
+					</choose>
+				</if>
+				d.commit_date DESC
+			</when>
+			<otherwise>
+				ORDER BY d.commit_date DESC,d.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+</mapper>

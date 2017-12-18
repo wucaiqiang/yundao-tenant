@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.sale.reservation.ReservationMapper">
+	<resultMap id="BaseResultMap"
+		type="com.yundao.tenant.dto.sale.reservation.MyReservationListResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="product_id" jdbcType="BIGINT" property="productId" />
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+		<result column="estimate_pay_date" jdbcType="TIMESTAMP"
+			property="estimatePayDate" />
+		<result column="reservation_amount" jdbcType="DOUBLE"
+			property="reservationAmount" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<result column="commit_date" jdbcType="TIMESTAMP" property="commitDate" />
+		<result column="operation_date" jdbcType="TIMESTAMP" property="operationDate" />
+		<result column="product_name" property="productName" />
+		<result column="customer_name" property="customerName" />
+		<result column="create_date" jdbcType="TIMESTAMP" property="reservationDate" />
+		<result column="reason" property="reason" />
+		<result column="declarationId" property="declarationId" />
+
+	</resultMap>
+
+	<resultMap id="baseReservationDto"
+		type="com.yundao.tenant.dto.sale.reservation.BaseReservationDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="product_id" jdbcType="BIGINT" property="productId" />
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+		<result column="estimate_pay_date" jdbcType="TIMESTAMP"
+			property="estimatePayDate" />
+		<result column="reservation_amount" jdbcType="DOUBLE"
+			property="reservationAmount" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<result column="commit_date" jdbcType="TIMESTAMP" property="commitDate" />
+		<result column="operation_date" jdbcType="TIMESTAMP" property="operationDate" />
+		<result column="product_name" property="productName" />
+		<result column="customer_name" property="customerName" />
+		<result column="create_date" jdbcType="TIMESTAMP" property="reservationDate" />
+		<result column="remark" property="remark" />
+		<result column="reason" property="reason" />
+		<result column="status" property="status" />
+		<result column="user_id" property="userId" />
+	</resultMap>
+
+	<resultMap id="customerSaleReservationResDto"
+		type="com.yundao.tenant.dto.customer.customer.CustomerSaleReservationResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="product_id" jdbcType="BIGINT" property="productId" />
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+		<result column="estimate_pay_date" jdbcType="TIMESTAMP"
+			property="estimatePayDate" />
+		<result column="reservation_amount" jdbcType="DOUBLE"
+			property="reservationAmount" />
+		<result column="status" jdbcType="TINYINT" property="status" />
+		<result column="product_name" property="productName" />
+		<result column="real_name" property="createRealName" />
+		<result column="create_user_id" property="createUserId" />
+		<result column="create_date" jdbcType="TIMESTAMP" property="reservationDate" />
+		<result column="reason" property="reason" />
+		<result column="status" property="status" />
+	</resultMap>
+
+	<resultMap id="productReservationAmountDto"
+		type="com.yundao.tenant.dto.sale.reservation.ProductReservationAmountDto">
+		<result column="product_id" property="productId" />
+		<result column="sumAmount" property="sumAmount" />
+	</resultMap>
+
+	<resultMap id="AfpReportDto" type="com.yundao.tenant.dto.report.AfpReportDto">
+		<result column="user_id" property="userId" />
+		<result column="real_name" property="userName" />
+		<result column="reservation_amount" property="money" />
+	</resultMap>
+	<resultMap id="ProductReportDto" type="com.yundao.tenant.dto.report.ProductReportDto">
+		<result column="product_id" property="productId" />
+		<result column="total" property="total" />
+		<result column="num" property="num" />
+	</resultMap>
+
+
+
+
+	<resultMap id="productReservationDto"
+		type="com.yundao.tenant.dto.sale.reservation.ProductReservationDto">
+		<result column="customerName" property="customerName" />
+		<result column="customer_id" property="customerId" />
+		<result column="product_id" property="productId" />
+		<result column="productName" property="productName" />
+		<result column="status" property="status" />
+		<result column="id" property="reservationId" />
+		<result column="reservation_amount" property="reservationAmount" />
+	</resultMap>
+
+	<select id="getProductReservationDtos" resultMap="productReservationDto">
+		SELECT
+		r.id,
+		p.`name` as productName ,
+		r.estimate_pay_date,
+		r.reservation_amount,
+		r.`status`,
+		r.customer_id,
+		c.`name` as
+		customerName,
+		r.product_id
+		FROM
+		reservation r
+		LEFT JOIN product p ON
+		r.product_id = p.id
+		LEFT JOIN customer c on
+		r.customer_id = c.id
+		AND r.id
+		in
+		<foreach close=")" collection="reservationIds" item="reservationId"
+			open="(" separator=",">
+			#{reservationId}
+		</foreach>
+	</select>
+	<select id="selectNumByProductIds" resultMap="ProductReportDto">
+		SELECT
+		count(r.id)
+		as num,r.product_id
+		FROM
+		reservation r
+		WHERE
+		r.STATUS
+		= 2
+		AND r.user_id =#{userId}
+		AND r.is_delete =
+		0
+		AND not EXISTS(
+		select id from declaration where reservation_id=r.id
+		)
+		AND not EXISTS (SELECT
+		id from
+		reservation_discard where
+		reservation_id=r.id)
+		AND r.product_id
+		IN
+		(${productIds})
+		GROUP BY
+		product_id
+	</select>
+	<select id="selectTotalByProductIds" resultMap="ProductReportDto">
+		SELECT
+		sum(r.reservation_amount) as total,r.product_id
+		FROM
+		reservation r
+		WHERE
+		r.STATUS
+		= 2
+		AND r.is_delete = 0
+		AND not EXISTS (SELECT id from
+		reservation_discard where reservation_id=r.id)
+		AND r.product_id IN
+		(${productIds})
+		GROUP BY
+		product_id
+	</select>
+	<select id="selectReservationTotal" resultType="Double">
+		SELECT
+		SUM(r.reservation_amount) as total from reservation r where r.status
+		=2 and
+		r.is_delete=0
+		and not EXISTS(SELECT id from reservation_discard
+		where
+		reservation_id=r.id)
+		and
+		r.create_date BETWEEN #{beginDate} and
+		#{endDate}
+	</select>
+
+	<select id="selectReservationRank" resultMap="AfpReportDto">
+		SELECT
+		ud.real_name,SUM(r.reservation_amount) as
+		reservation_amount,r.user_id
+		from reservation r LEFT JOIN user_account
+		ua on
+		r.user_id=ua.id
+		LEFT
+		JOIN user_detail ud on
+		ua.id=ud.user_account_id
+		where r.is_delete=0 and
+		r.`status`=2
+		and
+		ua.is_lock=0 and ua.is_delete=0
+		and not EXISTS(SELECT id from
+		reservation_discard where reservation_id=r.id)
+		<if test="beginDate !=null ">
+          <![CDATA[
+              and r.create_date >= #{beginDate}
+			]]>
+		</if>
+		<if test="endDate !=null ">
+			<![CDATA[
+			    and r.create_date < #{endDate}
+			]]>
+		</if>
+
+		GROUP BY
+		user_id,real_name
+
+		ORDER BY reservation_amount desc
+		<if test="limit !=null">
+			limit #{limit}
+		</if>
+
+	</select>
+	<select id="getMyReservations" resultMap="BaseResultMap"
+		parameterType="com.yundao.tenant.dto.sale.reservation.MyReservationListReqDto">
+		SELECT
+		re.*,
+		p.`name` as product_name,
+		c.`name` as customer_name,
+		d.id AS
+		declarationId
+		FROM
+		reservation re LEFT JOIN product p on re.product_id =
+		p.id
+		LEFT JOIN customer c on re.customer_id = c.id
+		LEFT JOIN declaration
+		d ON d.reservation_id=re.id
+		LEFT JOIN reservation_discard rd on re.id =
+		rd.reservation_id
+		<include refid="getMyReservations_where"></include>
+		<include refid="getMyReservations_orderBy"></include>
+		<include refid="limitSql"></include>
+	</select>
+
+	<select id="getMyReservationCount" resultType="int"
+		parameterType="com.yundao.tenant.dto.sale.reservation.MyReservationListReqDto">
+		SELECT
+		count(re.id)
+		FROM
+		reservation re LEFT JOIN product p on
+		re.product_id = p.id
+		LEFT JOIN customer c on re.customer_id = c.id
+		LEFT
+		JOIN declaration d ON d.reservation_id=re.id
+		LEFT JOIN
+		reservation_discard rd on re.id = rd.reservation_id
+		<include refid="getMyReservations_where">
+		</include>
+	</select>
+
+
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	<sql id="getMyReservations_orderBy">
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		<if
+			test="orderColumn ==null or orderColumn =='' or sort ==null or sort ==''">
+			ORDER BY re.`status` asc
+		</if>
+	</sql>
+
+	<sql id="getMyReservations_where">
+		<where>
+			re.is_delete = 0
+			and p.is_delete = 0
+			and c.is_delete = 0
+			and
+			re.user_id=#{userId}
+			<if test="number!=null and number!=''">
+				and re.number like CONCAT('%', #{number},'%')
+			</if>
+			<if test="customerName!=null and customerName!=''">
+				and c.`name` like CONCAT('%', #{customerName},'%')
+			</if>
+			<if test="productName!=null and productName!=''">
+				and p.name like CONCAT('%', #{productName},'%')
+			</if>
+			<if test="productOrCustomerName!=null and productOrCustomerName!=''">
+				and ( p.name like CONCAT('%',
+				#{productOrCustomerName},'%')
+				or c.`name` like CONCAT('%',
+				#{productOrCustomerName},'%') )
+			</if>
+			<if test="productId!=null and productId!=''">
+				and p.id = #{productId}
+			</if>
+			<if test="statusList!=null">
+				and re.`status` IN
+				<foreach close=")" collection="statusList" item="status"
+					open="(" separator=",">
+					#{status}
+				</foreach>
+			</if>
+			<if test="estimatePayStartDate!=null">
+				 <![CDATA[
+				 and re.estimate_pay_date >=  #{estimatePayStartDate}
+				]]>
+			</if>
+			<if test="estimatePayEndDate!=null">
+				 <![CDATA[
+				  and re.estimate_pay_date  <=  #{estimatePayEndDate}
+				]]>
+			</if>
+			<if test="reservationStartAmount!=null">
+				 <![CDATA[
+				 and re.reservation_amount >=  #{reservationStartAmount}
+				]]>
+			</if>
+			<if test="reservationEndAmount!=null">
+				 <![CDATA[
+				  and re.reservation_amount  <=  #{reservationEndAmount}
+				]]>
+			</if>
+			<if test="reservationStartDate!=null">
+				 <![CDATA[
+				 and re.create_date >=  #{reservationStartDate}
+				]]>
+			</if>
+			<if test="reservationEndDate!=null">
+				 <![CDATA[
+				  and re.create_date  <=  #{reservationEndDate}
+				]]>
+			</if>
+			<if test="isRemoveDeclaration!=null">
+				and d.id is null
+			</if>
+			<if test="isRemoveDiscard!=null">
+				and rd.id is null
+			</if>
+		</where>
+	</sql>
+
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+		resultMap="baseReservationDto">
+		SELECT
+		re.*,
+		p.`name` as product_name,
+		c.`name` as
+		customer_name
+		FROM
+		reservation re LEFT JOIN product p on re.product_id =
+		p.id
+		LEFT JOIN customer c on re.customer_id = c.id
+		where
+		re.is_delete = 0
+		and p.is_delete = 0
+		and c.is_delete = 0
+		and re.id = #{id}
+	</select>
+
+	<select id="selectPassReserProductIdsByProductIds" resultType="long">
+		SELECT
+		r.product_id
+		FROM
+		reservation r
+		LEFT JOIN declaration d on r.id =
+		d.reservation_id
+		LEFT JOIN reservation_discard rd on r.id =
+		rd.reservation_id
+		WHERE
+		r.is_delete = 0
+		AND r.`status` = 2
+		AND
+		r.product_id in
+		<foreach close=")" collection="productIds" item="productId"
+			open="(" separator=",">
+			#{productId}
+		</foreach>
+		AND r.user_id = #{userId}
+		and d.id is null
+		and rd.id is null
+		GROUP BY
+		r.product_id
+	</select>
+
+
+	<update id="doAgainCommit" parameterType="com.yundao.tenant.model.base.sale.BaseReservation">
+		update reservation
+		set
+		reason = #{reason,jdbcType=VARCHAR},
+		status =
+		#{status,jdbcType=TINYINT},
+		audit_status =
+		#{auditStatus,jdbcType=TINYINT},
+		commit_date =
+		#{commitDate,jdbcType=TIMESTAMP},
+		operation_date = null,
+		update_user_id
+		= #{updateUserId,jdbcType=BIGINT},
+		update_date =
+		#{updateDate,jdbcType=TIMESTAMP}
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+
+	<select id="getCustomerReservations" resultMap="customerSaleReservationResDto">
+		SELECT
+		r.id,
+		r.number,
+		r.customer_id,
+		r.product_id,
+		r.estimate_pay_date,
+		r.reservation_amount,
+		r.`status`,
+		r.create_date,
+		r.create_user_id,
+		r.reason,
+		ud.real_name,
+		p.`name`as product_name
+		FROM
+		reservation r
+		LEFT
+		JOIN product p ON r.product_id = p.id
+		LEFT JOIN user_detail ud
+		on
+		r.user_id = ud.user_account_id
+		where r.is_delete = 0
+		and
+		r.customer_id =
+		#{customerId}
+		ORDER BY r.create_date desc
+		<include refid="limitSql"></include>
+	</select>
+
+
+
+	<select id="getCustomerReservationCount" resultType="int">
+		SELECT
+		count(r.id)
+		FROM
+		reservation r
+		LEFT JOIN product p ON r.product_id = p.id
+		LEFT JOIN user_detail ud
+		on r.user_id = ud.user_account_id
+		where
+		r.is_delete = 0
+		and
+		r.customer_id = #{customerId}
+	</select>
+
+
+	<select id="getProductReservationAmountDtos" resultMap="productReservationAmountDto">
+		SELECT
+		r.product_id,
+		SUM(r.reservation_amount) as sumAmount
+		FROM
+		reservation r
+		LEFT JOIN reservation_discard rd ON r.id =
+		rd.reservation_id
+		where
+		r.is_delete = 0
+		and rd.id is NULL
+		and r.`status` =
+		2
+		AND r.product_id in
+		<foreach close=")" collection="productIds" item="productId"
+			open="(" separator=",">
+			#{productId}
+		</foreach>
+		GROUP BY r.product_id
+	</select>
+
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.question.CcQuestionMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.dto.question.QuestionAndOptionDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="type_id" jdbcType="BIGINT" property="typeId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="option_id"  property="optionId" />
+    <result column="content"  property="content" />
+    <result column="grade"  property="grade" />
+  </resultMap>
+  
+  
+    <resultMap id="customerRiskQuestionResDto" type="com.yundao.tenant.dto.question.CustomerRiskQuestionResDto">
+    <id column="question_id"  property="questionId" />
+    <result column="option_id" property="optionId" />
+    <result column="title"  property="questionText" />
+    <result column="content"  property="optionText" />
+  </resultMap>
+  
+  <resultMap id="customerRiskPageResDto" type="com.yundao.tenant.dto.question.CustomerRiskPageResDto">
+    <id column="id"  property="customerId" />
+    <result column="name" property="customerName" />
+    <result column="grade"  property="grade" />
+    <result column="create_date"  property="riskEvaluationDate" />
+  </resultMap>
+  
+    <select id="getCustomerRiskPage" resultMap="customerRiskPageResDto" >
+		SELECT
+			c.id, 
+			c.`name` ,
+			qs.grade,
+			qs.create_date
+		FROM
+			user_customer uc
+		LEFT JOIN customer c ON uc.customer_id = c.id
+		LEFT JOIN cc_customer_user_rel cur on uc.customer_id = cur.customer_id
+		LEFT JOIN cc_question_score qs on cur.user_account_id = qs.user_account_id and qs.is_delete = 0
+		LEFT JOIN cc_question_type qt on qs.question_type_id = qt.id and qt.`code` = 'risk'
+		where uc.is_delete = 0
+		and c.is_delete = 0
+		and qs.is_delete = 0
+		<if test="userId!= null">
+			 and uc.user_id = #{userId}
+		</if>
+			<include refid="limitSql" />
+  </select>
+  
+  
+  
+      <select id="getCustomerRiskPageCount" resultType="int">
+		SELECT
+			count(c.id)
+		FROM
+			user_customer uc
+		LEFT JOIN customer c ON uc.customer_id = c.id
+		LEFT JOIN cc_customer_user_rel cur on uc.customer_id = cur.customer_id
+		LEFT JOIN cc_question_score qs on cur.user_account_id = qs.user_account_id and qs.is_delete = 0
+		LEFT JOIN cc_question_type qt on qs.question_type_id = qt.id and qt.`code` = 'risk'
+		where uc.is_delete = 0
+		and c.is_delete = 0
+		and qs.is_delete = 0
+		<if test="userId!= null">
+			 and uc.user_id = #{userId}
+		</if>
+		
+  </select>
+  
+  
+    
+  <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+  
+  <select id="getQuestionAndOptionDtos" resultMap="BaseResultMap" >
+	SELECT
+	  q.id,
+	  q.title,
+	  q.type_id,
+	  q.type,
+	  qo.id as option_id,
+	  qo.content,
+	  qo.grade
+	FROM
+		cc_question q
+	LEFT JOIN cc_question_type qu on q.type_id = qu.id
+	LEFT JOIN cc_question_option qo ON q.id = qo.question_id
+	where q.is_delete = 0
+	and qo.is_delete = 0
+	and qu.`code` = #{typeCode}
+  </select>
+  
+    <select id="getRiskEvaluationByUserId" resultMap="customerRiskQuestionResDto" >
+		SELECT
+		  qa.question_id,
+		  qa.option_id,
+		  q.title,
+		  qo.content
+		FROM
+			cc_question_answer qa
+		LEFT JOIN cc_question q on qa.question_id = q.id
+		LEFT JOIN cc_question_option qo on qo.id = qa.option_id
+		LEFT JOIN cc_question_type qt on q.type_id = qt.id
+		where qa.create_user_id = #{userId}
+		and qt.`code` = #{typeCode}
+  </select>
+  
+  
+</mapper>

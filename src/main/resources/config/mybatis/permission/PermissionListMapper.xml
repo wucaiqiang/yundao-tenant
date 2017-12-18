@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.permission.PermissionListMapper">
+
+	<resultMap id="userPermissionDto" type="com.yundao.tenant.dto.permission.UserPermissionDto">
+		<result column="code" jdbcType="VARCHAR" property="dataObjectCode" />
+		<result column="read_permission" jdbcType="INTEGER" property="readPermission" />
+		<result column="edit_permission" jdbcType="INTEGER" property="editPermission" />
+		<result column="delete_permission" jdbcType="INTEGER" property="deletePermission" />
+	</resultMap>
+
+	<select id="selectUserPermissionByCodes" resultMap="userPermissionDto">
+	SELECT  do.code,MAX(read_permission) AS read_permission,MAX(edit_permission) AS edit_permission,MAX(delete_permission) AS delete_permission
+	 FROM
+	data_object_access doa INNER
+	JOIN data_object do ON doa.data_object_id=do.id
+  	INNER  JOIN  user_role ur ON doa.role_id=ur.role_id
+	WHERE ur.user_account_id=${userId} AND do.code IN
+	<foreach collection="codes" separator="," open="(" close=")" item="code">
+		#{code}
+	</foreach>
+	GROUP BY do.code;
+	</select>
+</mapper>

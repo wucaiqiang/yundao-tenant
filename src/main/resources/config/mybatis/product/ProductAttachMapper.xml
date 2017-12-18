@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductAttachMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.dto.product.attach.ProductAttachListResDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="source_name" jdbcType="VARCHAR" property="sourceName" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="type"  property="type" />
+    <result column="show_type"  property="showType" />
+    
+  </resultMap>
+  
+    <select id="getProductAttachCount" resultType="int">
+      	SELECT
+		  count(pa.id)
+		FROM
+			product_attach pa
+		<include refid="getProductAttach_where" />
+		<include refid="limitSql"></include>
+   </select>
+   
+   
+   
+    <select id="getProductAttachByPage" resultMap="BaseResultMap">
+      	SELECT
+		  pa.id,
+		  pa.source_name,
+		  pa.url,
+		  pa.product_id,
+		  pa.show_type,
+		  pa.type
+		FROM
+			product_attach pa
+		<include refid="getProductAttach_where" />
+		
+   </select>
+  
+  
+     <select id="getAll" resultMap="BaseResultMap">
+      	SELECT
+		  pa.id,
+		  pa.source_name,
+		  pa.url,
+		  pa.product_id,
+		   pa.show_type,
+		  pa.type
+		FROM
+			product_attach pa
+		where pa.is_delete = 0  and pa.product_id = #{productId}
+		
+   </select>
+  
+  
+  
+    <sql id="getProductAttach_where">
+		<where>
+			pa.is_delete = 0
+			<if test="productId!=null">
+			    and pa.product_id = #{productId}
+			</if>
+		</where>
+    </sql>
+    
+    <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+    </sql>
+</mapper>

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.cms.article.BaseArticleDetailMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.cms.article.BaseArticleDetail">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="article_id" jdbcType="BIGINT" property="articleId" />
+    <result column="feature" jdbcType="VARCHAR" property="feature" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.yundao.tenant.model.base.cms.article.BaseArticleDetail">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, article_id, feature, author, source, create_date, create_user_id, 
+    update_user_id, update_date, is_delete
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetailExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from article_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetailExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from article_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from article_detail
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from article_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetailExample">
+    delete from article_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetail" useGeneratedKeys="true">
+    insert into article_detail (id, tenant_id, article_id, 
+      feature, author, source, 
+      create_date, create_user_id, update_user_id, 
+      update_date, is_delete, content
+      )
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{articleId,jdbcType=BIGINT}, 
+      #{feature,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=BIGINT}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetail" useGeneratedKeys="true">
+    insert into article_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="articleId != null">
+        article_id,
+      </if>
+      <if test="feature != null">
+        feature,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="articleId != null">
+        #{articleId,jdbcType=BIGINT},
+      </if>
+      <if test="feature != null">
+        #{feature,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetailExample" resultType="java.lang.Integer">
+    select count(*) from article_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update article_detail
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.articleId != null">
+        article_id = #{record.articleId,jdbcType=BIGINT},
+      </if>
+      <if test="record.feature != null">
+        feature = #{record.feature,jdbcType=VARCHAR},
+      </if>
+      <if test="record.author != null">
+        author = #{record.author,jdbcType=VARCHAR},
+      </if>
+      <if test="record.source != null">
+        source = #{record.source,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update article_detail
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      article_id = #{record.articleId,jdbcType=BIGINT},
+      feature = #{record.feature,jdbcType=VARCHAR},
+      author = #{record.author,jdbcType=VARCHAR},
+      source = #{record.source,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT},
+      content = #{record.content,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update article_detail
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      article_id = #{record.articleId,jdbcType=BIGINT},
+      feature = #{record.feature,jdbcType=VARCHAR},
+      author = #{record.author,jdbcType=VARCHAR},
+      source = #{record.source,jdbcType=VARCHAR},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetail">
+    update article_detail
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="articleId != null">
+        article_id = #{articleId,jdbcType=BIGINT},
+      </if>
+      <if test="feature != null">
+        feature = #{feature,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetail">
+    update article_detail
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      article_id = #{articleId,jdbcType=BIGINT},
+      feature = #{feature,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetail">
+    update article_detail
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      article_id = #{articleId,jdbcType=BIGINT},
+      feature = #{feature,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.cms.article.BaseArticleDetailExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from article_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

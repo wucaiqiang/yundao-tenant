@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.BaseObjectFieldMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.BaseObjectField">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="field_id" jdbcType="BIGINT" property="fieldId" />
+    <result column="business_object_id" jdbcType="BIGINT" property="businessObjectId" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="field_type_id" jdbcType="BIGINT" property="fieldTypeId" />
+    <result column="is_fix" jdbcType="TINYINT" property="isFix" />
+    <result column="display_type" jdbcType="TINYINT" property="displayType" />
+    <result column="is_mandatory" jdbcType="TINYINT" property="isMandatory" />
+    <result column="is_basic" jdbcType="TINYINT" property="isBasic" />
+    <result column="is_share" jdbcType="TINYINT" property="isShare" />
+    <result column="is_system" jdbcType="TINYINT" property="isSystem" />
+    <result column="is_search" jdbcType="TINYINT" property="isSearch" />
+    <result column="is_readonly" jdbcType="TINYINT" property="isReadonly" />
+    <result column="is_init" jdbcType="TINYINT" property="isInit" />
+    <result column="is_enabled" jdbcType="TINYINT" property="isEnabled" />
+    <result column="can_edit_mandatory" jdbcType="TINYINT" property="canEditMandatory" />
+    <result column="can_edit_enabled" jdbcType="TINYINT" property="canEditEnabled" />
+    <result column="access" jdbcType="TINYINT" property="access" />
+    <result column="sequence" jdbcType="INTEGER" property="sequence" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, field_id, business_object_id, description, field_type_id, is_fix, 
+    display_type, is_mandatory, is_basic, is_share, is_system, is_search, is_readonly, 
+    is_init, is_enabled, can_edit_mandatory, can_edit_enabled, access, sequence, create_user_id, 
+    create_date, update_user_id, update_date, name, code, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.BaseObjectFieldExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from object_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from object_field
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from object_field
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.BaseObjectFieldExample">
+    delete from object_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.BaseObjectField" useGeneratedKeys="true">
+    insert into object_field (id, tenant_id, field_id, 
+      business_object_id, description, field_type_id, 
+      is_fix, display_type, is_mandatory, 
+      is_basic, is_share, is_system, 
+      is_search, is_readonly, is_init, 
+      is_enabled, can_edit_mandatory, can_edit_enabled, 
+      access, sequence, create_user_id, 
+      create_date, update_user_id, update_date, 
+      name, code, is_delete
+      )
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{fieldId,jdbcType=BIGINT}, 
+      #{businessObjectId,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}, #{fieldTypeId,jdbcType=BIGINT}, 
+      #{isFix,jdbcType=TINYINT}, #{displayType,jdbcType=TINYINT}, #{isMandatory,jdbcType=TINYINT}, 
+      #{isBasic,jdbcType=TINYINT}, #{isShare,jdbcType=TINYINT}, #{isSystem,jdbcType=TINYINT}, 
+      #{isSearch,jdbcType=TINYINT}, #{isReadonly,jdbcType=TINYINT}, #{isInit,jdbcType=TINYINT}, 
+      #{isEnabled,jdbcType=TINYINT}, #{canEditMandatory,jdbcType=TINYINT}, #{canEditEnabled,jdbcType=TINYINT}, 
+      #{access,jdbcType=TINYINT}, #{sequence,jdbcType=INTEGER}, #{createUserId,jdbcType=BIGINT}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{name,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{isDelete,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.BaseObjectField" useGeneratedKeys="true">
+    insert into object_field
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="fieldId != null">
+        field_id,
+      </if>
+      <if test="businessObjectId != null">
+        business_object_id,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="fieldTypeId != null">
+        field_type_id,
+      </if>
+      <if test="isFix != null">
+        is_fix,
+      </if>
+      <if test="displayType != null">
+        display_type,
+      </if>
+      <if test="isMandatory != null">
+        is_mandatory,
+      </if>
+      <if test="isBasic != null">
+        is_basic,
+      </if>
+      <if test="isShare != null">
+        is_share,
+      </if>
+      <if test="isSystem != null">
+        is_system,
+      </if>
+      <if test="isSearch != null">
+        is_search,
+      </if>
+      <if test="isReadonly != null">
+        is_readonly,
+      </if>
+      <if test="isInit != null">
+        is_init,
+      </if>
+      <if test="isEnabled != null">
+        is_enabled,
+      </if>
+      <if test="canEditMandatory != null">
+        can_edit_mandatory,
+      </if>
+      <if test="canEditEnabled != null">
+        can_edit_enabled,
+      </if>
+      <if test="access != null">
+        access,
+      </if>
+      <if test="sequence != null">
+        sequence,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null">
+        #{fieldId,jdbcType=BIGINT},
+      </if>
+      <if test="businessObjectId != null">
+        #{businessObjectId,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="fieldTypeId != null">
+        #{fieldTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="isFix != null">
+        #{isFix,jdbcType=TINYINT},
+      </if>
+      <if test="displayType != null">
+        #{displayType,jdbcType=TINYINT},
+      </if>
+      <if test="isMandatory != null">
+        #{isMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="isBasic != null">
+        #{isBasic,jdbcType=TINYINT},
+      </if>
+      <if test="isShare != null">
+        #{isShare,jdbcType=TINYINT},
+      </if>
+      <if test="isSystem != null">
+        #{isSystem,jdbcType=TINYINT},
+      </if>
+      <if test="isSearch != null">
+        #{isSearch,jdbcType=TINYINT},
+      </if>
+      <if test="isReadonly != null">
+        #{isReadonly,jdbcType=TINYINT},
+      </if>
+      <if test="isInit != null">
+        #{isInit,jdbcType=TINYINT},
+      </if>
+      <if test="isEnabled != null">
+        #{isEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="canEditMandatory != null">
+        #{canEditMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="canEditEnabled != null">
+        #{canEditEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="access != null">
+        #{access,jdbcType=TINYINT},
+      </if>
+      <if test="sequence != null">
+        #{sequence,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.BaseObjectFieldExample" resultType="java.lang.Integer">
+    select count(*) from object_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update object_field
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.fieldId != null">
+        field_id = #{record.fieldId,jdbcType=BIGINT},
+      </if>
+      <if test="record.businessObjectId != null">
+        business_object_id = #{record.businessObjectId,jdbcType=BIGINT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fieldTypeId != null">
+        field_type_id = #{record.fieldTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.isFix != null">
+        is_fix = #{record.isFix,jdbcType=TINYINT},
+      </if>
+      <if test="record.displayType != null">
+        display_type = #{record.displayType,jdbcType=TINYINT},
+      </if>
+      <if test="record.isMandatory != null">
+        is_mandatory = #{record.isMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="record.isBasic != null">
+        is_basic = #{record.isBasic,jdbcType=TINYINT},
+      </if>
+      <if test="record.isShare != null">
+        is_share = #{record.isShare,jdbcType=TINYINT},
+      </if>
+      <if test="record.isSystem != null">
+        is_system = #{record.isSystem,jdbcType=TINYINT},
+      </if>
+      <if test="record.isSearch != null">
+        is_search = #{record.isSearch,jdbcType=TINYINT},
+      </if>
+      <if test="record.isReadonly != null">
+        is_readonly = #{record.isReadonly,jdbcType=TINYINT},
+      </if>
+      <if test="record.isInit != null">
+        is_init = #{record.isInit,jdbcType=TINYINT},
+      </if>
+      <if test="record.isEnabled != null">
+        is_enabled = #{record.isEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="record.canEditMandatory != null">
+        can_edit_mandatory = #{record.canEditMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="record.canEditEnabled != null">
+        can_edit_enabled = #{record.canEditEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="record.access != null">
+        access = #{record.access,jdbcType=TINYINT},
+      </if>
+      <if test="record.sequence != null">
+        sequence = #{record.sequence,jdbcType=INTEGER},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.code != null">
+        code = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update object_field
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      field_id = #{record.fieldId,jdbcType=BIGINT},
+      business_object_id = #{record.businessObjectId,jdbcType=BIGINT},
+      description = #{record.description,jdbcType=VARCHAR},
+      field_type_id = #{record.fieldTypeId,jdbcType=BIGINT},
+      is_fix = #{record.isFix,jdbcType=TINYINT},
+      display_type = #{record.displayType,jdbcType=TINYINT},
+      is_mandatory = #{record.isMandatory,jdbcType=TINYINT},
+      is_basic = #{record.isBasic,jdbcType=TINYINT},
+      is_share = #{record.isShare,jdbcType=TINYINT},
+      is_system = #{record.isSystem,jdbcType=TINYINT},
+      is_search = #{record.isSearch,jdbcType=TINYINT},
+      is_readonly = #{record.isReadonly,jdbcType=TINYINT},
+      is_init = #{record.isInit,jdbcType=TINYINT},
+      is_enabled = #{record.isEnabled,jdbcType=TINYINT},
+      can_edit_mandatory = #{record.canEditMandatory,jdbcType=TINYINT},
+      can_edit_enabled = #{record.canEditEnabled,jdbcType=TINYINT},
+      access = #{record.access,jdbcType=TINYINT},
+      sequence = #{record.sequence,jdbcType=INTEGER},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      name = #{record.name,jdbcType=VARCHAR},
+      code = #{record.code,jdbcType=VARCHAR},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.BaseObjectField">
+    update object_field
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="fieldId != null">
+        field_id = #{fieldId,jdbcType=BIGINT},
+      </if>
+      <if test="businessObjectId != null">
+        business_object_id = #{businessObjectId,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="fieldTypeId != null">
+        field_type_id = #{fieldTypeId,jdbcType=BIGINT},
+      </if>
+      <if test="isFix != null">
+        is_fix = #{isFix,jdbcType=TINYINT},
+      </if>
+      <if test="displayType != null">
+        display_type = #{displayType,jdbcType=TINYINT},
+      </if>
+      <if test="isMandatory != null">
+        is_mandatory = #{isMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="isBasic != null">
+        is_basic = #{isBasic,jdbcType=TINYINT},
+      </if>
+      <if test="isShare != null">
+        is_share = #{isShare,jdbcType=TINYINT},
+      </if>
+      <if test="isSystem != null">
+        is_system = #{isSystem,jdbcType=TINYINT},
+      </if>
+      <if test="isSearch != null">
+        is_search = #{isSearch,jdbcType=TINYINT},
+      </if>
+      <if test="isReadonly != null">
+        is_readonly = #{isReadonly,jdbcType=TINYINT},
+      </if>
+      <if test="isInit != null">
+        is_init = #{isInit,jdbcType=TINYINT},
+      </if>
+      <if test="isEnabled != null">
+        is_enabled = #{isEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="canEditMandatory != null">
+        can_edit_mandatory = #{canEditMandatory,jdbcType=TINYINT},
+      </if>
+      <if test="canEditEnabled != null">
+        can_edit_enabled = #{canEditEnabled,jdbcType=TINYINT},
+      </if>
+      <if test="access != null">
+        access = #{access,jdbcType=TINYINT},
+      </if>
+      <if test="sequence != null">
+        sequence = #{sequence,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.BaseObjectField">
+    update object_field
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      field_id = #{fieldId,jdbcType=BIGINT},
+      business_object_id = #{businessObjectId,jdbcType=BIGINT},
+      description = #{description,jdbcType=VARCHAR},
+      field_type_id = #{fieldTypeId,jdbcType=BIGINT},
+      is_fix = #{isFix,jdbcType=TINYINT},
+      display_type = #{displayType,jdbcType=TINYINT},
+      is_mandatory = #{isMandatory,jdbcType=TINYINT},
+      is_basic = #{isBasic,jdbcType=TINYINT},
+      is_share = #{isShare,jdbcType=TINYINT},
+      is_system = #{isSystem,jdbcType=TINYINT},
+      is_search = #{isSearch,jdbcType=TINYINT},
+      is_readonly = #{isReadonly,jdbcType=TINYINT},
+      is_init = #{isInit,jdbcType=TINYINT},
+      is_enabled = #{isEnabled,jdbcType=TINYINT},
+      can_edit_mandatory = #{canEditMandatory,jdbcType=TINYINT},
+      can_edit_enabled = #{canEditEnabled,jdbcType=TINYINT},
+      access = #{access,jdbcType=TINYINT},
+      sequence = #{sequence,jdbcType=INTEGER},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      name = #{name,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.BaseObjectFieldExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from object_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

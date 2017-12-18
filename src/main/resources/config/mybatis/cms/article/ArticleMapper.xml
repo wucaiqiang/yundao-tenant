@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.cms.article.ArticleMapper">
+
+    <resultMap id="articlePageResDto" type="com.yundao.tenant.dto.cms.article.ArticlePageResDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="platformId" jdbcType="BIGINT" property="platformId" />
+        <result column="platformName" jdbcType="VARCHAR" property="platformName" />
+        <result column="url" jdbcType="VARCHAR" property="url" />
+        <result column="sequence" jdbcType="INTEGER" property="sequence" />
+        <result column="status" jdbcType="INTEGER" property="status" />
+        <result column="pageview" jdbcType="INTEGER" property="pageview" />
+        <result column="actual_pageview" jdbcType="INTEGER" property="actualPageview" />
+        <result column="operator" jdbcType="VARCHAR" property="operator" />
+        <result column="update_date" jdbcType="INTEGER" property="operateTime" />
+        <result column="publish_date" jdbcType="INTEGER" property="publishDate" />
+        <result column="platform_code" jdbcType="INTEGER" property="platformCode" />
+        <result column="create_date" property="createDate" />
+    </resultMap>
+
+    <resultMap id="articleColumnRelInfoDto" type="com.yundao.tenant.dto.cms.article.ArticleColumnRelInfoDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="columnId" jdbcType="BIGINT" property="columnId" />
+        <result column="columnName" jdbcType="VARCHAR" property="columnName" />
+    </resultMap>
+
+    <select id="selectPage" resultMap="articlePageResDto">
+        SELECT
+        a.id,a.title,a.code,p.id AS platformId, p.name AS
+        platformName,a.sequence,a.status,a.pageview,a.actual_pageview,a.update_date,a.platform_id,
+        ud.real_name AS operator,a.publish_date,p.code AS platform_code,a.create_date
+        FROM article a LEFT JOIN platform p ON a.platform_id=p.id
+        LEFT JOIN user_detail ud ON a.update_user_id=ud.user_account_id
+        <if test="columnIds!=null">
+            LEFT JOIN article_column_rel acr ON acr.article_id=a.id AND acr.is_delete=0
+        </if>
+        <include refid="selectPage_where"></include>
+        <include refid="selectPage_orderby"></include>
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectPageCount" resultType="int">
+        SELECT COUNT(1)
+        FROM article a LEFT JOIN platform p ON a.platform_id=p.id
+        LEFT JOIN user_detail ud ON a.update_user_id=ud.user_account_id
+        <if test="columnIds!=null">
+            LEFT JOIN article_column_rel acr ON acr.article_id=a.id AND acr.is_delete=0
+        </if>
+        <include refid="selectPage_where"></include>
+    </select>
+
+    <!--获取每篇文章对应的目录信息-->
+    <select id="selectArticleColumnRelInfo" resultMap="articleColumnRelInfoDto">
+    SELECT a.id,ac.id AS columnId,ac.name AS columnName FROM article a LEFT JOIN article_column_rel acr ON a.id=acr.article_id AND acr.is_delete=0
+    LEFT JOIN article_column ac ON ac.id=acr.column_id AND ac.is_delete=0 AND ac.status=1
+    WHERE a.id IN
+    <foreach collection="articleIds" item="articleId" separator="," open="(" close=")">
+      ${articleId}
+    </foreach>
+    </select>
+
+    <sql id="selectPage_where">
+        <where>
+            a.is_delete=0
+            <if test="title!=null and title!=''">
+                AND a.title LIKE CONCAT('%', #{title},'%')
+            </if>
+            <if test="platformIds!=null and platformIds!=''">
+                AND a.platform_id IN (${platformIds})
+            </if>
+            <if test="columnIds!=null and columnIds!=''">
+                AND acr.column_id IN (${columnIds})
+            </if>
+            <if test="statuss!=null and statuss!=''">
+                AND a.status IN (${statuss})
+            </if>
+            <if test="operator!=null and operator!=''">
+                AND ud.real_name LIKE CONCAT('%',#{operator},'%')
+            </if>
+            <if test="operateTimeBegin !=null and operateTimeBegin !=''">
+                <![CDATA[
+                AND a.update_date >=#{operateTimeBegin}
+                ]]>
+            </if>
+            <if test="operateTimeEnd !=null and operateTimeEnd !=''">
+                <![CDATA[
+                AND a.update_date <=#{operateTimeEnd}
+                ]]>
+            </if>
+            <if test="publishDateBegin !=null and publishDateBegin !=''">
+                <![CDATA[
+                AND a.publish_date >=#{publishDateBegin}
+                ]]>
+            </if>
+            <if test="publishDateEnd !=null and publishDateEnd !=''">
+                <![CDATA[
+                AND a.publish_date <=#{publishDateEnd}
+                ]]>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="selectPage_orderby">
+        <choose>
+            <when test="orderColumn!=null and orderColumn!=''">
+                ORDER BY
+                <if test="orderColumn=='sequence'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            a.sequence DESC,
+                        </when>
+                        <otherwise>
+                            a.sequence,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='pageview'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            a.pageview DESC,
+                        </when>
+                        <otherwise>
+                            a.pageview,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='actualPageview'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            a.actual_pageview DESC,
+                        </when>
+                        <otherwise>
+                            a.actual_pageview,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='operateTime'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            a.update_date DESC,
+                        </when>
+                        <otherwise>
+                            a.update_date,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='publishDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            a.publish_date DESC,
+                        </when>
+                        <otherwise>
+                            a.publish_date,
+                        </otherwise>
+                    </choose>
+                </if>
+                a.id DESC
+            </when>
+            <otherwise>
+                ORDER BY a.sequence,a.create_date DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+        LIMIT #{offset}, #{pageSize}
+    </sql>
+
+</mapper>

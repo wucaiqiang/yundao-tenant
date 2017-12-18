@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.product.productnoticeattach.ProductNoticeAttachMapper">
+
+    <resultMap id="ProductNoticeAttachResult" type="com.yundao.tenant.model.base.product.BaseProductNoticeAttach" extends="com.yundao.tenant.mapper.base.product.BaseProductNoticeAttachMapper.BaseResultMap">
+    </resultMap>
+    <update id="deleteByNoticeId">
+      update product_notice_attach set is_delete=1,update_user_id=${headerUserId},update_date=now() where notice_id=${id}
+    </update>
+</mapper>

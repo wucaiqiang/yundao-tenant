@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.cc.ccuserdetail.CcUserDetailMapper">
+
+    <resultMap id="userInfoDto" type="com.yundao.tenant.dto.cc.ccuserdetail.CcUserInfoDto" >
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="real_name" jdbcType="VARCHAR" property="name" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="scoreId" jdbcType="BIGINT" property="scoreId" />
+        <result column="grade" jdbcType="INTEGER" property="grade" />
+    </resultMap>
+
+    <!-- 获取理财用户信息 -->
+    <select id="selectUserInfo" resultMap="userInfoDto">
+        SELECT ua.id,ud.real_name,ua.mobile AS mobile,qs.grade,qs.id AS scoreId FROM cc_user_account ua LEFT JOIN cc_user_detail ud ON ua.id=ud.user_account_id
+        LEFT JOIN cc_question_score qs ON ua.id=qs.user_account_id AND qs.question_type_id=1 AND qs.is_delete=0
+        WHERE ua.id=${userId} AND ua.is_delete=0 AND ud.is_delete=0;
+    </select>
+</mapper>

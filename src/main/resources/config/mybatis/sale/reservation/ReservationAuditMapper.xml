@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.sale.reservation.ReservationAuditMapper">
+  <resultMap id="auditPageDto" type="com.yundao.tenant.dto.sale.reservation.audit.ReservationAuditPageResDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="productName" jdbcType="VARCHAR" property="productName" />
+    <result column="customerName" jdbcType="VARCHAR" property="customerName" />
+	  <result column="reservationSumAmount" jdbcType="VARCHAR" property="reservationSumAmount" />
+	  <result column="declarationSumAmount" jdbcType="VARCHAR" property="declarationSumAmount" />
+    <result column="reservation_amount" jdbcType="VARCHAR" property="reservationAmount" />
+    <result column="estimate_pay_date" jdbcType="VARCHAR" property="estimatePayDate" />
+    <result column="commit_date" jdbcType="VARCHAR" property="commitDate" />
+    <result column="reservationor" jdbcType="VARCHAR" property="reservationor" />
+    <result column="operation_date" jdbcType="VARCHAR" property="operationDate" />
+    <result column="audit_status" jdbcType="INTEGER" property="status" />
+    <result column="disardId" jdbcType="BIGINT" property="disardId" />
+    <result column="fpId" jdbcType="BIGINT" property="fpId" />
+    <result column="customerId" jdbcType="BIGINT" property="customerId" />
+    <result column="productId" jdbcType="BIGINT" property="productId" />
+
+  </resultMap>
+
+	<!--获取审核分页数据-->
+	<select id="selectAuditPage" parameterType="map" resultMap="auditPageDto" >
+	SELECT r.id,r.number,c.name AS customerName,p.name AS productName,
+	(SELECT SUM(r2.reservation_amount) FROM reservation r2 WHERE r2.product_id=p.id AND r2.is_delete=0 AND r2.status=2) AS reservationSumAmount,
+	(SELECT SUM(d.deal_amount) FROM declaration d WHERE d.product_id=p.id AND d.is_delete=0 ) AS declarationSumAmount,
+	r.reservation_amount,
+	r.estimate_pay_date,
+	r.commit_date,
+	ud.real_name AS reservationor,
+	r.operation_date,
+	r.audit_status,
+	rd.id AS disardId,
+	uc.user_id AS fpId,
+	c.id AS customerId,
+	p.id AS productId
+	FROM reservation r LEFT JOIN product p ON r.product_id=p.id
+	LEFT JOIN customer c ON r.customer_id=c.id
+	LEFT JOIN user_detail ud ON ud.user_account_id=r.user_id
+	LEFT JOIN reservation_discard rd ON rd.reservation_id=r.id
+	LEFT JOIN user_customer uc ON uc.customer_id=c.id
+	LEFT JOIN workflow_business_rel wbr ON wbr.object_id=r.id AND wbr.type='product_reservation' AND wbr.is_delete=0
+	<include refid="selectAuditPage_where"></include>
+	<include refid="selectAudit_orderby"></include>
+	<include refid="limitSql"></include>
+	</select>
+
+	<!--获取审核分页数据总条数-->
+	<select id="selectAuditPageCount" resultType="int" >
+		SELECT COUNT(*)
+		FROM reservation r LEFT JOIN product p ON r.product_id=p.id
+		LEFT JOIN customer c ON r.customer_id=c.id
+		LEFT JOIN user_detail ud ON ud.user_account_id=r.user_id
+		LEFT JOIN reservation_discard rd ON rd.reservation_id=r.id
+		LEFT JOIN user_customer uc ON uc.customer_id=c.id
+		LEFT JOIN workflow_business_rel wbr ON wbr.object_id=r.id AND wbr.type='product_reservation' AND wbr.is_delete=0
+		<include refid="selectAuditPage_where"></include>
+	</select>
+
+	<sql id="selectAuditPage_where">
+		<where>
+			r.is_delete=0
+			<if test="number!=null and number!=''">
+				AND r.number LIKE CONCAT('%',#{number},'%')
+			</if>
+			<if test="customerName!=null and customerName!=''">
+				AND c.name LIKE CONCAT('%',#{customerName},'%')
+			</if>
+			<if test="productName!=null and productName!=''">
+				AND p.name LIKE CONCAT('%',#{productName},'%')
+			</if>
+			<if test="reservationAmountBegin!=null and reservationAmountBegin!=''">
+				<![CDATA[
+				AND r.reservation_amount >=${reservationAmountBegin}
+				]]>
+			</if>
+			<if test="reservationAmountEnd!=null and reservationAmountEnd!=''">
+				<![CDATA[
+				AND r.reservation_amount <=${reservationAmountEnd}
+				 ]]>
+			</if>
+			<if test="estimatePayDateBegin!=null and estimatePayDateBegin!=''">
+				<![CDATA[
+				AND r.estimate_pay_date >=#{estimatePayDateBegin}
+				]]>
+			</if>
+			<if test="estimatePayDateEnd!=null and estimatePayDateEnd!=''">
+				<![CDATA[
+				AND r.estimate_pay_date <=#{estimatePayDateEnd}
+				 ]]>
+			</if>
+			<if test="commitDateBegin!=null and commitDateBegin!=''">
+				<![CDATA[
+				AND r.commit_date >=#{commitDateBegin}
+				]]>
+			</if>
+			<if test="commitDateEnd!=null and commitDateEnd!=''">
+				<![CDATA[
+				AND r.commit_date <=#{commitDateEnd}
+				 ]]>
+			</if>
+			<if test="reservationor!=null and reservationor!=''">
+				AND ud.real_name LIKE CONCAT('%',#{reservationor},'%')
+			</if>
+			<if test="operationDateBegin!=null and operationDateBegin!=''">
+				<![CDATA[
+				AND r.operation_date >=#{operationDateBegin}
+				]]>
+			</if>
+			<if test="operationDateEnd!=null and operationDateEnd!=''">
+				<![CDATA[
+				AND r.operation_date <=#{operationDateEnd}
+				 ]]>
+			</if>
+			<if test="scope!=null and scope=='unprocess'">
+				AND wbr.is_complete=0 AND r.audit_status!=3
+			</if>
+            <if test="statuss!=null and statuss!=''">
+				AND r.audit_status in (${statuss})
+			</if>
+		</where>
+	</sql>
+
+	<sql id="selectAudit_orderby">
+		<choose>
+			<when test="orderColumn!=null and orderColumn!=''">
+				ORDER BY
+				<if test="orderColumn=='reservationAmount'">
+					<choose>
+						<when test="sort=='desc'">
+							r.reservation_amount DESC
+						</when>
+						<otherwise>
+							r.reservation_amount
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='estimatePayDate'">
+					<choose>
+						<when test="sort=='desc'">
+							r.estimate_pay_date DESC
+						</when>
+						<otherwise>
+							r.estimate_pay_date
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='commitDate'">
+					<choose>
+						<when test="sort=='desc'">
+							r.commit_date DESC
+						</when>
+						<otherwise>
+							r.commit_date
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='operationDate'">
+					<choose>
+						<when test="sort=='desc'">
+							r.operation_date DESC
+						</when>
+						<otherwise>
+							r.operation_date
+						</otherwise>
+					</choose>
+				</if>
+				,r.id DESC
+			</when>
+			<otherwise>
+				ORDER BY r.create_date DESC,r.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+</mapper>

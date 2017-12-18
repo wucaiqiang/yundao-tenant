@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.product.BaseProductNavMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.product.BaseProductNav">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="unit_nav" jdbcType="DOUBLE" property="unitNav" />
+    <result column="total_nav" jdbcType="DOUBLE" property="totalNav" />
+    <result column="up_down_rate" jdbcType="DOUBLE" property="upDownRate" />
+    <result column="nav_date" jdbcType="DATE" property="navDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, product_id, unit_nav, total_nav, up_down_rate, nav_date, create_user_id, 
+    create_date, update_user_id, update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNavExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from product_nav
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_nav
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_nav
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNavExample">
+    delete from product_nav
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductNav" useGeneratedKeys="true">
+    insert into product_nav (id, tenant_id, product_id, 
+      unit_nav, total_nav, up_down_rate, 
+      nav_date, create_user_id, create_date, 
+      update_user_id, update_date, is_delete
+      )
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{productId,jdbcType=BIGINT}, 
+      #{unitNav,jdbcType=DOUBLE}, #{totalNav,jdbcType=DOUBLE}, #{upDownRate,jdbcType=DOUBLE}, 
+      #{navDate,jdbcType=DATE}, #{createUserId,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductNav" useGeneratedKeys="true">
+    insert into product_nav
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="unitNav != null">
+        unit_nav,
+      </if>
+      <if test="totalNav != null">
+        total_nav,
+      </if>
+      <if test="upDownRate != null">
+        up_down_rate,
+      </if>
+      <if test="navDate != null">
+        nav_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="unitNav != null">
+        #{unitNav,jdbcType=DOUBLE},
+      </if>
+      <if test="totalNav != null">
+        #{totalNav,jdbcType=DOUBLE},
+      </if>
+      <if test="upDownRate != null">
+        #{upDownRate,jdbcType=DOUBLE},
+      </if>
+      <if test="navDate != null">
+        #{navDate,jdbcType=DATE},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductNavExample" resultType="java.lang.Integer">
+    select count(*) from product_nav
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update product_nav
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.productId != null">
+        product_id = #{record.productId,jdbcType=BIGINT},
+      </if>
+      <if test="record.unitNav != null">
+        unit_nav = #{record.unitNav,jdbcType=DOUBLE},
+      </if>
+      <if test="record.totalNav != null">
+        total_nav = #{record.totalNav,jdbcType=DOUBLE},
+      </if>
+      <if test="record.upDownRate != null">
+        up_down_rate = #{record.upDownRate,jdbcType=DOUBLE},
+      </if>
+      <if test="record.navDate != null">
+        nav_date = #{record.navDate,jdbcType=DATE},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update product_nav
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      product_id = #{record.productId,jdbcType=BIGINT},
+      unit_nav = #{record.unitNav,jdbcType=DOUBLE},
+      total_nav = #{record.totalNav,jdbcType=DOUBLE},
+      up_down_rate = #{record.upDownRate,jdbcType=DOUBLE},
+      nav_date = #{record.navDate,jdbcType=DATE},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.product.BaseProductNav">
+    update product_nav
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="unitNav != null">
+        unit_nav = #{unitNav,jdbcType=DOUBLE},
+      </if>
+      <if test="totalNav != null">
+        total_nav = #{totalNav,jdbcType=DOUBLE},
+      </if>
+      <if test="upDownRate != null">
+        up_down_rate = #{upDownRate,jdbcType=DOUBLE},
+      </if>
+      <if test="navDate != null">
+        nav_date = #{navDate,jdbcType=DATE},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProductNav">
+    update product_nav
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      product_id = #{productId,jdbcType=BIGINT},
+      unit_nav = #{unitNav,jdbcType=DOUBLE},
+      total_nav = #{totalNav,jdbcType=DOUBLE},
+      up_down_rate = #{upDownRate,jdbcType=DOUBLE},
+      nav_date = #{navDate,jdbcType=DATE},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.product.BaseProductNavExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product_nav
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

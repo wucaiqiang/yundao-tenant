@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.productnoticeexamine.ProductNoticeExamineMapper">
+
+    <resultMap id="ProductNoticeExamineResult" type="com.yundao.tenant.model.base.product.BaseProductNoticeExamine" extends="com.yundao.tenant.mapper.base.product.BaseProductNoticeExamineMapper.BaseResultMap">
+    </resultMap>
+    
+    <resultMap id="productNoticeExamineResDto" type="com.yundao.tenant.dto.productnoticeexamine.ProductNoticeExamineResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="notice_id"  property="noticeId" />
+		<result column="product_id" property="productId" />
+		<result column="product_name"  property="productName" />
+		<result column="apply_date"  property="createDate" />
+		<result column="apply_user_id"  property="createUserId" />
+		<result column="real_name"  property="createUser" />
+		<result column="title"  property="title" />
+		<result column="content"  property="content" />
+		<result column="audit_user_id"  property="updateUserId" />
+		<result column="audit_date"  property="updateDate" />
+		<result column="noticeType"  property="noticeType" />
+		<result column="noticeTypeId"  property="noticeTypeId" />
+		<result column="status"  property="status" />
+		<result column="reason"  property="reason" />
+	</resultMap>
+    
+    
+    
+    
+    
+    <resultMap id="productNoticeDto" type="com.yundao.tenant.dto.productnoticeexamine.ProductNoticeDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="product_id" property="productId" />
+		<result column="product_name"  property="productName" />
+		<result column="title"  property="title" />
+		<result column="noticeTypeName"  property="noticeTypeName" />
+	</resultMap>
+    
+   <select id="getProductNoticeDto" resultMap="productNoticeDto">
+		SELECT
+		  n.title,
+		  n.id,
+		  n.product_id,
+		  nt.`name` as noticeTypeName,
+		  p.`name` as productName
+		FROM
+			product_notice n
+		LEFT JOIN product p ON n.product_id = p.id
+		LEFT JOIN product_notice_type nt on n.notice_type_id = nt.id
+		where n.is_delete = 0
+	      and n.id in 
+	       <foreach close=")" collection="ids" item="id" open="(" separator=",">
+               #{id}
+           </foreach>
+  </select>
+    
+    
+    
+    
+      <select id="getAuditPage" resultMap="productNoticeExamineResDto">
+		SELECT
+		  n.id,
+		  n.id as notice_id,
+		  n.product_id,
+		  p.`name` as product_name,
+		  n.apply_date,
+		  n.apply_user_id,
+		  n.title,
+		  n.content,
+		  n.audit_user_id,
+		  n.audit_date,
+		  nt.`name` as noticeType,
+		  nt.id as noticeTypeId,
+		  ud.real_name,
+		  n.`status`,
+		  n.reason
+		FROM
+			product_notice n
+		LEFT JOIN product p ON n.product_id = p.id
+		LEFT JOIN product_notice_type nt on n.notice_type_id = nt.id
+		LEFT JOIN user_detail ud on n.apply_user_id = ud.user_account_id
+		<include refid="getAuditPage_where" />
+		order by n.status asc,n.apply_date desc
+		<include refid="limitSql" />
+  </select>
+  
+  <select id="getAuditCount" resultType="int">
+		SELECT
+		   count(n.id)
+		FROM
+			product_notice n
+		LEFT JOIN product p ON n.product_id = p.id
+		LEFT JOIN product_notice_type nt on n.notice_type_id = nt.id
+		LEFT JOIN user_detail ud on n.apply_user_id = ud.user_account_id
+		<include refid="getAuditPage_where" />
+  </select>
+    
+    <sql id="getAuditPage_where">
+		<where>
+			n.is_delete = 0
+			and p.is_delete = 0
+			and nt.is_delete = 0
+			and n.status != 1
+			<if test="statuss!=null and statuss!=''">
+			   and n.status in (${statuss})
+	     	</if>
+			<if test="productName!=null and productName!=''">
+			   and p.name like CONCAT('%', #{productName},'%')
+	     	</if>
+			<if test="title!=null and title!=''">
+			   and n.title like CONCAT('%', #{title},'%')
+	     	</if>
+	     	<if test="content!=null and content!=''">
+			   and n.content like CONCAT('%', #{content},'%')
+	     	</if>
+	     	<if test="createUser!=null and createUser!=''">
+			   and ud.real_name like CONCAT('%', #{createUser},'%')
+	     	</if>
+			<if test="noticeTypeIds!=null  and noticeTypeIds!=''">
+		      and n.notice_type_id in (${noticeTypeIds})
+		    </if>
+		    
+		    <if test="createDateStart!=null">
+				 <![CDATA[
+				  and n.apply_date  >=  #{createDateStart}
+				]]>
+			</if>
+			<if test="createDateEnd!=null">
+				 <![CDATA[
+				  and n.apply_date   <=  #{createDateEnd}
+				]]>
+			</if>
+			
+			<if test="updateDateStart!=null">
+				 <![CDATA[
+				  and n.audit_date  >=  #{updateDateStart}
+				]]>
+			</if>
+			<if test="updateDateEnd!=null">
+				 <![CDATA[
+				  and n.audit_date   <=  #{updateDateEnd}
+				]]>
+			</if>
+			<if test="scope!=null and scope=='unprocess'">
+				and n.status=2
+			</if>
+		</where>
+  </sql>
+
+
+  <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+  </sql>
+    
+</mapper>

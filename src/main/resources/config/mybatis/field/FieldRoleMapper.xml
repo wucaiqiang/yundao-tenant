@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.field.FieldRoleMapper">
+
+	<resultMap id="fieldRoleDto" type="com.yundao.tenant.dto.field.FieldRoleDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="businessObjectId" jdbcType="BIGINT" property="businessObjectId" />
+		<result column="businessObjectCode" jdbcType="VARCHAR" property="businessObjectCode" />
+		<result column="objectFieldId" jdbcType="BIGINT" property="objectFieldId" />
+		<result column="objectFieldCode" jdbcType="VARCHAR" property="objectFieldCode" />
+		<result column="roleId" jdbcType="BIGINT" property="roleId" />
+	</resultMap>
+
+	<!--获取业务对象字段角色权限-->
+  <select id="select" resultMap="fieldRoleDto">
+	SELECT fr.id,bo.id AS businessObjectId,bo.code AS businessObjectCode,of.id AS objectFieldId,f.code AS
+	objectFieldCode,fr.role_id FROM field_role fr
+	INNER JOIN object_field of ON fr.object_field_id=of.id
+	INNER JOIN field f ON f.id=of.field_id
+	INNER JOIN business_object bo ON of.business_object_id=bo.id
+	WHERE fr.is_delete=0 AND of.is_delete=0 AND bo.is_delete=0 AND f.is_delete=0
+  </select>
+</mapper>

@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductSelectMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.yundao.tenant.dto.product.ProductManagerListResDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="examineStatus" property="examineStatus" />
+		<result column="type_id" property="typeId" />
+		<result column="typeName" property="typeName" />
+		<result column="level" property="level" />
+		<result column="risk_level" property="riskLevel" />
+		<result column="receiver_id" property="receiverId" />
+		<result column="assistant_id" property="assistantId" />
+		<result column="on_line_time" property="onLineTime" />
+		<result column="create_user_id" property="createUserId" />
+		<result column="product_scale" property="productScale" />
+		<result column="receiverName" property="receiverRealName" />
+		<result column="assistantName" property="assistantRealName" />
+		<result column="create_date" property="createDate" />
+		<result column="reason" property="reason" />
+		<result column="apply_user_id" property="applyUserId" />
+		<result column="applyUserName" property="applyUserName" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<resultMap id="productCenterListResDto"
+		type="com.yundao.tenant.dto.product.ProductCenterListResDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="type_id" property="typeId" />
+		<result column="typeName" property="typeName" />
+		<result column="level" property="level" />
+		<result column="risk_level" property="riskLevel" />
+		<result column="receiver_id" property="receiverId" />
+		<result column="assistant_id" property="assistantId" />
+		<result column="on_line_time" property="onLineTime" />
+		<result column="product_scale" property="productScale" />
+		<result column="receiverName" property="receiverRealName" />
+		<result column="assistantName" property="assistantRealName" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<resultMap id="ProductBaseResDto"
+		type="com.yundao.tenant.dto.product.ProductBaseResDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_channel" property="issuedChannel" />
+		<result column="invest_domain" property="investDomain" />
+		<result column="type_id" property="typeId" />
+		<result column="typeName" property="typeName" />
+		<result column="time_limit" property="timeLimit" />
+		<result column="buy_start_point" property="buyStartPoint" />
+		<result column="incremental_amount" property="incrementalAmount" />
+		<result column="create_user_id" property="createUserId" />
+		<result column="is_scale" property="isScale" />
+		<result column="product_scale" property="productScale" />
+		<result column="currency_code" property="currencyCode" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<resultMap id="productSelectOptionDto"
+		type="com.yundao.tenant.dto.product.ProductSelectOptionDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<resultMap id="selectionForReceiptPlan"
+		type="com.yundao.tenant.dto.product.ProductSelectionForReceiptPlanDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="supplierId" property="supplierId" />
+		<result column="supplierName" property="supplierName" />
+	</resultMap>
+
+
+
+	<resultMap id="productSelectionForDeclaration"
+		type="com.yundao.tenant.dto.product.ProductSelectionForDeclaration">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<select id="selectForReceiptPlan" resultMap="selectionForReceiptPlan">
+		SELECT
+		p.id,p.name,
+		(SELECT s.id FROM supplier s INNER JOIN
+		product_supplier ps ON s.id=ps.supplier_id WHERE ps.product_id=p.id
+		ORDER BY s.id LIMIT 1) AS supplierId,
+		(SELECT s.name FROM supplier s
+		INNER JOIN product_supplier ps ON s.id=ps.supplier_id WHERE
+		ps.product_id=p.id ORDER BY s.id LIMIT 1) AS supplierName
+		FROM product
+		p WHERE p.is_delete=0 AND p.issued_status IN (2,3,4,5,6)
+		<if test="name!=null and name!=''">
+			AND p.name LIKE CONCAT('%', #{name},'%')
+		</if>
+		ORDER BY p.create_date DESC
+		LIMIT 20
+	</select>
+
+	<select id="getManagerList" resultMap="BaseResultMap"
+		parameterType="com.yundao.tenant.dto.product.ProductManagerListReqDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.issued_status,
+		IFNULL(pe.status,0) as
+		examineStatus,
+		pe.reason,
+		p.type_id,
+		p.`level`,
+		p.risk_level,
+		p.receiver_id,
+		p.assistant_id,
+		p.create_date,
+		p.on_line_time,
+		p.create_user_id,
+		p.declaration_model,
+		ps.product_scale,
+		fg.name as
+		typeName,
+		ud1.real_name as assistantName,
+		ud2.real_name as receiverName,
+		pe.apply_user_id,
+		ud3.real_name AS applyUserName
+		FROM
+		product p LEFT JOIN
+		product_sale ps on p.id = ps.product_id
+		LEFT
+		JOIN field_group fg on
+		p.type_id = fg.id
+		LEFT JOIN product_examine pe on
+		p.id = pe.product_id
+		LEFT JOIN user_detail ud1 on p.assistant_id =
+		ud1.user_account_id
+		LEFT
+		JOIN user_detail ud2 on p.receiver_id = ud2.user_account_id
+		LEFT JOIN
+		user_detail ud3 ON pe.apply_user_id=ud3.user_account_id
+		<include refid="getManagerList_where" />
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+
+	<select id="selectList" resultMap="ProductBaseResDto"
+		parameterType="com.yundao.tenant.dto.product.ProductBaseQueryReqDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.issued_channel,
+		p.invest_domain,
+		p.time_limit,
+		p.buy_start_point,
+		p.incremental_amount,
+		p.type_id,
+		p.issued_status,
+		p.declaration_model,
+		p.create_user_id,
+		fg.name as typeName,
+		ps.is_scale,
+		ps.product_scale,
+		ps.currency_code
+		FROM
+		product p
+		LEFT JOIN product_sale
+		ps on
+		p.id=ps.product_id
+		LEFT JOIN field_group fg on
+		p.type_id = fg.id
+		where 1=1 and p.is_delete=0
+		<if test="name !=null and name!=''">
+			and p.`name` like CONCAT('%', #{name},'%')
+		</if>
+		<if test="issuedStatuses !=null and issuedStatuses !=''">
+			and p.`issued_status` in (${issuedStatuses})
+		</if>
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+
+	<select id="selectDirectModelOrHadReservationList" resultMap="ProductBaseResDto"
+		parameterType="com.yundao.tenant.dto.product.ProductBaseQueryReqDto">
+		SELECT
+		DISTINCT p.id,
+		p.`name`,
+		p.issued_channel,
+		p.invest_domain,
+		p.time_limit,
+		p.buy_start_point,
+		p.incremental_amount,
+		p.type_id,
+		p.issued_status,
+		p.declaration_model,
+		p.create_user_id,
+		fg.name as
+		typeName,
+		ps.is_scale,
+		ps.product_scale,
+		ps.currency_code
+		FROM
+		product p
+		LEFT JOIN field_group
+		fg ON p.type_id = fg.id
+		LEFT JOIN product_sale
+		ps
+		on
+		p.id=ps.product_id
+		LEFT JOIN reservation r ON
+		r.product_id = p.id
+		left
+		join declaration d on r.id=d.reservation_id
+		LEFT
+		JOIN user_customer uc
+		ON r.customer_id =
+		uc.customer_id
+		WHERE
+
+		p.is_delete = 0
+		and
+		p.issued_status in (2,3)
+		AND (
+		(
+		p.issued_status = 3
+		AND (
+		p.declaration_model = 1
+		OR (
+		r.id IS NOT NULL
+		AND r.is_delete != 1
+		AND
+		r.`status` =2
+		AND d.id IS NULL
+		AND uc.user_id = #{userId}
+		AND
+		uc.is_delete != 1
+		)
+		)
+		)
+		OR (
+		p.issued_status
+		= 2
+		AND
+		r.id IS NOT NULL
+		AND
+		r.is_delete != 1
+		AND
+		r.`status` =2
+		AND d.id IS
+		NULL
+		AND
+		uc.user_id =
+		#{userId}
+		AND uc.is_delete
+		!= 1
+		)
+		)
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+	<select id="selectDirectModelOrHadReservationListCount"
+		resultType="Integer" parameterType="com.yundao.tenant.dto.product.ProductBaseQueryReqDto">
+		SELECT
+		count(DISTINCT p.id)
+		FROM
+		product p
+		LEFT JOIN field_group
+		fg ON p.type_id =
+		fg.id
+		LEFT JOIN
+		product_sale
+		ps
+		on
+		p.id=ps.product_id
+		LEFT JOIN reservation
+		r ON
+		r.product_id = p.id
+		left
+		join declaration d on r.id=d.reservation_id
+		LEFT
+		JOIN user_customer uc ON r.customer_id =
+		uc.customer_id
+		WHERE
+
+		p.is_delete = 0
+		and p.issued_status in (2,3)
+		AND (
+		(
+		p.issued_status = 3
+		AND (
+		p.declaration_model = 1
+		OR (
+		r.id IS NOT NULL
+		AND r.is_delete != 1
+		AND r.`status` =2
+		AND d.id IS NULL
+		AND uc.user_id = #{userId}
+		AND
+		uc.is_delete != 1
+		)
+		)
+		)
+		OR (
+		p.issued_status = 2
+		AND
+		r.id IS NOT NULL
+		AND
+		r.is_delete != 1
+		AND r.`status` =2
+		AND d.id IS
+		NULL
+		AND
+		uc.user_id =
+		#{userId}
+		AND
+		uc.is_delete
+		!= 1
+		)
+		)
+	</select>
+
+	<select id="selectListCount" resultType="Integer"
+		parameterType="com.yundao.tenant.dto.product.ProductBaseQueryReqDto">
+		SELECT
+		count(p.id)
+		FROM
+		product p LEFT JOIN field_group fg on p.type_id =
+		fg.id
+		where 1=1 and p.is_delete=0
+		<if test="name!=null and name!=''">
+			and p.`name` like CONCAT('%', #{name},'%')
+		</if>
+		<if test="issuedStatuses !=null and issuedStatuses !=''">
+			and p.`issued_status` in (${issuedStatuses})
+		</if>
+	</select>
+
+	<select id="getManagerListCount" resultType="Integer"
+		parameterType="com.yundao.tenant.dto.product.ProductManagerListReqDto">
+		SELECT
+		count(p.id)
+		FROM
+		product p LEFT JOIN product_sale ps on p.id =
+		ps.product_id
+		LEFT JOIN field_group fg on p.type_id = fg.id
+		LEFT JOIN
+		product_examine pe on p.id = pe.product_id
+		LEFT JOIN user_detail ud1 on
+		p.assistant_id = ud1.user_account_id
+		LEFT JOIN user_detail ud2 on
+		p.receiver_id = ud2.user_account_id
+		<include refid="getManagerList_where" />
+	</select>
+
+
+
+	<sql id="getManagerList_where">
+		<where>
+			p.is_delete = 0
+			and fg.is_delete = 0
+			and fg.is_enabled = 1
+			and
+			IFNULL(pe.is_delete,0) = 0
+			<if test="name!=null and name!=''">
+				and p.`name` like CONCAT('%', #{name},'%')
+			</if>
+
+			<if test="typeIdList!=null">
+				and p.type_id in
+				<foreach close=")" collection="typeIdList" item="typeId"
+					open="(" separator=",">
+					#{typeId}
+				</foreach>
+			</if>
+			<if test="issuedStatusList!=null">
+				and p.issued_status in
+				<foreach close=")" collection="issuedStatusList" item="issuedStatus"
+					open="(" separator=",">
+					#{issuedStatus}
+				</foreach>
+			</if>
+			<if test="examineStatusList!=null">
+				and IFNULL(pe.status,0) in
+				<foreach close=")" collection="examineStatusList" item="examineStatus"
+					open="(" separator=",">
+					#{examineStatus}
+				</foreach>
+			</if>
+			<if test="levelList!=null">
+				and p.level in
+				<foreach close=")" collection="levelList" item="level" open="("
+					separator=",">
+					#{level}
+				</foreach>
+			</if>
+			<if test="riskLevelList!=null">
+				and p.risk_level in
+				<foreach close=")" collection="riskLevelList" item="riskLevel"
+					open="(" separator=",">
+					#{riskLevel}
+				</foreach>
+			</if>
+			<if test="receiverId!=null">
+				and p.receiver_id = #{receiverId}
+			</if>
+			<if test="assistantId!=null">
+				and p.assistant_id = #{assistantId}
+			</if>
+
+			<if test="assistantIdOrreceiverId !=null">
+				and (p.assistant_id = #{assistantIdOrreceiverId} or
+				p.receiver_id = #{assistantIdOrreceiverId})
+			</if>
+
+
+			<if
+				test="assistantOrReceiverRealName!=null and assistantOrReceiverRealName!=''">
+				and (ud1.real_name like CONCAT('%',
+				#{assistantOrReceiverRealName},'%')
+				or ud2.real_name like CONCAT('%',
+				#{assistantOrReceiverRealName},'%'))
+			</if>
+			<if test="productScaleStart!=null">
+				 <![CDATA[
+				  and  p.product_scale  >=  #{productScaleStart}
+				]]>
+			</if>
+			<if test="productScaleEnd!=null">
+				 <![CDATA[
+				  and  ps.product_scale  <=  #{productScaleEnd}
+				]]>
+			</if>
+			<if test="createDateStart!=null">
+				<![CDATA[
+					AND p.create_date >= #{createDateStart}
+				]]>
+			</if>
+			<if test="createDateEnd!=null">
+				<![CDATA[
+					AND p.create_date <= #{createDateEnd}
+				]]>
+			</if>
+			<if test="onLineTimeStart!=null">
+				<![CDATA[
+					AND p.on_line_time >= #{onLineTimeStart}
+				]]>
+			</if>
+			<if test="onLineTimeEnd!=null">
+				<![CDATA[
+					AND p.on_line_time <= #{onLineTimeEnd}
+				]]>
+			</if>
+		</where>
+	</sql>
+
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+	<sql id="orderBy">
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+	</sql>
+
+
+
+	<select id="getProductSelectForDeclaration" resultMap="productSelectionForDeclaration">
+		SELECT
+		p.id,
+		p.`name`,
+		p.declaration_model,
+		p.issued_status
+		FROM
+		product p
+		LEFT JOIN field_group fg ON p.type_id
+		= fg.id
+		WHERE
+		p.is_delete = 0
+		AND
+		fg.is_delete = 0
+		AND fg.is_enabled = 1
+		<choose>
+			<when test="name!=null and name!=''">
+				AND p.name LIKE CONCAT('%', #{name},'%')
+				AND
+				p.issued_status not in(0,1)
+			</when>
+			<otherwise>
+				AND p.issued_status in(2,3)
+			</otherwise>
+		</choose>
+		order by p.on_line_time desc
+		limit 0 , #{count}
+	</select>
+
+
+
+
+	<select id="getProductSelectOptionDtos" resultMap="productSelectOptionDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.issued_status,
+		p.declaration_model
+		FROM
+		product p
+		LEFT JOIN field_group fg ON p.type_id
+		= fg.id
+		WHERE
+		p.is_delete = 0
+		AND
+		fg.is_delete = 0
+		AND fg.is_enabled = 1
+		<choose>
+			<when test="scope=='selling'">
+
+				<choose>
+					<when test="name!=null and name!=''">
+						AND p.name LIKE CONCAT('%', #{name},'%')
+						AND
+						p.issued_status not in(0,1)
+					</when>
+					<otherwise>
+						AND p.issued_status in(2,3)
+					</otherwise>
+				</choose>
+
+			</when>
+			<otherwise>
+				<if test="name!=null and name!=''">
+					AND p.name LIKE CONCAT('%', #{name},'%')
+				</if>
+			</otherwise>
+		</choose>
+		order by p.on_line_time desc
+		limit 0 , #{count}
+	</select>
+
+	<select id="getProductSelectOptionDtosByTypeId" resultMap="productSelectOptionDto">
+		SELECT
+		p.id,
+		p.`name`
+		FROM
+		product p
+		LEFT JOIN field_group fg ON p.type_id
+		= fg.id
+		WHERE
+		p.is_delete = 0
+		AND fg.is_delete = 0
+		AND fg.is_enabled = 1
+		AND p. type_id =
+		#{typeId}
+		order by p.on_line_time desc
+		limit 0 ,
+		${count}
+	</select>
+
+
+	<select id="getProductCenterList" resultMap="productCenterListResDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.issued_status,
+		p.type_id,
+		p.`level`,
+		p.risk_level,
+		p.receiver_id,
+		p.assistant_id,
+		p.create_date,
+		p.on_line_time,
+		p.create_user_id,
+		ps.product_scale,
+		fg. NAME AS typeName,
+		ud1.real_name
+		AS assistantName,
+		ud2.real_name AS receiverName,
+		p.declaration_model
+		FROM
+		product p
+		LEFT JOIN product_sale ps ON p.id = ps.product_id
+		LEFT
+		JOIN
+		field_group fg ON p.type_id = fg.id
+		LEFT JOIN user_detail ud1 ON
+		p.assistant_id = ud1.user_account_id
+		LEFT JOIN user_detail ud2 ON
+		p.receiver_id = ud2.user_account_id
+		<if test="userId!=null">
+			LEFT JOIN proudct_focus pf on p.id = pf.product_id
+		</if>
+		<include refid="getProductCenterListCount_where"></include>
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+
+	<select id="getProductCenterListCount" resultType="int">
+		SELECT
+		count(p.id)
+		FROM
+		product p
+		LEFT JOIN product_sale ps ON p.id =
+		ps.product_id
+		LEFT JOIN field_group fg
+		ON p.type_id = fg.id
+		LEFT JOIN
+		user_detail ud1 ON p.assistant_id =
+		ud1.user_account_id
+		LEFT JOIN
+		user_detail ud2 ON p.receiver_id =
+		ud2.user_account_id
+		<if test="userId!=null">
+			LEFT JOIN proudct_focus pf on p.id = pf.product_id
+		</if>
+
+		<include refid="getProductCenterListCount_where"></include>
+	</select>
+
+	<sql id="getProductCenterListCount_where">
+		<where>
+			p.is_delete = 0
+			and fg.is_delete = 0
+			and fg.is_enabled = 1
+			<if test="issuedStatusList!=null">
+				and p.issued_status in
+				<foreach close=")" collection="issuedStatusList" item="issuedStatus"
+					open="(" separator=",">
+					#{issuedStatus}
+				</foreach>
+			</if>
+			<if test="levelList!=null">
+				and p.level in
+				<foreach close=")" collection="levelList" item="level" open="("
+					separator=",">
+					#{level}
+				</foreach>
+			</if>
+			<if test="riskLevelList!=null">
+				and p.risk_level in
+				<foreach close=")" collection="riskLevelList" item="riskLevel"
+					open="(" separator=",">
+					#{riskLevel}
+				</foreach>
+			</if>
+			<if test="typeIdList!=null">
+				and p.type_id in
+				<foreach close=")" collection="typeIdList" item="typeId"
+					open="(" separator=",">
+					#{typeId}
+				</foreach>
+			</if>
+			<if test="productScaleStart!=null">
+				 <![CDATA[
+				  and  ps.product_scale  >=  #{productScaleStart}
+				]]>
+			</if>
+			<if test="productScaleEnd!=null">
+				 <![CDATA[
+				  and  ps.product_scale  <=  #{productScaleEnd}
+				]]>
+			</if>
+			<if test="onLineTimeStart!=null">
+				<![CDATA[
+					AND p.on_line_time >= #{onLineTimeStart}
+				]]>
+			</if>
+			<if test="onLineTimeEnd!=null">
+				<![CDATA[
+					AND p.on_line_time <= #{onLineTimeEnd}
+				]]>
+			</if>
+			<if
+				test="assistantOrReceiverRealName!=null and assistantOrReceiverRealName!=''">
+				and (ud1.real_name like CONCAT('%',
+				#{assistantOrReceiverRealName},'%')
+				or ud2.real_name like CONCAT('%',
+				#{assistantOrReceiverRealName},'%'))
+			</if>
+			<if test="name!=null and name!=''">
+				and p.name like CONCAT('%', #{name},'%')
+			</if>
+			<if test="userId!=null">
+				and pf.user_id = #{userId}
+			</if>
+		</where>
+	</sql>
+
+</mapper>

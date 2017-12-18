@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.customer.customer.CustomerMapper">
+
+	<resultMap id="CustomerResult"
+		type="com.yundao.tenant.model.base.customer.BaseCustomer"
+		extends="com.yundao.tenant.mapper.base.customer.BaseCustomerMapper.BaseResultMap">
+	</resultMap>
+
+	<!--客户页面分页列表 -->
+	<resultMap id="customerPageResDto"
+		type="com.yundao.tenant.dto.customer.v2.CustomerV2PageResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="fpName" jdbcType="VARCHAR" property="fpName" />
+		<result column="sex" jdbcType="INTEGER" property="sex" />
+		<result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+		<result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+		<result column="level" jdbcType="INTEGER" property="level" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="dealDate" jdbcType="VARCHAR" property="dealDate" />
+		<result column="followDate" jdbcType="VARCHAR" property="followDate" />
+		<result column="distribution_date" jdbcType="VARCHAR" property="distributionDate" />
+		<result column="create_date" jdbcType="VARCHAR" property="createDate" />
+		<result column="fpId" jdbcType="BIGINT" property="fpId" />
+		<result column="focus" jdbcType="INTEGER" property="focus" />
+	</resultMap>
+
+	<!--我的客户分页列表 -->
+	<!-- APPv1.2版本上线后，删除以下代码 -->
+	<resultMap id="myCustomerPageDto"
+		type="com.yundao.tenant.dto.customer.customer.MyCustomerPageResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="sex" jdbcType="INTEGER" property="sex" />
+		<result column="province_code" jdbcType="VARCHAR" property="provinceCode" />
+		<result column="city_code" jdbcType="VARCHAR" property="cityCode" />
+		<result column="level" jdbcType="INTEGER" property="level" />
+		<result column="dealDate" jdbcType="VARCHAR" property="dealDate" />
+		<result column="distribution_date" jdbcType="VARCHAR" property="distributionDate" />
+		<result column="focus" jdbcType="INTEGER" property="focus" />
+		<result column="fpId" jdbcType="BIGINT" property="fpId" />
+	</resultMap>
+
+	<resultMap id="myCustomerSelectionDto"
+		type="com.yundao.tenant.dto.customer.customer.CustomerSelectionResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+	</resultMap>
+
+	<resultMap id="customerDistributionDto"
+		type="com.yundao.tenant.dto.customer.customer.CustomerDistributionResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="fpId" jdbcType="BIGINT" property="fpId" />
+	</resultMap>
+
+	<select id="selectPage" resultMap="customerPageResDto">
+		SELECT
+		c.id,c.name,c.number,c.mobile,c.sex,cd.province_code,cd.city_code,
+		c.level,c.status,c.create_date,d.dealDate,cfu.followDate,uc.distribution_date,
+		uc.user_id AS fpId,ud.real_name AS fpName,CASE WHEN ucf.id is null
+		THEN FALSE ELSE true END
+		as focus
+		FROM customer c
+		LEFT JOIN
+		customer_detail cd ON c.id=cd.id
+		LEFT JOIN user_customer uc ON
+		uc.customer_id=c.id AND uc.is_delete = 0
+		LEFT JOIN user_detail ud ON
+		ud.user_account_id=uc.user_id
+		LEFT JOIN (
+		SELECT
+		d.customer_id,MAX(d.apply_date) AS dealDate FROM
+		declaration d WHERE
+		d.status IN(2) AND d.is_delete=0 GROUP BY
+		d.customer_id
+		) d ON
+		d.customer_id=c.id
+		LEFT JOIN (
+		SELECT cfu.customer_id, cfu.create_date
+		AS followDate FROM
+		customer_follow_up cfu WHERE cfu.is_delete=0 GROUP
+		BY cfu.customer_id
+		) cfu ON cfu.customer_id=c.id
+		LEFT
+		JOIN
+		user_customer_focus
+		ucf ON ucf.customer_id=c.id AND
+		ucf.user_id=uc.user_id AND
+		ucf.is_delete=0
+		<include refid="customerPage_where"></include>
+		<include refid="customerPage_orderby"></include>
+		<include refid="limitSql"></include>
+	</select>
+
+	<select id="selectPageCount" resultType="int">
+		SELECT COUNT(1)
+		FROM customer c
+		LEFT JOIN customer_detail cd ON
+		c.id=cd.id
+		LEFT JOIN user_customer uc ON uc.customer_id=c.id
+		LEFT JOIN
+		user_detail ud ON ud.user_account_id=uc.user_id
+		LEFT JOIN (
+		SELECT
+		d.customer_id,MAX(d.apply_date) AS dealDate FROM declaration d WHERE
+		d.status IN(2) AND d.is_delete=0 GROUP BY d.customer_id
+		) d ON
+		d.customer_id=c.id
+		LEFT JOIN (
+		SELECT cfu.customer_id, cfu.create_date
+		AS followDate FROM customer_follow_up cfu WHERE cfu.is_delete=0 GROUP
+		BY cfu.customer_id
+		) cfu ON cfu.customer_id=c.id
+		<include refid="customerPage_where"></include>
+	</select>
+
+
+	<sql id="customerPage_where">
+		<where>
+			IFNULL(c.is_delete,0)=0 AND IFNULL(cd.is_delete,0) = 0
+
+			<if test="name!=null and name!=''">
+				AND c.name LIKE CONCAT('%', #{name},'%')
+			</if>
+			<if test="number!=null and number!=''">
+				AND c.number LIKE CONCAT('%', #{number},'%')
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				AND c.mobile=#{mobile}
+			</if>
+			<if test="sexs!=null and sexs!=''">
+				AND c.sex IN (${sexs})
+			</if>
+			<if test="fpName!=null and fpName!=''">
+				AND ud.real_name LIKE CONCAT('%', #{fpName},'%')
+			</if>
+			<if test="fpIds!=null and fpIds!=''">
+				AND uc.user_id IN (${fpIds})
+			</if>
+			<choose>
+				<when
+					test="cityCodes!=null and cityCodes!='' and provinceCodes!=null and provinceCodes!=''">
+					AND cd.city_code IN (${cityCodes})
+				</when>
+				<otherwise>
+					<if test="cityCodes!=null and cityCodes!=''">
+						AND cd.city_code IN (${cityCodes})
+					</if>
+					<if test="provinceCodes!=null and provinceCodes!=''">
+						AND cd.province_code IN (${provinceCodes})
+					</if>
+				</otherwise>
+			</choose>
+			<if test="levels!=null and levels!=''">
+				AND c.level IN(${levels})
+			</if>
+			<if test='isDeals=="1"'>
+				AND d.dealDate IS NOT NULL
+			</if>
+			<if test='isDeals=="0"'>
+				AND d.dealDate IS NULL
+			</if>
+			<if test="statuss!=null and statuss!=''">
+				AND c.status IN(${statuss})
+			</if>
+			<if test="dealDateBegin!=null and dealDateBegin!=''">
+				<![CDATA[
+                AND d.dealDate >=#{dealDateBegin}
+                ]]>
+			</if>
+			<if test="dealDateEnd!=null and dealDateEnd!=''">
+				<![CDATA[
+                AND d.dealDate <=#{dealDateEnd}
+                ]]>
+			</if>
+			<if test="followDateBegin!=null and followDateBegin!=''">
+				<![CDATA[
+                AND cfu.followDate >=#{followDateBegin}
+                ]]>
+			</if>
+			<if test="followDateEnd!=null and followDateEnd!=''">
+				<![CDATA[
+                AND cfu.followDate <=#{followDateEnd}
+                ]]>
+			</if>
+			<if test="distributionDateBegin!=null and distributionDateBegin!=''">
+				<![CDATA[
+                AND uc.distribution_date >=#{distributionDateBegin}
+                ]]>
+			</if>
+			<if test="distributionDateEnd!=null and distributionDateEnd!=''">
+				<![CDATA[
+                AND uc.distribution_date <=#{distributionDateEnd}
+                ]]>
+			</if>
+			<if test="createDateBegin!=null and createDateBegin!=''">
+				<![CDATA[
+                AND c.create_date >=#{createDateBegin}
+                ]]>
+			</if>
+			<if test="createDateEnd!=null and createDateEnd!=''">
+				<![CDATA[
+                AND c.create_date <=#{createDateEnd}
+                ]]>
+			</if>
+			<if test="riskRatings!=null and riskRatings!=''">
+				AND c.risk_rating IN (${riskRatings})
+			</if>
+			<if test="typies!=null and typies!=''">
+				AND c.type IN (${typies})
+			</if>
+			<if test="birthdayBeginMonth!=null and birthdayBeginMonth!=''">
+				<![CDATA[
+                AND MONTH(cd.birthday) >=#{birthdayBeginMonth}
+                ]]>
+			</if>
+			<if test="birthdayBeginDay!=null and birthdayBeginDay!=''">
+				<![CDATA[
+                AND DAY(cd.birthday) >=#{birthdayBeginDay}
+                ]]>
+			</if>
+			<if test="birthdayEndMonth!=null and birthdayEndMonth!=''">
+				<![CDATA[
+                AND MONTH(cd.birthday) <=#{birthdayEndMonth}
+                ]]>
+			</if>
+			<if test="birthdayEndDay!=null and birthdayEndDay!=''">
+				<![CDATA[
+                AND DAY(cd.birthday) <=#{birthdayEndDay}
+                ]]>
+			</if>
+			<if test="trade!=null and trade!=''">
+				AND cd.trade LIKE CONCAT('%',#{trade},'%')
+			</if>
+			<if test="organization!=null and organization!=''">
+				AND cd.organization LIKE CONCAT('%',#{organization},'%')
+			</if>
+			<if test="position!=null and position!=''">
+				AND cd.position LIKE CONCAT('%',#{position},'%')
+			</if>
+			<if test="customerIds!=null and customerIds !=''">
+				AND c.id IN(${customerIds})
+			</if>
+			<if test="userIds!=null and userIds!=''">
+				AND uc.user_id IN(${userIds})
+			</if>
+			<if test="scope!=null and scope=='neverfollow'">
+				AND cfu.followDate IS NULL
+			</if>
+			<if test="sources !=null">
+				and c.source in (${sources})
+			</if>
+		</where>
+	</sql>
+
+	<sql id="customerPage_orderby">
+		<choose>
+			<when test="orderColumn!=null and orderColumn!=''">
+				ORDER BY
+				<if test="orderColumn=='level'">
+					<choose>
+						<when test="sort=='desc'">
+							IF(c.level='' OR c.level IS NULL,-9999,c.level)
+							DESC,
+						</when>
+						<otherwise>
+							IF(c.level='' OR c.level IS NULL,9999,c.level),
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='dealDate'">
+					<choose>
+						<when test="sort=='desc'">
+							d.dealDate DESC,
+						</when>
+						<otherwise>
+							d.dealDate,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='followDate'">
+					<choose>
+						<when test="sort=='desc'">
+							cfu.followDate DESC,
+						</when>
+						<otherwise>
+							cfu.followDate,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='distributionDate'">
+					<choose>
+						<when test="sort=='desc'">
+							uc.distribution_date DESC,
+						</when>
+						<otherwise>
+							uc.distribution_date,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='createDate'">
+					<choose>
+						<when test="sort=='desc'">
+							c.create_date DESC,
+						</when>
+						<otherwise>
+							c.create_date,
+						</otherwise>
+					</choose>
+				</if>
+				c.id DESC
+			</when>
+			<otherwise>
+				ORDER BY c.create_date DESC, c.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<!--我的客户分页列表 -->
+	<!-- APPv1.2版本上线后，删除以下代码 -->
+	<select id="selectMyCustomerPage" resultMap="myCustomerPageDto">
+		SELECT
+		t.dealDate,
+		c.id,c.name,c.number,c.mobile,c.sex,cd.province_code,cd.city_code,c.level,uc.distribution_date,
+		CASE WHEN ucf.id is null THEN FALSE ELSE true END
+		as focus,uc.user_id
+		AS fpId
+		FROM customer
+		c LEFT JOIN customer_detail cd ON c.id=cd.id
+		LEFT
+		JOIN user_customer uc
+		ON c.id=uc.customer_id AND uc.is_delete=0
+		LEFT
+		JOIN user_customer_focus
+		ucf ON ucf.customer_id=c.id AND
+		ucf.user_id=uc.user_id AND
+		IFNULL(ucf.is_delete, 0)=0
+		LEFT JOIN (
+		SELECT
+		d.customer_id,MAX(d.create_date) AS dealDate FROM declaration d LEFT
+		JOIN declaration_discard dd ON d.id=dd.declaration_id WHERE
+		dd.id IS
+		NULL AND d.status=2 GROUP BY d.customer_id
+		) t
+		ON t.customer_id=c.id
+		<include refid="myCustomerPage_where"></include>
+		<include refid="myCustomerPage_orderby"></include>
+		<include refid="limitSql"></include>
+	</select>
+
+	<!--我的客户分页列表总条数 -->
+	<!-- APPv1.2版本上线后，删除以下代码 -->
+	<select id="selectMyCustomerPageCount" resultType="int">
+		SELECT COUNT(*)
+		FROM customer c LEFT JOIN customer_detail cd ON
+		c.id=cd.id
+		LEFT JOIN user_customer uc ON c.id=uc.customer_id AND
+		uc.is_delete=0
+		LEFT JOIN user_customer_focus ucf ON
+		ucf.customer_id=c.id AND
+		ucf.user_id=${userId} AND ucf.is_delete=0
+		LEFT
+		JOIN (
+		SELECT d.customer_id,MAX(d.create_date) AS dealDate FROM
+		declaration d LEFT
+		JOIN declaration_discard dd ON
+		d.id=dd.declaration_id WHERE
+		dd.id IS NULL AND d.status=2 GROUP BY
+		d.customer_id
+		) t
+		ON t.customer_id=c.id
+		LEFT JOIN customer_invest_type
+		cit on cit.customer_id=c.id
+		<include refid="myCustomerPage_where"></include>
+	</select>
+
+	<!-- APPv1.2版本上线后，删除以下代码 -->
+	<sql id="myCustomerPage_where">
+		<where>
+			IFNULL(c.is_delete, 0)=0 AND IFNULL(uc.is_delete, 0)=0 AND IFNULL(cd.is_delete, 0)=0 AND
+			uc.user_id=${userId}
+			<if test="name!=null and name!=''">
+				AND c.name LIKE CONCAT('%', #{name},'%')
+			</if>
+			<if test="number!=null and number!=''">
+				AND c.number LIKE CONCAT('%', #{number},'%')
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				AND c.mobile=#{mobile}
+			</if>
+			<if test="sexs!=null and sexs!=''">
+				AND c.sex IN (${sexs})
+			</if>
+			<choose>
+				<when
+					test="cityCodes!=null and cityCodes!='' and provinceCodes!=null and provinceCodes!=''">
+					AND cd.city_code IN (${cityCodes})
+				</when>
+				<otherwise>
+					<if test="cityCodes!=null and cityCodes!=''">
+						AND cd.city_code IN (${cityCodes})
+					</if>
+					<if test="provinceCodes!=null and provinceCodes!=''">
+						AND cd.province_code IN (${provinceCodes})
+					</if>
+				</otherwise>
+			</choose>
+			<if test="levels!=null and levels!=''">
+				AND c.level IN(${levels})
+			</if>
+
+			<if test="dealDateBegin!=null and dealDateBegin!=''">
+				<![CDATA[
+                AND t.dealDate >=#{dealDateBegin}
+                ]]>
+			</if>
+			<if test="dealDateEnd!=null and dealDateEnd!=''">
+				<![CDATA[
+                AND t.dealDate <=#{dealDateEnd}
+                ]]>
+			</if>
+			<if test='isDeals=="1"'>
+				AND t.dealDate IS NOT NULL
+			</if>
+			<if test='isDeals=="0"'>
+				AND t.dealDate IS NULL
+			</if>
+			<if test="distributionDateBegin!=null and distributionDateBegin!=''">
+                <![CDATA[
+                AND uc.distribution_date >=#{distributionDateBegin}
+                ]]>
+			</if>
+			<if test="distributionDateEnd!=null and distributionDateEnd!=''">
+                <![CDATA[
+                AND uc.distribution_date <=#{distributionDateEnd}
+                ]]>
+			</if>
+			<if test="scope=='focus'">
+				AND ucf.id IS NOT NULL
+			</if>
+			<if test="scope=='unfollow'">
+				AND NOT exists(SELECT 1 FROM customer_follow_up cfu WHERE
+				cfu.customer_id=c.id LIMIT 1)
+			</if>
+			<if test="tagNames !=null">
+				and EXISTS (SELECT ct.id from customer_tag ct LEFT JOIN
+				tag tg on
+				ct.tag_id=tg.id
+				where ct.customer_id=c.id
+				and
+				<foreach collection="tagNames" item="item" separator="or"
+					open="(" close=")" index="">
+					tg.name like CONCAT('%',#{item},'%')
+				</foreach>
+				)
+			</if>
+			<if test="invests !=null">
+				and EXISTS(
+				select cit.id from customer_invest_type cit
+				where
+				cit.customer_id=c.id
+				and cit.product_type_id in (${invests})
+				)
+			</if>
+			<if test="riskRatings !=null">
+				and c.risk_rating in (${riskRatings})
+			</if>
+			<if test="customerTypes !=null">
+				and c.type in (${customerTypes})
+			</if>
+			<if test="sources !=null">
+				and c.source in (${sources})
+			</if>
+			<if test="birthDayBegin !=null and birthDayBegin !=''">
+				<![CDATA[
+                AND DATE_FORMAT(cd.birthday,'%m-%d') >= #{birthDayBegin}
+                ]]>
+			</if>
+			<if test="birthDayEnd !=null and birthDayEnd !=''">
+				<![CDATA[
+				AND DATE_FORMAT(cd.birthday,'%m-%d') <= #{birthDayEnd}
+                ]]>
+			</if>
+		</where>
+	</sql>
+
+	<!-- APPv1.2版本上线后，删除以下代码 -->
+	<sql id="myCustomerPage_orderby">
+		<choose>
+			<when test="orderColumn!=null and orderColumn!=''">
+				ORDER BY
+				<if test="orderColumn=='levels'">
+					<choose>
+						<when test="sort=='desc'">
+							IF(c.level='' OR c.level IS NULL,-9999,c.level)
+							DESC,
+						</when>
+						<otherwise>
+							IF(c.level='' OR c.level IS NULL,9999,c.level),
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='distributionDate'">
+					<choose>
+						<when test="sort=='desc'">
+							uc.distribution_date DESC,
+						</when>
+						<otherwise>
+							uc.distribution_date,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='dealDate'">
+					<choose>
+						<when test="sort=='desc'">
+							t.dealDate DESC,
+						</when>
+						<otherwise>
+							t.dealDate,
+						</otherwise>
+					</choose>
+				</if>
+				c.id DESC
+			</when>
+			<otherwise>
+				ORDER BY uc.distribution_date DESC, c.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<!--获取客户下拉选项 -->
+	<select id="selectCustomerSelection" resultMap="myCustomerSelectionDto">
+		SELECT c.id,c.name,c.mobile FROM customer c LEFT JOIN user_customer uc
+		ON c.id=uc.customer_id AND uc.is_delete=0
+		<where>
+			c.is_delete=0
+			<if test="userId!=null">
+				AND uc.user_id=${userId}
+			</if>
+			<if test="name!=null and name!=''">
+				AND c.name LIKE CONCAT('%', #{name},'%')
+			</if>
+		</where>
+		LIMIT 10
+	</select>
+
+	<select id="selectAuditingReservationCustomerIds" resultMap="customerDistributionDto">
+		SELECT DISTINCT c.id,c.name,uc.user_id FROM reservation r LEFT JOIN
+		reservation_discard rd
+		ON r.id = rd.reservation_id
+		LEFT JOIN customer c
+		ON c.id=r.customer_id
+		LEFT JOIN user_customer uc ON uc.customer_id=c.id
+		AND uc.is_delete=0
+		WHERE r.status IN(1,3) AND rd.id IS NULL AND
+		r.is_delete = 0 AND c.id IN
+		<foreach collection="customerIds" open="(" close=")"
+			separator="," item="id">
+			${id}
+		</foreach>
+	</select>
+
+	<select id="selectAuditingDelcarationCustomerIds" resultMap="customerDistributionDto">
+		SELECT DISTINCT c.id,c.name,uc.user_id FROM declaration d LEFT JOIN
+		declaration_discard dd
+		ON d.id=dd.declaration_id
+		LEFT JOIN customer c ON
+		c.id=d.customer_id
+		LEFT
+		JOIN user_customer uc ON uc.customer_id=c.id AND
+		uc.is_delete=0
+		WHERE
+		d.status IN(1,3) AND dd.id IS NULL AND
+		d.is_delete=0 AND c.id IN
+		<foreach collection="customerIds" open="(" close=")"
+			separator="," item="id">
+			${id}
+		</foreach>
+	</select>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+</mapper>

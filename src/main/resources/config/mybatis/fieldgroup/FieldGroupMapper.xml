@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.fieldgroup.FieldGroupMapper">
+
+    <resultMap id="FieldGroupResult" type="com.yundao.tenant.model.base.BaseFieldGroup" extends="com.yundao.tenant.mapper.base.BaseFieldGroupMapper.BaseResultMap">
+    </resultMap>
+
+    <select id="valdateData" resultMap="FieldGroupResult">
+      select * from field_group WHERE is_delete != 1 AND name = #{name}
+      <if test="id != null">
+        AND id != #{id}
+      </if>
+        limit 1
+    </select>
+</mapper>

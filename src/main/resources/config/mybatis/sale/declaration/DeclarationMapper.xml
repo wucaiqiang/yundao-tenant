@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.sale.declaration.DeclarationMapper">
+
+	<resultMap id="DeclarationResult" type="com.yundao.tenant.model.sale.DeclarationModel"
+			   extends="com.yundao.tenant.mapper.base.sale.BaseDeclarationMapper.BaseResultMap">
+		<result column="productName" property="productName" />
+		<result column="customerName" property="customerName" />
+		<result column="statusName" property="statusName" />
+		<result column="createUserName" property="createUserName" />
+		<result column="has_pay_evidence" property="hasPayEvidence" />
+	</resultMap>
+
+	<resultMap id="DeclarationKnotResult" type="com.yundao.tenant.dto.finance.knotcommission.DeclarationKnot"
+			   extends="com.yundao.tenant.mapper.sale.declaration.DeclarationMapper.DeclarationResult">
+		<result column="total_count" property="totalCount" />
+		<result column="total_amount" property="totalAmount" />
+		<result column="user_name" property="userName" />
+		<result column="customerNumber" property="customerNumber" />
+	</resultMap>
+
+	<resultMap id="DeclarationAuditKnotResult" type="com.yundao.tenant.dto.finance.knotcommission.DeclarationAuditKnot"
+			   extends="com.yundao.tenant.mapper.sale.declaration.DeclarationMapper.DeclarationResult">
+		<result column="user_name" property="userName" />
+		<result column="type" property="type" />
+		<result column="rate" property="rate" />
+		<result column="amount" property="amount" />
+		<result column="provide_date" property="provideDate" />
+		<result column="remark" property="remark" />
+		<result column="status" property="status" />
+		<result column="operation_date" property="operationDate" />
+		<result column="user_id" property="userId" />
+		<result column="audit_date" property="auditDate" />
+		<result column="apply_date" property="applyDate" />
+		<result column="audit_reason" property="auditReason" />
+		<result column="dec_operation_date" property="decOperationDate" />
+		<result column="applyUserName" property="applyUserName" />
+		<result column="declaration_id" property="declarationId" />
+	</resultMap>
+
+	<resultMap id="DeclarationGetDto"
+			   type="com.yundao.tenant.dto.sale.declaration.DeclarationResDto"
+			   extends="com.yundao.tenant.mapper.base.sale.BaseDeclarationMapper.BaseResultMap">
+		<result column="customerName" property="customerName" />
+		<result column="userName" property="userName" />
+		<result column="productId" property="productId" />
+		<result column="productName" property="productName" />
+		<result column="productTypeId" property="productTypeId" />
+		<result column="productTypeName" property="productTypeName" />
+		<result column="productTime" property="productTime" />
+		<result column="productCreateDate" property="productCreateDate" />
+		<result column="productNoticeId" property="productNoticeId" />
+		<result column="productNoticeName" property="productNoticeName" />
+	</resultMap>
+
+	<resultMap id="forProDetailDto"
+			   type="com.yundao.tenant.dto.sale.declaration.DeclarationForProDetailResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" jdbcType="VARCHAR" property="number" />
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+		<result column="customerName" jdbcType="VARCHAR" property="customerName" />
+		<result column="customerNumber" jdbcType="VARCHAR" property="customerNumber" />
+		<result column="deal_amount" jdbcType="VARCHAR" property="dealAmount" />
+		<result column="pay_date" jdbcType="VARCHAR" property="payDate" />
+		<result column="has_pay_evidence" jdbcType="INTEGER" property="hasPayEvidence" />
+		<result column="fpId" jdbcType="BIGINT" property="fpId" />
+	</resultMap>
+
+
+	<resultMap id="productDeclarationAmountDto"
+			   type="com.yundao.tenant.dto.sale.declaration.ProductDeclarationAmountDto">
+		<result column="product_id" property="productId" />
+		<result column="sumAmount" property="sumAmount" />
+	</resultMap>
+
+	<resultMap id="AfpReportDto" type="com.yundao.tenant.dto.report.AfpReportDto">
+		<result column="user_id" property="userId" />
+		<result column="real_name" property="userName" />
+		<result column="deal_amount" property="money" />
+	</resultMap>
+	<resultMap id="ProductReportDto" type="com.yundao.tenant.dto.report.ProductReportDto">
+		<result column="product_id" property="productId" />
+		<result column="total" property="total" />
+	</resultMap>
+
+	<resultMap id="receiptPlanDeclarationDto" type="com.yundao.tenant.dto.finance.receipt.plan.ReceiptPlanDeclarationDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" property="number" />
+		<result column="fpId" property="fpId" />
+		<result column="customerName" property="customerName" />
+		<result column="customerNumber" property="customerNumber" />
+		<result column="deal_amount" property="dealAmount" />
+		<result column="commit_date" property="commitDate" />
+		<result column="dealFpId" property="dealFpId" />
+		<result column="dealFpName" property="dealFpName" />
+		<result column="commissionCount" property="commissionCount" />
+		<result column="commissionTotalAmount" property="commissionTotalAmount" />
+	</resultMap>
+
+	<resultMap id="declarationForReceiptResDto" type="com.yundao.tenant.dto.finance.receipt.DeclarationForReceiptResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="number" property="number" />
+		<result column="fpId" property="fpId" />
+		<result column="customerName" property="customerName" />
+		<result column="deal_amount" property="dealAmount" />
+		<result column="commit_date" property="commitDate" />
+		<result column="dealFpId" property="dealFpId" />
+		<result column="dealFpName" property="dealFpName" />
+	</resultMap>
+
+	<resultMap id="productDeclarationDto"
+			   type="com.yundao.tenant.dto.sale.declaration.ProductDeclarationDto">
+		<result column="customerName" property="customerName" />
+		<result column="customer_id" property="customerId" />
+		<result column="product_id" property="productId" />
+		<result column="productName" property="productName" />
+		<result column="status" property="status" />
+		<result column="id" property="declarationId" />
+		<result column="deal_amount" property="dealAmount" />
+	</resultMap>
+	
+
+
+	<select id="getProductDeclarationDtos" resultMap="productDeclarationDto">
+		SELECT
+		r.id,
+		p.`name` as productName,
+		r.deal_amount,
+		r.`status`,
+		r.customer_id,
+		c.`name` as customerName,
+		r.product_id
+		FROM
+		declaration r
+		LEFT JOIN product p ON r.product_id = p.id
+		LEFT JOIN customer c on
+		r.customer_id = c.id
+		AND r.id in
+		<foreach close=")" collection="declarationIds" item="declarationId"
+				 open="(" separator=",">
+			#{declarationId}
+		</foreach>
+	</select>
+
+
+
+
+	<select id="selectTotalByProductIds" resultMap="ProductReportDto">
+		SELECT
+		SUM(d.deal_amount) AS total,d.product_id
+		FROM
+		declaration d
+		WHERE
+		d.STATUS = 2
+		AND
+		d.is_delete = 0
+		AND not EXISTS (SELECT id from declaration_discard where
+		declaration_id=d.id)
+		and d.product_id in
+		(${productIds})
+		GROUP BY
+		product_id
+	</select>
+
+	<select id="selectDeclarationTotal" resultType="Double">
+		SELECT
+		SUM(d.deal_amount) as total from declaration d where d.status =2 and
+		d.is_delete=0
+		and not EXISTS (SELECT id from declaration_discard where
+		declaration_id=d.id)
+		and
+		d.create_date BETWEEN #{beginDate} and
+		#{endDate}
+	</select>
+	<select id="selectDeclarationRank" resultMap="AfpReportDto">
+		SELECT
+		ud.real_name,SUM(d.deal_amount) as
+		deal_amount,d.user_id
+		from
+		declaration d LEFT JOIN user_account
+		ua on
+		d.user_id=ua.id
+		LEFT
+		JOIN
+		user_detail ud on
+		ua.id=ud.user_account_id
+		where
+		d.is_delete=0 and
+		d.`status`=2
+		and
+		ua.is_lock=0 and ua.is_delete=0
+		and not EXISTS (SELECT
+		id from declaration_discard where declaration_id=d.id)
+		<if test="beginDate !=null ">
+			<![CDATA[
+                and d.create_date >= #{beginDate}
+			]]>
+		</if>
+		<if test="endDate !=null">
+			<![CDATA[
+			and d.create_date < #{endDate}
+			]]>
+		</if>
+
+		GROUP BY
+		user_id,real_name
+
+		ORDER BY deal_amount desc
+		<if test="limit !=null">
+			limit #{limit}
+		</if>
+
+	</select>
+
+	<select id="selectPageForProDetail" resultMap="forProDetailDto"
+			parameterType="map">
+		SELECT d.id,d.number,d.customer_id,c.name AS customerName,c.number AS
+		customerNumber,d.deal_amount,
+		d.pay_date,uc.user_id AS fpId,
+		(CASE WHEN
+		da.declaration_id IS NULL THEN 0 ELSE 1 END) AS has_pay_evidence
+		FROM
+		declaration d LEFT JOIN customer c ON d.customer_id=c.id
+		LEFT JOIN
+		user_customer uc ON c.id=uc.customer_id AND uc.is_delete=0
+		LEFT JOIN
+		declaration_discard
+		dd ON dd.declaration_id=d.id
+		LEFT JOIN (SELECT
+		da.declaration_id FROM
+		declaration_attach da WHERE da.type=2 AND
+		da.is_delete=0 GROUP BY da.declaration_id) da
+		ON
+		da.declaration_id=d.id
+		WHERE d.status=2 AND
+		dd.id IS NULL AND
+		d.product_id=${productId}
+		ORDER BY d.create_date
+		DESC,d.id DESC
+		<include refid="limitSql"></include>
+	</select>
+
+	<select id="selectPageForProDetailCount" resultType="int"
+			parameterType="map">
+		SELECT COUNT(*) FROM declaration d LEFT JOIN
+		customer c
+		ON d.customer_id=c.id
+		LEFT JOIN user_customer uc ON
+		c.id=uc.customer_id
+		AND uc.is_delete=0
+		LEFT JOIN declaration_discard dd ON
+		dd.declaration_id=d.id
+		LEFT JOIN (SELECT da.declaration_id FROM
+		declaration_attach da WHERE da.type=2 AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON
+		da.declaration_id=d.id
+		WHERE
+		d.status=2 AND dd.id IS NULL AND
+		d.product_id=${productId}
+	</select>
+
+	<sql id="Declaration_Where_Clause">
+		d.is_delete != 1
+		<if test="id!=null">
+			AND d.id = #{id}
+		</if>
+		<if test="tenantId!=null">
+			AND d.tenant_id = #{tenantId}
+		</if>
+		<if test="reservationId!=null">
+			AND d.reservation_id = #{reservationId}
+		</if>
+		<if test="number!=null and number!=''">
+			AND d.number like '%${number}%'
+		</if>
+
+		<if test="dealAmountStart!=null and dealAmountStart!=''">
+			AND d.deal_amount &gt;= #{dealAmountStart}
+		</if>
+		<if test="dealAmountEnd!=null and dealAmountEnd!=''">
+			AND d.deal_amount &lt;= #{dealAmountEnd}
+		</if>
+
+		<if test="payDateStart!=null">
+			AND d.pay_date &gt;= #{payDateStart}
+		</if>
+
+		<if test="payDateEnd!=null">
+			AND d.pay_date &lt;= #{payDateEnd}
+		</if>
+
+		<if test="commitDateStart!=null">
+			AND d.commit_date &gt;= #{commitDateStart}
+		</if>
+
+		<if test="commitDateEnd!=null">
+			AND d.commit_date &lt;= #{commitDateEnd}
+		</if>
+
+		<if test="createDateStart!=null">
+			AND d.create_date &gt;= #{createDateStart}
+		</if>
+
+		<if test="createDateEnd!=null">
+			AND d.create_date &lt;= #{createDateEnd}
+		</if>
+
+		<if test="payDate!=null">
+			AND d.pay_date = #{payDate}
+		</if>
+
+		<if test="statuss!=null and statuss!=''">
+			AND d.status in ('${statuss}')
+		</if>
+
+		<if test="productId!=null">
+			AND d.product_id = #{productId}
+		</if>
+		<if test="customerId!=null">
+			AND d.customer_id = #{customerId}
+		</if>
+		<if test="payDate!=null">
+			AND d.pay_date = #{payDate}
+		</if>
+		<if test="dealAmount!=null and dealAmount!=''">
+			AND d.deal_amount = #{dealAmount}
+		</if>
+		<if test="hasPayEvidence!=null">
+			<if test="hasPayEvidence==0">
+				AND da.declaration_id IS NULL
+			</if>
+			<if test="hasPayEvidence==1">
+				AND da.declaration_id IS NOT NULL
+			</if>
+		</if>
+		<if test="remark!=null and remark!=''">
+			AND d.remark = #{remark}
+		</if>
+		<if test="status!=null">
+			AND d.status = #{status}
+		</if>
+		<if test="userId!=null">
+			AND d.user_id = #{userId}
+		</if>
+		<if test="commitDate!=null">
+			AND d.commit_date = #{commitDate}
+		</if>
+		<if test="operationDate!=null">
+			AND d.operation_date = #{operationDate}
+		</if>
+		<if test="createDate!=null">
+			AND d.create_date = #{createDate}
+		</if>
+		<if test="createUserId!=null">
+			AND d.create_user_id = #{createUserId}
+		</if>
+		<if test="updateUserId!=null">
+			AND d.update_user_id = #{updateUserId}
+		</if>
+		<if test="updateDate!=null">
+			AND d.update_date = #{updateDate}
+		</if>
+	</sql>
+
+	<sql id="KnotCommission_Where_Clause">
+		kc.is_delete != 1
+		<if test="id!=null">
+			AND kc.id = #{id}
+		</if>
+		<if test="tenantId!=null">
+			AND kc.tenant_id = #{tenantId}
+		</if>
+		<if test="declarationId!=null">
+			AND kc.declaration_id = #{declarationId}
+		</if>
+		<if test="type!=null and ''!=type">
+			AND kc.type = #{type}
+		</if>
+		<if test="rate!=null and ''!=rate">
+			AND kc.rate = #{rate}
+		</if>
+		<if test="rateStart!=null">
+			AND kc.rate >= #{rateStart}
+		</if>
+		<if test="rateEnd!=null">
+			AND kc.rate &lt;= #{rateEnd}
+		</if>
+		<if test="amount!=null and ''!=amount">
+			AND kc.amount = #{amount}
+		</if>
+		<if test="amountStart!=null">
+			AND kc.amount >= #{amountStart}
+		</if>
+		<if test="amountEnd!=null">
+			AND kc.amount &lt;= #{amountEnd}
+		</if>
+		<if test="provideDate!=null">
+			AND kc.provide_date = #{provideDate}
+		</if>
+		<if test="remark!=null and ''!=remark">
+			AND kc.remark like '%${remark}%'
+		</if>
+		<if test="status!=null">
+			AND kc.status = #{status}
+		</if>
+		<if test="statusList!=null">
+			AND kc.status in
+			<foreach close=")" collection="statusList" item="status"
+					 open="(" separator=",">
+				#{status}
+			</foreach>
+		</if>
+		<if test="operationDate!=null">
+			AND kc.operation_date = #{operationDate}
+		</if>
+		<if test="operationDateStart!=null">
+			AND kc.operation_date >= #{operationDateStart}
+		</if>
+		<if test="operationDateEnd!=null">
+			AND kc.operation_date &lt;= #{operationDateEnd}
+		</if>
+		<if test="userId!=null">
+			AND kc.user_id = #{userId}
+		</if>
+		<if test="auditDate!=null">
+			AND kc.audit_date = #{auditDate}
+		</if>
+		<if test="applyDate!=null">
+			AND kc.apply_date = #{applyDate}
+		</if>
+		<if test="applyDateEnd!=null">
+			AND kc.apply_date &lt;= #{applyDateEnd}
+		</if>
+		<if test="applyDateStart!=null">
+			AND kc.apply_date >= #{applyDateStart}
+		</if>
+		<if test="auditReason!=null and ''!=auditReason">
+			AND kc.audit_reason = #{auditReason}
+		</if>
+		<if test="createUserId!=null">
+			AND kc.create_user_id = #{createUserId}
+		</if>
+
+		<if test="createDate!=null">
+			AND kc.create_date = #{createDate}
+		</if>
+		<if test="updateUserId!=null">
+			AND kc.update_user_id = #{updateUserId}
+		</if>
+		<if test="updateDate!=null">
+			AND kc.update_date = #{updateDate}
+		</if>
+	</sql>
+
+	<select id="selectSearchPage" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultMap="DeclarationResult">
+		select d.*,p.name as productName,c.name as customerName,
+		(select
+		username from `user_account` where id = d.create_user_id limit 1)
+		createUserName,
+		(CASE WHEN da.declaration_id IS NULL THEN 0 ELSE 1 END)
+		AS has_pay_evidence
+		from declaration d left join product p on p.id =
+		d.product_id left join
+		customer c on c.id = d.customer_id
+		LEFT JOIN
+		(SELECT da.declaration_id FROM declaration_attach da WHERE da.type=2
+		AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		<where>
+			<if test="keyword!=null and keyword != ''">
+				AND (p.name like '%${keyword}%' or c.name like
+				'%${keyword}%')
+			</if>
+		</where>
+		<if test="order!=null and ''!=order">
+			order by ${order}
+		</if>
+		limit #{offset},#{pageSize}
+	</select>
+	<select id="selectSearchPageCount" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultType="java.lang.Integer">
+		select count(1) from declaration d left join product p on p.id =
+		d.product_id left join customer c on c.id = d.customer_id
+		<where>
+			<if test="keyword!=null and keyword != ''">
+				AND (p.name like '%${keyword}%' or c.name like
+				'%${keyword}%')
+			</if>
+		</where>
+	</select>
+	<select id="queryPageInfo" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultMap="DeclarationResult">
+		select d.*,p.name as productName,c.name as customerName,
+		(select
+		real_name from `user_detail` where user_account_id = d.create_user_id limit 1)
+		createUserName,
+		(CASE WHEN da.declaration_id IS NULL THEN 0 ELSE 1 END)
+		AS has_pay_evidence
+		from declaration d left join product p on p.id =
+		d.product_id left join
+		customer c on c.id = d.customer_id
+		LEFT JOIN
+		(SELECT DISTINCT da.declaration_id FROM declaration_attach da WHERE
+		da.type=2
+		AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		<where>
+			<include refid="Declaration_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="queryPageKnotInfo" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultMap="DeclarationKnotResult">
+		select d.*,p.name as productName,c.name as customerName,c.number as customerNumber,ud.real_name as user_name,kc.total_count,kc.total_amount,
+		(select
+		real_name from `user_detail` where id = d.create_user_id limit 1)
+		createUserName,
+		(CASE WHEN da.declaration_id IS NULL THEN 0 ELSE 1 END)
+		AS has_pay_evidence
+		from declaration d left join product p on p.id =
+		d.product_id left join
+		customer c on c.id = d.customer_id
+		LEFT JOIN
+		(SELECT DISTINCT da.declaration_id FROM declaration_attach da WHERE
+		da.type=2
+		AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		LEFT JOIN user_detail ud on d.user_id = ud.user_account_id
+		left join (select ifnull(count(1),0) total_count,ifnull(sum(amount),0) total_amount,declaration_id from knot_commission where status = 2 GROUP BY declaration_id) kc on kc.declaration_id = d.id
+		<where>
+			<include refid="Declaration_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+			<if test="customerNumber!=null and customerNumber != ''">
+				AND c.number like '%${customerNumber}%'
+			</if>
+			<if test="userName!=null and userName != ''">
+				AND ud.real_name like '%${userName}%'
+			</if>
+			<if test="countIsNull!=null">
+				AND kc.total_count is null
+			</if>
+			<if test="totalCountStart!=null">
+				AND ifnull(kc.total_count, 0) >= #{totalCountStart}
+			</if>
+			<if test="totalCountEnd!=null">
+				AND ifnull(kc.total_count, 0) &lt;= #{totalCountEnd}
+			</if>
+			<if test="totalAmountStart!=null">
+				AND ifnull(kc.total_amount,0) >= #{totalAmountStart}
+			</if>
+			<if test="totalAmountEnd!=null">
+				AND ifnull(kc.total_amount,0) &lt;= #{totalAmountEnd}
+			</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="queryPageAuditKnotInfo" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultMap="DeclarationAuditKnotResult">
+		SELECT
+		d.number,d.deal_amount, d.operation_date AS dec_operation_date,kc.*,p. NAME AS productName,
+		c. NAME AS customerName,
+		c.number AS customerNumber,
+		ud.real_name AS user_name,
+		d.customer_id AS customer_id,
+		d.product_id AS product_id,
+		udc.real_name AS createUserName,
+		uda.real_name AS applyUserName,
+		d.id as declaration_id
+		FROM
+		knot_commission kc left join declaration d on d.id = kc.declaration_id
+		LEFT JOIN product p ON p.id = d.product_id
+		LEFT JOIN customer c ON c.id = d.customer_id
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_detail udc ON d.create_user_id = udc.user_account_id
+		LEFT JOIN user_detail uda ON kc.user_id = uda.user_account_id
+		<where>
+			<include refid="KnotCommission_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+			<if test="customerNumber!=null and customerNumber != ''">
+				AND c.number like '%${customerNumber}%'
+			</if>
+			<if test="userName!=null and userName != ''">
+				AND ud.real_name like '%${userName}%'
+			</if>
+			<if test="createUserName!=null and createUserName != ''">
+				AND udc.real_name like '%${createUserName}%'
+			</if>
+			<if test="applyUserName!=null and applyUserName != ''">
+				AND uda.real_name like '%${applyUserName}%'
+			</if>
+			<if test="number!=null and number!=''">
+				AND d.number like '%${number}%'
+			</if>
+			<if test="dealAmountStart!=null and dealAmountStart!=''">
+				AND d.deal_amount &gt;= #{dealAmountStart}
+			</if>
+			<if test="dealAmountEnd!=null and dealAmountEnd!=''">
+				AND d.deal_amount &lt;= #{dealAmountEnd}
+			</if>
+			<if test="decOperationDateStart!=null and decOperationDateStart!=''">
+				AND d.operation_date &gt;= #{decOperationDateStart}
+			</if>
+			<if test="decOperationDateEnd!=null and decOperationDateEnd!=''">
+				AND d.operation_date &lt;= #{decOperationDateEnd}
+			</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		limit #{offset},#{pageSize}
+	</select>
+
+	<select id="queryPageAuditKnotCount" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultType="java.lang.Integer">
+		select count(1)
+		from knot_commission kc left join declaration d on d.id = kc.declaration_id
+		LEFT JOIN product p ON p.id = d.product_id
+		LEFT JOIN customer c ON c.id = d.customer_id
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_detail udc ON d.create_user_id = udc.user_account_id
+		LEFT JOIN user_detail uda ON kc.user_id = uda.user_account_id
+		<where>
+			<include refid="KnotCommission_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+			<if test="customerNumber!=null and customerNumber != ''">
+				AND c.number like '%${customerNumber}%'
+			</if>
+			<if test="userName!=null and userName != ''">
+				AND ud.real_name like '%${userName}%'
+			</if>
+			<if test="createUserName!=null and createUserName != ''">
+				AND udc.real_name like '%${createUserName}%'
+			</if>
+			<if test="applyUserName!=null and applyUserName != ''">
+				AND uda.real_name like '%${applyUserName}%'
+			</if>
+			<if test="number!=null and number!=''">
+				AND d.number like '%${number}%'
+			</if>
+			<if test="dealAmountStart!=null and dealAmountStart!=''">
+				AND d.deal_amount &gt;= #{dealAmountStart}
+			</if>
+			<if test="dealAmountEnd!=null and dealAmountEnd!=''">
+				AND d.deal_amount &lt;= #{dealAmountEnd}
+			</if>
+			<if test="decOperationDateStart!=null and decOperationDateStart!=''">
+				AND d.operation_date &gt;= #{decOperationDateStart}
+			</if>
+			<if test="decOperationDateEnd!=null and decOperationDateEnd!=''">
+				AND d.operation_date &lt;= #{decOperationDateEnd}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryPageCount" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultType="java.lang.Integer">
+		select count(1)
+		from declaration d left join product p on p.id =
+		d.product_id left join
+		customer c on c.id = d.customer_id
+		LEFT JOIN
+		(SELECT DISTINCT da.declaration_id FROM declaration_attach da WHERE
+		da.type=2
+		AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		<where>
+			<include refid="Declaration_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+		</where>
+	</select>
+
+	<select id="queryPageKnotCount" parameterType="com.yundao.tenant.model.base.sale.BaseDeclaration"
+			resultType="java.lang.Integer">
+		select count(1) from declaration d left join product p on p.id =
+		d.product_id left join
+		customer c on c.id = d.customer_id
+		LEFT JOIN
+		(SELECT DISTINCT da.declaration_id FROM declaration_attach da WHERE
+		da.type=2
+		AND da.is_delete=0 GROUP BY da.declaration_id) da
+		ON da.declaration_id=d.id
+		LEFT JOIN user_detail ud on d.user_id = ud.user_account_id
+		left join (select ifnull(count(1),0) total_count,ifnull(sum(amount),0) total_amount,declaration_id from knot_commission where status = 2 GROUP BY declaration_id) kc on kc.declaration_id = d.id
+		<where>
+			<include refid="Declaration_Where_Clause" />
+			<if test="productName!=null and productName != ''">
+				AND p.name like '%${productName}%'
+			</if>
+			<if test="customerName!=null and customerName != ''">
+				AND c.name like '%${customerName}%'
+			</if>
+			<if test="customerNumber!=null and customerNumber != ''">
+				AND c.number like '%${customerNumber}%'
+			</if>
+			<if test="userName!=null and userName != ''">
+				AND ud.real_name like '%${userName}%'
+			</if>
+			<if test="countIsNull!=null">
+				AND kc.total_count is null
+			</if>
+			<if test="totalCountStart!=null">
+				AND kc.total_count >= #{totalCountStart}
+			</if>
+			<if test="totalCountEnd!=null">
+				AND kc.total_count &lt;= #{totalCountEnd}
+			</if>
+			<if test="totalAmountStart!=null">
+				AND kc.total_amount >= #{totalAmountStart}
+			</if>
+			<if test="totalAmountEnd!=null">
+				AND kc.total_amount &lt;= #{totalAmountEnd}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Long"
+			resultMap="DeclarationGetDto">
+		select d.*,p.id productId,p.name productName,p.time_limit
+		productTime,u.real_name userName,c.name customerName,fg.`name`
+		productTypeName, fg.id productTypeId,notice.id
+		productNoticeId,notice.title productNoticeName,notice.send_time
+		productCreateDate from declaration d
+		left join product p on
+		d.product_id=p.id
+		left join user_detail u on d.user_id =
+		u.user_account_id
+		left join
+		customer c on c.id = d.customer_id
+		left join
+		field_group fg on
+		p.tenant_id=fg.id
+		left join (select pn.* from
+		product_notice pn left
+		join
+		product_notice_type pnt on pn.notice_type_id
+		= pnt.id WHERE
+		pnt.`code`='product_found' and pn.is_send=1 ORDER BY id ) notice on
+		p.id =
+		notice.product_id
+		where d.id=#{id} AND d.is_delete != 1 limit 1
+	</select>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+
+	<select id="getProductDeclarationAmountDtos" resultMap="productDeclarationAmountDto">
+		SELECT
+		r.product_id,
+		SUM(r.deal_amount) as sumAmount
+		FROM
+		declaration r
+		LEFT JOIN declaration_discard rd ON r.id = rd.declaration_id
+		where
+		r.is_delete = 0
+		and rd.id is NULL
+		and r.`status` = 2
+		AND r.product_id in
+		<foreach close=")" collection="productIds" item="productId"
+				 open="(" separator=",">
+			#{productId}
+		</foreach>
+		GROUP BY r.product_id
+	</select>
+
+	<select id="getFpDeclarationByProductId" resultType="long">
+		select
+		DISTINCT uc.user_id from declaration d
+		LEFT JOIN user_customer uc on
+		d.customer_id = uc.customer_id
+		LEFT JOIN user_staff us on uc.user_id =
+		us.user_account_id
+		where d.is_delete = 0
+		and uc.is_delete = 0
+		and
+		us.is_dimission = 0
+		and d.product_id = #{productId}
+	</select>
+
+	<!--获取回款计划关联的报单-->
+	<select id="selectReceiptPlanDeclarations" resultMap="receiptPlanDeclarationDto">
+	SELECT d.id,d.number,c.number AS customerNumber,c.name AS customerName,d.deal_amount,d.commit_date,ud.real_name AS dealFpName,ud.user_account_id AS dealFpId,uc.user_id as fpId,
+	  (SELECT COUNT(*) FROM knot_commission kc WHERE kc.declaration_id=d.id AND kc.status=2 AND kc.is_delete=0) AS commissionCount,
+	  (SELECT IFNULL(SUM(kc.amount),0) FROM knot_commission kc WHERE kc.declaration_id=d.id AND kc.status=2 AND kc.is_delete=0)
+	   AS commissionTotalAmount
+	FROM declaration d INNER JOIN receipt_declaration rd ON d.id=rd.declaration_id
+	LEFT JOIN customer c ON c.id=d.customer_id AND c.is_delete=0
+	LEFT JOIN user_detail ud ON ud.user_account_id=d.user_id
+	LEFT JOIN user_customer uc ON uc.customer_id=d.customer_id AND uc.is_delete=0
+	WHERE  rd.is_delete=0 AND d.is_delete=0 AND rd.receipt_plan_id=${receiptPlanId}
+	ORDER BY d.commit_date DESC
+	</select>
+
+	<!-- 获取能够关联到回款计划的订单-->
+	<select id="selectCanReceiptDeclarations" resultMap="declarationForReceiptResDto">
+		SELECT d.id,d.product_id,d.number,c.name AS customerName,d.deal_amount,d.commit_date,ud.real_name AS dealFpName,ud.user_account_id AS dealFpId,uc.user_id as fpId
+		FROM declaration d
+		LEFT JOIN customer c ON c.id=d.customer_id AND c.is_delete=0
+		LEFT JOIN user_detail ud ON ud.user_account_id=d.user_id
+		LEFT JOIN user_customer uc ON uc.customer_id=d.customer_id AND uc.is_delete=0
+		WHERE NOT EXISTS(SELECT 1 FROM receipt_declaration rd WHERE  rd.declaration_id=d.id AND rd.is_delete=0)
+		AND d.is_delete=0 AND d.status IN(2) AND d.product_id=#{productId}
+		ORDER BY d.commit_date DESC
+	</select>
+	
+	<resultMap id="declarationUserDto" type="com.yundao.tenant.dto.sale.declaration.DeclarationUserDto">
+		<result column="user_id" property="id" />
+		<result column="real_name" property="name" />
+	</resultMap>
+	
+	
+	<select id="selectDeclarationUserDots" resultMap="declarationUserDto">
+		SELECT
+			d.user_id,
+			ud.real_name
+		FROM
+			declaration d
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="customStart!=null">
+			 and d.apply_date &gt; #{customStart}
+		</if>
+		<if test="customEnd!=null">
+		    and d.apply_date &lt; #{customEnd}
+		</if>
+		GROUP BY
+			d.user_id
+	</select>
+
+</mapper>

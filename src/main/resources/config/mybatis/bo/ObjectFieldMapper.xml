@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.bo.ObjectFieldMapper">
+
+	<resultMap id="pageDto" type="com.yundao.tenant.dto.bo.ObjectFieldPageResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="typeText" jdbcType="VARCHAR" property="typeText" />
+		<result column="type" jdbcType="INTEGER" property="type" />
+		<result column="is_mandatory" jdbcType="INTEGER" property="isMandatory" />
+		<result column="is_share" jdbcType="INTEGER" property="isShare" />
+		<result column="is_enabled" jdbcType="INTEGER" property="isEnabled" />
+		<result column="is_system" jdbcType="INTEGER" property="isSystem" />
+		<result column="access" jdbcType="INTEGER" property="access" />
+	</resultMap>
+
+	<resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.BaseObjectField">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+		<result column="field_id" jdbcType="BIGINT" property="fieldId" />
+		<result column="business_object_id" jdbcType="BIGINT" property="businessObjectId" />
+		<result column="description" jdbcType="VARCHAR" property="description" />
+		<result column="field_type_id" jdbcType="BIGINT" property="fieldTypeId" />
+		<result column="is_fix" jdbcType="TINYINT" property="isFix" />
+		<result column="display_type" jdbcType="TINYINT" property="displayType" />
+		<result column="is_mandatory" jdbcType="TINYINT" property="isMandatory" />
+		<result column="is_basic" jdbcType="TINYINT" property="isBasic" />
+		<result column="is_share" jdbcType="TINYINT" property="isShare" />
+		<result column="is_system" jdbcType="TINYINT" property="isSystem" />
+		<result column="is_search" jdbcType="TINYINT" property="isSearch" />
+		<result column="is_readonly" jdbcType="TINYINT" property="isReadonly" />
+		<result column="is_init" jdbcType="TINYINT" property="isInit" />
+		<result column="is_enabled" jdbcType="TINYINT" property="isEnabled" />
+		<result column="sequence" jdbcType="INTEGER" property="sequence" />
+		<result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+		<result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+		<result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+		<result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+	</resultMap>
+
+	<resultMap id="objectFieldListDto" type="com.yundao.tenant.dto.bo.ObjectFieldListDto"
+			   extends="BaseResultMap">
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+	</resultMap>
+
+	<!--根据id获取-->
+	<select id="selectListByIds" resultMap="objectFieldListDto">
+		SELECT 	of.id, 
+			  of.tenant_id,
+			  of.field_id,
+			  of.business_object_id,
+			  of.description,
+			  of.field_type_id,
+			  of.is_fix,
+			  of.display_type,
+			  of.is_mandatory,
+			  of.is_basic,
+			  of.is_share,
+			  of.is_system,
+			  of.is_search,
+			  of.is_readonly,
+			  of.is_init,
+			  of.is_enabled,
+			  of.can_edit_mandatory,
+			  of.can_edit_enabled,
+			  of.access,
+			  of.sequence,
+			  of.create_user_id,
+			  f.create_date,
+			  of.update_date,
+			  of.update_user_id,
+			  of.is_delete,
+		      f.name,f.code FROM object_field of INNER JOIN field f ON of.field_id=f.id
+		<where>
+			of.is_delete=0 AND f.is_delete=0 AND business_object_id=${boId} AND of.id IN
+			<foreach item="id" collection="ids" separator="," open="(" close=")" index="">
+				#{id}
+			</foreach>
+		</where>
+	</select>
+
+<!--获取分页数据 -->
+  <select id="selectPage" resultMap="pageDto">
+	SELECT * FROM(
+		SELECT of.id,f.name,of.field_type_id as type,of.is_mandatory,of.is_share,of.is_enabled,of.is_delete,of
+	  .business_object_id,of.is_system
+	  	,ft.name as typeText,of.sequence,f.create_date,
+		(SELECT CASE COUNT(*) WHEN 0 THEN 0 ELSE 1 END FROM field_role fr WHERE fr.object_field_id=of.id AND fr.is_delete=0) as access
+		FROM object_field of INNER JOIN field_type ft ON of.field_type_id=ft.id INNER JOIN field f ON f.id=of.field_id) t
+	  <include refid="selectPage_where" />
+	  <include refid="orderby"></include>
+	  <include refid="limitSql" />
+  </select>
+
+	<select id="selectPageCount" resultType="int">
+		SELECT COUNT(*) FROM(
+		SELECT of.id,f.name,of.field_type_id as type,of.is_mandatory,of.is_share,of.is_enabled,of.is_delete,of.business_object_id
+		,ft.name as typeText,of.sequence,f.create_date,
+		(SELECT CASE COUNT(*) WHEN 0 THEN 0 ELSE 1 END FROM field_role fr WHERE fr.object_field_id=of.id AND fr.is_delete=0) as access
+		FROM object_field of INNER JOIN field_type ft ON of.field_type_id=ft.id INNER JOIN field f ON f.id=of.field_id) t
+		<include refid="selectPage_where" />
+	</select>
+
+	<sql id="selectPage_where">
+		<where>
+			t.is_delete=0 AND t.business_object_id=${boId}
+			<if test="name!=null and name!=''">
+				and t.name like CONCAT('%', #{name},'%')
+			</if>
+			<if test="typeIds!=null and typeIds!=''">
+				and  t.type IN(${typeIds})
+			</if>
+			<if test="isMandatory!=null">
+				and t.is_mandatory=${isMandatory}
+			</if>
+			<if test="isShare!=null">
+				and t.is_share = ${isShare}
+			</if>
+			<if test="isEnabled!=null">
+				and t.is_enabled = ${isEnabled}
+			</if>
+			<if test="isSystem!=null">
+				and t.is_system = ${isSystem}
+			</if>
+			<if test="access!=null">
+				<choose>
+					<when test="access==0">
+				/*0表示全部可见*/
+				and t.access = 0
+					</when>
+					<otherwise>
+				and t.access > 0
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</sql>
+
+	<sql id="orderby">
+		<choose>
+			<when test="orderColumn!=null and orderColumn!=''">
+				ORDER BY
+				<if test="orderColumn=='name'">
+					<choose>
+						<when test="sort=='desc'">
+							convert(t.name using gbk) DESC,
+						</when>
+						<otherwise>
+						   convert(t.name using gbk) ASC,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='type'">
+					<choose>
+						<when test="sort=='desc'">
+							convert(t.type using gbk) DESC,
+						</when>
+						<otherwise>
+							convert(t.name using gbk) ASC,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='is_mandatory'">
+					<choose>
+						<when test="sort=='desc'">
+							t.is_mandatory DESC,
+						</when>
+						<otherwise>
+							t.is_mandatory,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='isShare'">
+					<choose>
+						<when test="sort=='desc'">
+							t.isShare DESC,
+						</when>
+						<otherwise>
+							t.isShare,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='isEnabled'">
+					<choose>
+						<when test="sort=='desc'">
+							t.isEnabled DESC,
+						</when>
+						<otherwise>
+							t.isEnabled,
+						</otherwise>
+					</choose>
+				</if>
+				<if test="orderColumn=='access'">
+					<choose>
+						<when test="sort=='desc'">
+							t.access DESC,
+						</when>
+						<otherwise>
+							t.access,
+						</otherwise>
+					</choose>
+				</if>
+				t.create_date DESC
+			</when>
+			<otherwise>
+				ORDER BY t.create_date DESC,t.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<!--获取列表数据 -->
+	<select id="selectList" resultMap="pageDto">
+		SELECT * FROM(
+		SELECT of.id,f.name,of.field_type_id as type,of.is_mandatory,of.is_share,of.is_enabled,of.is_delete,of
+		.business_object_id,of.is_system
+		,ft.name as typeText,of.sequence,f.create_date,
+		(SELECT CASE COUNT(*) WHEN 0 THEN 0 ELSE 1 END FROM field_role fr WHERE fr.object_field_id=of.id AND fr.is_delete=0) as access
+		FROM object_field of INNER JOIN field_type ft ON of.field_type_id=ft.id INNER JOIN field f ON f.id=of.field_id) t
+		<include refid="selectPage_where" />
+		<if test="orderColumn!=null and sort!=null">
+			ORDER BY ${orderColumn} ${sort}
+		</if>
+		<if test="orderColumn==null or sort==null">
+			ORDER BY t.sequence ASC,t.create_date DESC,t.id DESC
+		</if>
+	</select>
+
+	<!--根据id获取列表数据 -->
+	<select id="selectByIds" resultMap="pageDto">
+		SELECT * FROM(
+		SELECT of.id,f.name,of.field_type_id as type,of.is_mandatory,of.is_share,of.is_enabled,of.is_delete,of
+		.business_object_id,of.is_system
+		,ft.name as typeText,of.sequence,f.create_date,
+		(SELECT CASE COUNT(*) WHEN 0 THEN 0 ELSE 1 END FROM field_role fr WHERE fr.object_field_id=of.id AND fr.is_delete=0) as access
+		FROM object_field of INNER JOIN field_type ft ON of.field_type_id=ft.id INNER JOIN field f ON f.id=of.field_id) t
+		WHERE t.is_delete=0 and t.id IN
+		<foreach item="item" collection="ids" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		ORDER BY t.sequence ASC,t.create_date DESC,t.id DESC
+	</select>
+
+	<!--根据id获取列表数据 -->
+	<select id="selectByIdsOrder" resultMap="pageDto">
+		SELECT * FROM(
+		SELECT of.id,f.name,of.field_type_id as type,of.is_mandatory,of.is_share,of.is_enabled,of.is_delete,of
+		.business_object_id,of.is_system
+		,ft.name as typeText,of.sequence,f.create_date,
+		(SELECT CASE COUNT(*) WHEN 0 THEN 0 ELSE 1 END FROM field_role fr WHERE fr.object_field_id=of.id AND fr.is_delete=0) as access
+		FROM object_field of INNER JOIN field_type ft ON of.field_type_id=ft.id INNER JOIN field f ON f.id=of.field_id) t
+		WHERE t.is_delete=0 and t.id IN
+		<foreach item="item" collection="ids" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		ORDER BY field(id,
+		<foreach item="item" collection="ids" separator="," close=")" >
+			#{item}
+		</foreach>
+	</select>
+
+	<!--根据名称查找-->
+	<select id="selectByName" resultMap="pageDto" >
+		SELECT * FROM object_field of INNER JOIN field f ON of.field_id=f.id
+		WHERE f.is_delete=0 AND of.is_delete=0 AND f.name = #{name}
+		<if test="ignoreId!=null">
+			AND of.id NOT IN (${ignoreId})
+		</if>
+	</select>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+  
+</mapper>

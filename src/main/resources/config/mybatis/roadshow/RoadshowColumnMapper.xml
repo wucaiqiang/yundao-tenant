@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.roadshow.RoadshowColumnMapper">
+
+	<resultMap id="RoadshowColumnResult"
+		type="com.yundao.tenant.model.base.roadshow.BaseRoadshowColumn"
+		extends="com.yundao.tenant.mapper.base.roadshow.BaseRoadshowColumnMapper.BaseResultMap">
+	</resultMap>
+	<resultMap id="RoadshowColumnResDto"
+		type="com.yundao.tenant.dto.roadshowcolumn.RoadshowColumnResDto"
+		extends="RoadshowColumnResult">
+		<result column="platformCode" jdbcType="VARCHAR" property="platformCode" />
+		<result column="platformName" jdbcType="VARCHAR" property="platformName" />
+	</resultMap>
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	<sql id="orderby">
+		<choose>
+			<when
+				test="orderColumn != null and orderColumn !='' and sort !=null and sort !=''">
+				ORDER BY
+				<choose>
+					<when test="orderColumn=='updateDate'">
+						rc.update_date ${sort},
+					</when>
+					<otherwise>
+						rc.${orderColumn} ${sort},
+					</otherwise>
+				</choose>
+				rc.id DESC
+			</when>
+			<otherwise>
+				ORDER BY rc.sequence asc, rc.id DESC
+			</otherwise>
+		</choose>
+	</sql>
+	<select id="selectListByNames" resultMap="RoadshowColumnResDto">
+		select
+		rc.*
+		from
+		roadshow_column rc
+		where rc.is_delete != 1
+		<if test="nameList !=null">
+			and
+			<foreach collection="nameList" item="item" separator="or"
+				open="(" close=")" index="">
+				rc.name like CONCAT('%',#{item},'%')
+			</foreach>
+		</if>
+	</select>
+	<select id="selectPage"
+		parameterType="com.yundao.tenant.dto.roadshowcolumn.RoadshowColumnReqDto"
+		resultMap="RoadshowColumnResDto">
+		select
+		rc.*,p.code as platformCode ,p.name as platformName
+		from
+		roadshow_column rc
+		left join user_detail ud on
+		rc.create_user_id =
+		ud.user_account_id
+		left join platform p on
+		p.id=rc.platform_id
+		<include refid="condition"></include>
+		<include refid="orderby"></include>
+		<include refid="limitSql"></include>
+	</select>
+	<select id="selectCount" resultType="int">
+		select
+		COUNT(rc.id)
+		from roadshow_column rc
+		left join user_detail ud on
+		rc.create_user_id =
+		ud.user_account_id
+		left join platform p on
+		p.id=rc.platform_id
+		<include refid="condition"></include>
+	</select>
+	<sql id="condition">
+		<where>
+			IFNULL(rc.is_delete,0) != 1 and IFNULL(ud.is_delete,0) !=1
+			and
+			IFNULL(p.is_delete,0) !=1
+			<if test="name !=null and name != ''">
+				AND rc.name like '%${name}%'
+			</if>
+			<if test="updateUserName !=null and updateUserName != ''">
+				AND ud.real_name like '%${updateUserName}%'
+			</if>
+			<if test="statusList !=null">
+				and rc.status in
+				<foreach close=")" collection="statusList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="platformIdList !=null">
+				and rc.platform_id in
+				<foreach close=")" collection="platformIdList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="updateDateBegin !=null ">
+				<![CDATA[
+                AND rc.update_date >=#{updateDateBegin}
+                ]]>
+			</if>
+			<if test="updateDateEnd !=null ">
+				<![CDATA[
+                AND rc.update_date <=#{updateDateEnd}
+                ]]>
+			</if>
+		</where>
+	</sql>
+</mapper>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.sale.BaseReservationMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.sale.BaseReservation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="number" jdbcType="VARCHAR" property="number" />
+    <result column="product_id" jdbcType="BIGINT" property="productId" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="estimate_pay_date" jdbcType="TIMESTAMP" property="estimatePayDate" />
+    <result column="reservation_amount" jdbcType="DOUBLE" property="reservationAmount" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="audit_status" jdbcType="TINYINT" property="auditStatus" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="commit_date" jdbcType="TIMESTAMP" property="commitDate" />
+    <result column="operation_date" jdbcType="TIMESTAMP" property="operationDate" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, number, product_id, customer_id, estimate_pay_date, reservation_amount, 
+    remark, reason, status, audit_status, user_id, commit_date, operation_date, create_date, 
+    create_user_id, update_user_id, update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.sale.BaseReservationExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from reservation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from reservation
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from reservation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.sale.BaseReservationExample">
+    delete from reservation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.sale.BaseReservation" useGeneratedKeys="true">
+    insert into reservation (id, tenant_id, number, 
+      product_id, customer_id, estimate_pay_date, 
+      reservation_amount, remark, reason, 
+      status, audit_status, user_id, 
+      commit_date, operation_date, create_date, 
+      create_user_id, update_user_id, update_date, 
+      is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{number,jdbcType=VARCHAR}, 
+      #{productId,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, #{estimatePayDate,jdbcType=TIMESTAMP}, 
+      #{reservationAmount,jdbcType=DOUBLE}, #{remark,jdbcType=VARCHAR}, #{reason,jdbcType=VARCHAR}, 
+      #{status,jdbcType=TINYINT}, #{auditStatus,jdbcType=TINYINT}, #{userId,jdbcType=BIGINT}, 
+      #{commitDate,jdbcType=TIMESTAMP}, #{operationDate,jdbcType=TIMESTAMP}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createUserId,jdbcType=BIGINT}, #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.sale.BaseReservation" useGeneratedKeys="true">
+    insert into reservation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="number != null">
+        number,
+      </if>
+      <if test="productId != null">
+        product_id,
+      </if>
+      <if test="customerId != null">
+        customer_id,
+      </if>
+      <if test="estimatePayDate != null">
+        estimate_pay_date,
+      </if>
+      <if test="reservationAmount != null">
+        reservation_amount,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="auditStatus != null">
+        audit_status,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="commitDate != null">
+        commit_date,
+      </if>
+      <if test="operationDate != null">
+        operation_date,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="number != null">
+        #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="productId != null">
+        #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="estimatePayDate != null">
+        #{estimatePayDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reservationAmount != null">
+        #{reservationAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="auditStatus != null">
+        #{auditStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="commitDate != null">
+        #{commitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operationDate != null">
+        #{operationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.sale.BaseReservationExample" resultType="java.lang.Integer">
+    select count(*) from reservation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update reservation
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.number != null">
+        number = #{record.number,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productId != null">
+        product_id = #{record.productId,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerId != null">
+        customer_id = #{record.customerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.estimatePayDate != null">
+        estimate_pay_date = #{record.estimatePayDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.reservationAmount != null">
+        reservation_amount = #{record.reservationAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.auditStatus != null">
+        audit_status = #{record.auditStatus,jdbcType=TINYINT},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.commitDate != null">
+        commit_date = #{record.commitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.operationDate != null">
+        operation_date = #{record.operationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update reservation
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      number = #{record.number,jdbcType=VARCHAR},
+      product_id = #{record.productId,jdbcType=BIGINT},
+      customer_id = #{record.customerId,jdbcType=BIGINT},
+      estimate_pay_date = #{record.estimatePayDate,jdbcType=TIMESTAMP},
+      reservation_amount = #{record.reservationAmount,jdbcType=DOUBLE},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=TINYINT},
+      audit_status = #{record.auditStatus,jdbcType=TINYINT},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      commit_date = #{record.commitDate,jdbcType=TIMESTAMP},
+      operation_date = #{record.operationDate,jdbcType=TIMESTAMP},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.sale.BaseReservation">
+    update reservation
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="number != null">
+        number = #{number,jdbcType=VARCHAR},
+      </if>
+      <if test="productId != null">
+        product_id = #{productId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="estimatePayDate != null">
+        estimate_pay_date = #{estimatePayDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="reservationAmount != null">
+        reservation_amount = #{reservationAmount,jdbcType=DOUBLE},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="auditStatus != null">
+        audit_status = #{auditStatus,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="commitDate != null">
+        commit_date = #{commitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operationDate != null">
+        operation_date = #{operationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.sale.BaseReservation">
+    update reservation
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      number = #{number,jdbcType=VARCHAR},
+      product_id = #{productId,jdbcType=BIGINT},
+      customer_id = #{customerId,jdbcType=BIGINT},
+      estimate_pay_date = #{estimatePayDate,jdbcType=TIMESTAMP},
+      reservation_amount = #{reservationAmount,jdbcType=DOUBLE},
+      remark = #{remark,jdbcType=VARCHAR},
+      reason = #{reason,jdbcType=VARCHAR},
+      status = #{status,jdbcType=TINYINT},
+      audit_status = #{auditStatus,jdbcType=TINYINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      commit_date = #{commitDate,jdbcType=TIMESTAMP},
+      operation_date = #{operationDate,jdbcType=TIMESTAMP},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.sale.BaseReservationExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from reservation
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

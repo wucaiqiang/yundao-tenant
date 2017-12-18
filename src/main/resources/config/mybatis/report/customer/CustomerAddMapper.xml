@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.report.customer.CustomerAddMapper">
+
+  <resultMap id="departmentDeclarationReportDto" type="com.yundao.tenant.dto.report.customer.DepartAddCustReportResDto">
+    <result column="id"  property="departmentId" />
+    <result column="name"  property="departmentName" />
+    <result column="code"  property="departmentCode" />
+    <result column="sumCount"  property="sumCount" />
+  </resultMap>
+  
+  <resultMap id="departmentUserDeclarationReportDto" type="com.yundao.tenant.dto.report.customer.DepartAddCustReportResDto">
+    <result column="create_user_id"  property="userId" />
+    <result column="sumCount"  property="sumCount" />
+    <result column="real_name"  property="username" />
+  </resultMap>
+  
+  
+    <select id="getDepartmentAddCustomerReport" resultMap="departmentDeclarationReportDto" >
+		SELECT
+		  count(c.id) as sumCount,
+		  d.id,
+		  d.`code`,
+		  d.name 
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d ON ud.department_id = d.id
+		WHERE
+			c.is_delete = 0
+			and d.is_delete = 0
+			AND c.create_user_id IS NOT NULL
+			<if test="departmentCode!=null">
+			 and  d.code like  CONCAT('', #{departmentCode},'%')
+			 and d.`code` != #{departmentCode}
+			</if>
+			<if test="startDate!=null">
+			   and c.create_date &gt; #{startDate}
+			</if>
+			<if test="endDate!=null">
+			   and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+			</if>
+		GROUP BY d.id
+  </select>
+  
+  
+    
+    <select id="getDepartmentUserAddCustomerReport" resultMap="departmentUserDeclarationReportDto" >
+  		select 
+		  count(c.id) as sumCount,
+		   c.create_user_id ,
+		   ude.real_name
+		from customer c
+			LEFT JOIN user_department ud on ud.user_account_id = c.create_user_id 
+			LEFT JOIN user_detail ude on c.create_user_id = ude.user_account_id
+		where 
+		     c.is_delete = 0
+		     AND c.create_user_id IS NOT NULL
+			<if test="departmentId!= null">
+			   and ud.department_id  = #{departmentId}
+			</if>
+			<if test="startDate!=null">
+			  and  c.create_date &gt; #{startDate}
+			</if>
+			<if test="endDate!=null">
+			   and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+			</if>
+		GROUP BY c.create_user_id 
+        ORDER BY sumCount desc
+  </select>
+  
+
+  
+  
+  
+  
+  <resultMap id="customerReportDto" type="com.yundao.tenant.dto.report.customer.CustomerReportDto">
+    <result column="id"  property="id" />
+    <result column="name"  property="name" />
+    <result column="number"  property="number" />
+    <result column="create_date"  property="createDate" />
+    <result column="create_user_id"  property="createUserId" />
+    <result column="create_user_id"  property="createUserId" />
+    <result column="level"  property="level" />
+    <result column="declarationCount"  property="declarationCount" />
+    <result column="real_name"  property="createUserName" />
+  </resultMap>
+  
+  
+   <select id="getDepartmentUserCustomerDtoPage" resultMap="customerReportDto" >
+		SELECT
+		  c.id,
+		  c.`name`,
+		  c.number,
+		  c.create_date,
+		  c.create_user_id,
+		  c.`level`,
+		  count(de.id) as declarationCount,
+		  ude.real_name
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d on ud.department_id = d.id
+		LEFT JOIN declaration de on c.id = de.customer_id and de.`status` = 2 and de.is_delete = 0
+		LEFT JOIN user_detail ude on c.create_user_id = ude.user_account_id
+		where c.is_delete = 0
+		      AND c.create_user_id IS NOT NULL
+		      <if test="userId!= null">
+			      and c.create_user_id  = #{userId}
+		      </if>
+		      <if test="departmentCode!=null">
+			      and  d.code like  CONCAT('', #{departmentCode},'%')
+			  </if>
+		      <if test="startDate!=null">
+			      and  c.create_date &gt; #{startDate}
+			  </if>
+			  <if test="endDate!=null">
+			       and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+			  </if>
+		GROUP BY c.id
+		<include refid="limitSql"></include>
+  </select>
+  
+     <select id="getDepartmentUserCustomerDtoCount" resultType="int" >
+		select count(1) from (
+		SELECT
+		  count(c.id)
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d on ud.department_id = d.id
+		LEFT JOIN declaration de on c.id = de.customer_id and de.`status` = 2 and de.is_delete = 0
+		LEFT JOIN user_detail ude on c.create_user_id = ude.user_account_id
+		where c.is_delete = 0
+		      AND c.create_user_id IS NOT NULL
+		      <if test="userId!= null">
+			      and c.create_user_id  = #{userId}
+		      </if>
+		      <if test="departmentCode!=null">
+			      and  d.code like  CONCAT('', #{departmentCode},'%')
+			  </if>
+		      <if test="startDate!=null">
+			      and  c.create_date &gt; #{startDate}
+			  </if>
+			  <if test="endDate!=null">
+			       and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+			  </if>
+		GROUP BY c.id
+		)a
+  </select>
+  
+  
+ <resultMap id="departmentUserAddCustomerReportDto" type="com.yundao.tenant.dto.report.customer.DepartmentUserAddCustomerReportDto">
+    <result column="sumCount"  property="sumCount" />
+    <result column="date"  property="date" />
+  </resultMap>
+  
+      <select id="getDepartmentOrUserMonthGroupReport" resultMap="departmentUserAddCustomerReportDto" >
+		SELECT
+			count(c.id)  as sumCount,
+			date_format(c.create_date, '%Y-%m') as date
+		FROM
+			customer c
+		  LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		  LEFT JOIN department d on ud.department_id = d.id
+		WHERE
+		  c.is_delete = 0
+		      AND c.create_user_id IS NOT NULL
+		<if test="userId!= null">
+			  and c.create_user_id  = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+	      and  d.code like  CONCAT('', #{departmentCode},'%')
+	   </if>
+       <if test="startDate!=null">
+	      and  c.create_date &gt; #{startDate}
+	   </if>
+	   <if test="endDate!=null">
+	       and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+	   </if>
+		GROUP BY
+			date_format(c.create_date, '%Y-%m');
+    </select>
+  
+    <select id="getDepartmentOrUserDayGroupReport" resultMap="departmentUserAddCustomerReportDto" >
+		SELECT
+			count(c.id)  as sumCount,
+			date_format(c.create_date, '%Y-%m-%d') as date
+		FROM
+			customer c
+		  LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		  LEFT JOIN department d on ud.department_id = d.id
+		WHERE
+		  c.is_delete = 0
+		      AND c.create_user_id IS NOT NULL
+		<if test="userId!= null">
+			  and c.create_user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+	      and  d.code like  CONCAT('', #{departmentCode},'%')
+	   </if>
+       <if test="startDate!=null">
+	      and  c.create_date &gt; #{startDate}
+	   </if>
+	   <if test="endDate!=null">
+	       and c.create_date &lt; CONCAT('', #{endDate},' 23:59:59')
+	   </if>
+		GROUP BY
+			date_format(c.create_date, '%Y-%m-%d');
+  </select>
+  
+  
+    <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+  
+  
+  
+  
+   <resultMap id="userAddCustomerRankResDto" type="com.yundao.tenant.dto.report.customer.UserAddCustomerRankResDto">
+     <result column="create_user_id"  property="userId" />
+     <result column="real_name"  property="username" />
+     <result column="sumCount" property="sumCount" />
+  </resultMap>
+
+  
+     <select id="getUserAddCustomerRankPage" resultMap="userAddCustomerRankResDto" >
+       SELECT
+		  c.create_user_id,
+		  COUNT(c.id) as sumCount,
+		  MAX(c.create_date) as create_date,
+		  ude.real_name
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d on ud.department_id = d.id
+		LEFT JOIN user_detail ude on c.create_user_id = ude.user_account_id
+		<include refid="getUserAddCustomerRankPage_where" />
+		GROUP BY  c.create_user_id 
+		ORDER BY sumCount desc ,create_date asc
+        <include refid="limitSql" />
+     </select>
+     
+     <select id="getUserAddCustomerRankCount" resultType="int" >
+         SELECT
+           count(DISTINCT c.create_user_id)
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d on ud.department_id = d.id
+		LEFT JOIN user_detail ude on c.create_user_id = ude.user_account_id
+		<include refid="getUserAddCustomerRankPage_where" />
+     </select>
+     
+     <sql id="getUserAddCustomerRankPage_where">
+        where c.is_delete = 0
+		and c.create_user_id is not null
+		
+		<if test="userId!= null">
+			  and c.create_user_id = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+		     and d.`code` LIKE  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			and c.create_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and c.create_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+     </sql>
+     
+     
+<!--      
+     <select id="getDepartmentOrUserDayGroupReport" resultMap="departmentUserAddCustomerReportDto" >
+		SELECT
+			count(c.id)  as sumCount,
+			date_format(c.create_date, '%Y-%m-%d') as date
+		FROM
+			customer c
+		LEFT JOIN user_department ud ON c.create_user_id = ud.user_account_id
+		LEFT JOIN department d on ud.department_id = d.id
+		WHERE
+		  c.is_delete = 0
+		  and c.create_user_id is not null
+		<if test="userId!= null">
+			  and c.create_user_id = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+		     and d.`code` LIKE  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			and c.create_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and c.create_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+		GROUP BY
+			date_format(c.create_date, '%Y-%m-%d');
+  </select> -->
+     
+  
+</mapper>

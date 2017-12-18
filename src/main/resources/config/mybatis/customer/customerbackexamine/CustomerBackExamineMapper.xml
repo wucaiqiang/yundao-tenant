@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.customer.customerbackexamine.CustomerBackExamineMapper">
+
+    <resultMap id="BaseResultMap"
+		type="com.yundao.tenant.dto.customer.back.CustomerBackExamineListResDto">
+		<id column="id" property="id" />
+		<result column="customer_id" property="customerId" />
+		<result column="name" property="customerName" />
+		<result column="number" property="customerNumber" />
+		<result column="mobile" property="customerMobile" />
+		<result column="sex" property="customerSex" />
+		<result column="level" property="customerLevel" />
+		<result column="province_code" property="provinceCode" />
+		<result column="city_code" property="cityCode" />
+		<result column="reason" property="reason" />
+		<result column="application_date" property="applyDate" />
+		<result column="examine_date" property="examineDate" />
+		<result column="reject_reason" property="rejectReason" />
+		<result column="status" property="status" />
+		<result column="user_id" property="applyUserId" />
+		<result column="real_name" property="applyUserName" />
+		<result column="ownerId" property="ownerId" />
+	</resultMap>
+	
+	
+	<select id="getCount" resultType="int"
+		parameterType="com.yundao.tenant.dto.customer.back.CustomerBackExamineListReqDto">
+		SELECT
+			count(cbe.id)
+		FROM
+		    customer_back_examine cbe
+		LEFT JOIN customer c ON cbe.customer_id = c.id
+		LEFT JOIN customer_detail cd ON c.id = cd.id
+		LEFT JOIN user_detail ud ON cbe.user_id = ud.user_account_id
+		<if test="userIds!=null">
+		    LEFT JOIN user_customer uc ON cbe.customer_id = uc.customer_id
+		</if>
+		<include refid="gets_where" />
+	</select>
+	
+	
+	
+	<select id="gets" resultMap="BaseResultMap"
+		parameterType="com.yundao.tenant.dto.customer.back.CustomerBackExamineListReqDto">
+		SELECT
+			cbe.id,
+			cbe.customer_id,
+			cbe.user_id,
+			ud.real_name,
+			cbe.reason,
+			cbe.application_date,
+			cbe.reason,
+			cbe.examine_date,
+			cbe.examine_user_id,
+			cbe.reject_reason,
+			cbe. STATUS,
+			c.`name`,
+			c.number,
+			c.sex,
+			c.mobile,
+			c.`level`,
+			cd.province_code,
+			cd.city_code,
+			cbe.user_id AS ownerId,
+            CASE cbe.`status` when 1 THEN 1 else 0 end as ss
+		FROM
+			customer_back_examine cbe
+		LEFT JOIN customer c ON cbe.customer_id = c.id
+		LEFT JOIN customer_detail cd ON c.id = cd.id
+		LEFT JOIN user_detail ud ON cbe.user_id = ud.user_account_id
+		<if test="userIds!=null">
+		    LEFT JOIN user_customer uc ON cbe.customer_id = uc.customer_id
+		</if>
+		<include refid="gets_where" />
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+	
+	
+	<sql id="gets_where">
+		<where>
+			cbe.is_delete = 0
+			and c.is_delete = 0
+			and cd.is_delete = 0
+			<if test="customerMobile!=null and customerMobile!=''">
+				and c.mobile =  #{customerMobile}
+			</if>
+			<if test="customerName!=null and customerName!=''">
+				and c.`name`  like CONCAT('%', #{customerName},'%')
+			</if>
+			<if test="customerNumber!=null and customerNumber!=''">
+				and c.number  like CONCAT('%', #{customerNumber},'%')
+			</if>
+			<if test="reason!=null and reason!=''">
+				and cbe.reason like  CONCAT('%', #{reason},'%')
+			</if>
+			<if test="applyUserName!=null and applyUserName!=''">
+				and ud.real_name like  CONCAT('%', #{applyUserName},'%')
+			</if>
+			
+			<if test="userIds!=null">
+			    and uc.is_delete = 0
+				and uc.user_id in 
+				 <foreach close=")" collection="userIds" item="userId" open="(" separator=",">
+		           #{userId}
+		         </foreach>
+			</if>
+			<if test="customerSexList!=null">
+				and c.sex IN
+				 <foreach close=")" collection="customerSexList" item="sex" open="(" separator=",">
+		           #{sex}
+		         </foreach>
+			</if>
+			<if test="customerLevelList!=null">
+				and c.`level` in
+				 <foreach close=")" collection="customerLevelList" item="level" open="(" separator=",">
+		           #{level}
+		         </foreach>
+			</if>
+			<if test="provinceCodeList!=null">
+				and( cd.province_code IN
+				 <foreach close=")" collection="provinceCodeList" item="privince" open="(" separator=",">
+		           #{privince}
+		         </foreach>
+		        or 
+		        cd.city_code IN
+				 <foreach close=")" collection="provinceCodeList" item="city" open="(" separator=",">
+		           #{city}
+		         </foreach>)
+			</if>
+			<if test="cityCodeList!=null">
+				and( cd.province_code IN
+				 <foreach close=")" collection="cityCodeList" item="privince" open="(" separator=",">
+		           #{privince}
+		         </foreach>
+		        or 
+		        cd.city_code IN
+				 <foreach close=")" collection="cityCodeList" item="city" open="(" separator=",">
+		           #{city}
+		         </foreach>)
+			</if>
+			<if test="applyStartDate!=null">
+				 <![CDATA[
+				 and cbe.application_date >=  #{applyStartDate}
+				]]>
+			</if>
+			<if test="applyEndDate!=null">
+				 <![CDATA[
+				  and cbe.application_date  <=  #{applyEndDate}
+				]]>
+			</if>
+			<if test="examineStartDate!=null">
+				<![CDATA[
+					and cbe.examine_date  >= #{examineStartDate}
+				]]>
+		    </if>
+		    <if test="examineEndDate!=null">
+				<![CDATA[
+					and cbe.examine_date  <= #{examineEndDate}
+				]]>
+		    </if>
+		   
+		</where>
+	</sql>
+
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+	<sql id="orderBy">
+		<if test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		<if test="orderColumn ==null or orderColumn =='' or sort ==null or sort ==''">
+			ORDER BY ss desc ,cbe.examine_date desc ,cbe.application_date desc
+		</if>
+	</sql>
+</mapper>

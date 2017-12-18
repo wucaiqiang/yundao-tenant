@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.workflow.TaskMapper">
+
+	<resultMap id="knotCommissionTaskDto" type="com.yundao.tenant.dto.workflow.task.KnotCommissionTaskDto">
+	    <result column="id"  property="id" />
+	    <result column="deal_amount"  property="dealAmount" />
+	    <result column="name"  property="productName" />
+	    <result column="type"  property="type" />
+	    <result column="rate"  property="rate" />
+	    <result column="amount"  property="amount" />
+	    
+	</resultMap>
+	
+	<resultMap id="refundTaskDto" type="com.yundao.tenant.dto.workflow.task.RefundTaskDto">
+	     <result column="id"  property="id" />
+	     <result column="deal_amount"  property="dealAmount" />
+	     <result column="number"  property="number" />
+	     <result column="reason"  property="reason" />
+	     <result column="name"  property="productName" />
+	</resultMap>
+	
+	<resultMap id="knotCommissionTaskDto2" type="com.yundao.tenant.dto.workflow.task.KnotCommissionTaskDto">
+	    <result column="id"  property="id" />
+	    <result column="deal_amount"  property="dealAmount" />
+	    <result column="name"  property="productName" />
+	    <result column="type"  property="type" />
+	    <result column="rate"  property="rate" />
+	    <result column="amount"  property="amount" />
+	    <result column="real_name"  property="username" />
+	    <result column="declarationId"  property="declarationId" />
+	     <result column="number"  property="number" />
+	</resultMap>
+	
+		
+
+	
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+
+	<select id="getKnotCommissionTaskDtos" resultMap="knotCommissionTaskDto">
+		SELECT
+		  kc.id,
+		  d.deal_amount,
+		  p.`name`,
+		  kc.type,
+		  kc.rate,
+		  kc.amount
+		FROM
+			knot_commission kc
+		LEFT JOIN declaration d ON kc.declaration_id = d.id
+		LEFT JOIN product p on d.product_id = p.id
+		where kc.id in 
+		<foreach collection="ids" close=")" item="id" open="(" separator=",">
+		    #{id}
+		</foreach>
+	</select>
+	
+	
+	
+	<select id="getKnotCommissionTaskDto" resultMap="knotCommissionTaskDto2">
+      SELECT
+		  kc.id,
+		  d.deal_amount,
+		  p.`name`,
+		  kc.type,
+		  kc.rate,
+		  kc.amount,
+          ud.real_name,
+          d.id as declarationId,
+          d.number
+		FROM
+			knot_commission kc
+		LEFT JOIN declaration d ON kc.declaration_id = d.id
+		LEFT JOIN product p on d.product_id = p.id
+        LEFT JOIN user_detail ud on  d.user_id = ud.user_account_id
+		where kc.id = #{id}
+	</select>
+	
+	
+	
+	<select id="getRefundTaskDtos" resultMap="refundTaskDto">
+		SELECT
+		  dr.id,
+		  d.deal_amount,
+		  d.number,
+		  dr.reason,
+		  p.name
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN product p ON d.product_id = p.id
+		WHERE
+			dr.id IN
+		<foreach collection="ids" close=")" item="id" open="(" separator=",">
+		    #{id}
+		</foreach>
+	</select>	
+	
+	
+	
+	<resultMap id="refundTaskDto2" type="com.yundao.tenant.dto.workflow.task.RefundTaskDto">
+	     <result column="id"  property="id" />
+	     <result column="deal_amount"  property="dealAmount" />
+	     <result column="number"  property="number" />
+	     <result column="reason"  property="reason" />
+	     <result column="productName"  property="productName" />
+	     <result column="customerName"  property="customerName" />
+	     <result column="declaration_id"  property="declarationId" />
+	     <result column="pay_date"  property="payDate" />
+	</resultMap>
+	
+	
+	<select id="getRefundTaskDto" resultMap="refundTaskDto2">
+		SELECT
+		  dr.id,
+		  d.deal_amount,
+		  d.number,
+		  dr.reason,
+		  p.name as productName,
+          c.name as customerName,
+          d.id as declaration_id,
+          d.pay_date
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN product p ON d.product_id = p.id
+    LEFT JOIN customer c on d.customer_id = c.id
+		WHERE dr.id =  #{id}
+	</select>	
+	
+	
+	
+	
+</mapper>

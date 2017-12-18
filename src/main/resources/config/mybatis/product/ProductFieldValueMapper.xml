@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductFieldValueMapper">
+
+  <resultMap id="fieldValueDto" type="com.yundao.tenant.dto.field.FieldValueDto">
+    <id column="object_field_id" property="objectFieldId" />
+    <result column="reference_table_id"  property="referenceTableId" />
+    <result column="value"  property="value" />
+    <result column="slot"  property="slot" />
+  </resultMap>
+   
+   
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProductFieldValue">
+    update product_field_value
+    <set>
+       slot = #{slot,jdbcType=INTEGER},
+       update_user_id = #{updateUserId,jdbcType=BIGINT},
+       update_date = #{updateDate,jdbcType=TIMESTAMP},
+       value = #{value,jdbcType=LONGVARCHAR},
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  
+      <!-- 通过产品id查询产品扩展字段 -->
+     <select id="getFieldValueByProductId" resultMap="fieldValueDto">
+		SELECT
+		  pfv.object_field_id,
+		  pfv.reference_table_id ,
+		  pfv.`value`,
+		  pfv.slot
+		FROM
+			object_field of
+		LEFT JOIN field_group_rel fgr ON of.id = fgr.object_field_id
+		LEFT JOIN field_type ft ON of.field_type_id = ft.id
+		LEFT JOIN product_field_value pfv ON of.id = pfv.object_field_id
+		WHERE
+			of.is_delete = 0
+		and of.is_enabled = 1
+		AND fgr.is_delete = 0
+		AND ft.is_delete = 0
+		AND pfv.is_delete = 0
+		and pfv.reference_table_id =#{productId}
+		and fgr.field_group_id = #{fieldGroupId}
+		ORDER BY pfv.slot
+     </select>
+     <select id="getFieldValueByProductIdAndFieldIds" resultMap="fieldValueDto">
+		SELECT
+		  pfv.object_field_id,
+		  pfv.reference_table_id ,
+		  pfv.`value`,
+		  pfv.slot
+		FROM
+		 product_field_value pfv 
+		WHERE
+	     pfv.is_delete = 0
+		and pfv.reference_table_id =#{productId}
+		and pfv.object_field_id in (${fieldIds})
+     </select>
+</mapper>

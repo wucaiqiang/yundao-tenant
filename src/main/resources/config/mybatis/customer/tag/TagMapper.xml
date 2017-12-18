@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.customer.tag.TagMapper">
+
+	<resultMap id="TagResult" type="com.yundao.tenant.model.base.customer.BaseTag"
+		extends="com.yundao.tenant.mapper.base.customer.BaseTagMapper.BaseResultMap">
+	</resultMap>
+	<resultMap id="TagResDto" type="com.yundao.tenant.dto.customer.tag.TagResDto"
+		extends="com.yundao.tenant.mapper.base.customer.BaseTagMapper.BaseResultMap">
+		<result column="customer_id" jdbcType="BIGINT" property="customerId" />
+	</resultMap>
+	<select id="getPage" resultMap="TagResult">
+		SELECT t.* from tag t
+		where t.is_delete=0
+		<if test="name !=null">
+			and t.name like CONCAT('%',#{name},'%')
+		</if>
+		order by
+		t.create_date desc
+		<if test="offset != null and pageSize != null">
+			limit ${offset} , ${pageSize}
+		</if>
+	</select>
+	<select id="getCount" resultType="java.lang.Integer">
+		SELECT count(*) from tag t
+		where t.is_delete=0
+		<if test="name !=null">
+			and t.name like CONCAT('%',#{name},'%')
+		</if>
+	</select>
+	<select id="selectTop" resultMap="TagResult">
+		SELECT t.*,(select count(1)
+		from customer_tag ct where ct.tag_id =
+		t.id) as
+		use_count FROM tag t
+		ORDER BY use_count desc
+		<if test="limit !=null ">
+			limit #{limit}
+		</if>
+	</select>
+	<select id="selectByCustomerIds" resultMap="TagResDto">
+		SELECT ct.customer_id,t.* from
+		customer_tag ct left join tag t on
+		ct.tag_id=t.id
+		where
+		1=1
+		<if test="customerIds  !=null ">
+			and ct.customer_id in
+			<foreach collection="customerIds" item="customerId"
+				separator="," open="(" close=")">
+				${customerId}
+			</foreach>
+		</if>
+		and ct.is_delete=0 and t.is_delete=0
+		order by t.create_date desc
+		<if test="limit !=null ">
+			limit #{limit}
+		</if>
+	</select>
+	<select id="selectByCustomerId" resultMap="TagResult">
+		SELECT t.* from
+		customer_tag ct left join tag t on ct.tag_id=t.id
+		where
+		ct.customer_id=#{customerId} and ct.is_delete=0 and t.is_delete=0
+		order by t.create_date desc
+		<if test="limit !=null ">
+			limit #{limit}
+		</if>
+	</select>
+
+	<select id="selectCustomerIdByNames" resultType="long">
+		SELECT ct.customer_id FROM customer_tag ct LEFT JOIN tag t
+		ON
+		ct.tag_id=t.id WHERE t.name IN
+		<foreach collection="tags" item="tag" open="(" close=")"
+			separator=",">
+			#{tag}
+		</foreach>
+	</select>
+
+</mapper>

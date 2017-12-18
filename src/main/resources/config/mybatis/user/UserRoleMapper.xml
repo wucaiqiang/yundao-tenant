@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.user.UserRoleMapper">
+
+	<resultMap id="userRoleDto" type="com.yundao.tenant.dto.user.role.UserRoleDto">
+		<result column="user_account_id" jdbcType="BIGINT" property="userId" />
+		<result column="name" jdbcType="VARCHAR" property="roleName" />
+		<result column="role_id" jdbcType="BIGINT" property="roleId" />
+	</resultMap>
+
+  <select id="selectUserRoles" resultMap="userRoleDto">
+		SELECT
+		  ur.user_account_id,
+		  ur.role_id,
+		  ro.`name`
+		FROM
+			user_role ur
+		LEFT JOIN role ro ON ur.role_id = ro.id
+		where  ro.is_delete = 0
+		and ur.is_delete = 0
+		and ur.user_account_id in 
+		 <foreach close=")" collection="userIds" item="userId" open="(" separator=",">
+           #{userId}
+         </foreach>
+  </select>
+  
+  <select id="selectUserIdsByRoleId" resultType="long">
+		SELECT
+			ua.id
+		FROM
+			user_account ua
+		LEFT JOIN user_staff us ON ua.id = us.user_account_id
+		LEFT JOIN user_role ur on ua.id = ur.user_account_id
+		where ua.is_delete = 0
+		and us.is_dimission = 0
+		and ur.role_id = #{roleId}
+		and ur.is_delete = 0;
+  </select>
+ 
+  
+</mapper>

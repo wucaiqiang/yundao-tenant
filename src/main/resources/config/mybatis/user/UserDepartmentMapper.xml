@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.user.UserDepartmentMapper">
+
+	<resultMap id="userDepartmentDto" type="com.yundao.tenant.dto.user.role.department.UserDepartmentDto">
+		<result column="user_account_id" jdbcType="BIGINT" property="userId" />
+		<result column="name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="department_id" jdbcType="BIGINT" property="departmentId" />
+	</resultMap>
+
+	<resultMap id="userInfoDto" type="com.yundao.tenant.dto.user.UserInfoDto">
+		<result column="user_account_id"  property="id" />
+		<result column="real_name"  property="username" />
+	</resultMap>
+
+  <select id="selectUserDepartments" resultMap="userDepartmentDto">
+		SELECT
+		  ud.user_account_id,
+		  ud.department_id,
+		  de.`name`
+		FROM
+			user_department ud
+		LEFT JOIN department de ON ud.department_id = de.id
+		where  de.is_delete = 0
+		and ud.is_delete = 0
+		and ud.user_account_id in 
+		 <foreach close=")" collection="userIds" item="userId" open="(" separator=",">
+           #{userId}
+         </foreach>
+  </select>
+  
+   <select id="getDepartmentDirectUser" resultMap="userInfoDto">
+		SELECT
+			u.user_account_id,
+			u.real_name
+		FROM
+			 user_detail u LEFT JOIN user_department ud ON u.user_account_id = ud.user_account_id
+		WHERE
+		  u.is_delete = 0
+		<if test="range=='all'">
+		   and( ud.department_id = 0
+		    OR ud.department_id IS NULL)
+		</if>
+		<if test="range=='department'">
+		   and ud.department_id =#{departmentId}
+		</if>
+  </select>
+
+  
+</mapper>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.finance.receipt.plan.ReceiptPlanMapper">
+
+    <resultMap id="receiptPlanPageResDto" type="com.yundao.tenant.dto.finance.receipt.plan.ReceiptPlanPageResDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="productId" jdbcType="BIGINT" property="productId" />
+        <result column="productName" jdbcType="VARCHAR" property="productName" />
+        <result column="declarationCount" jdbcType="INTEGER" property="declarationCount" />
+        <result column="amount" jdbcType="VARCHAR" property="amount" />
+        <result column="receiptCount" jdbcType="INTEGER" property="receiptCount" />
+        <result column="actualReceiptAmount" jdbcType="VARCHAR" property="actualReceiptAmount" />
+        <result column="create_date" jdbcType="VARCHAR" property="createDate" />
+    </resultMap>
+
+    <select id="selectReceiptPlanPage" resultMap="receiptPlanPageResDto">
+        SELECT * FROM (
+        SELECT  rp.id,rp.name,p.name AS productName,rp.amount,rp.create_date,rp.is_delete,p.id AS productId,
+        (SELECT COUNT(1) FROM receipt_record rr WHERE  rr.receipt_plan_id=rp.id AND rr.is_delete=0) AS receiptCount,
+        (SELECT IFNULL(SUM(rr.amount),0) FROM receipt_record rr WHERE  rr.receipt_plan_id=rp.id AND rr.is_delete=0) AS actualReceiptAmount,
+        (SELECT COUNT(1) FROM receipt_declaration rd WHERE rd.receipt_plan_id=rp.id AND rd.is_delete=0) AS declarationCount
+        FROM receipt_plan rp
+        LEFT JOIN product p ON rp.product_id=p.id AND p.is_delete=0) t
+        <include refid="receiptPlanPage_where" ></include>
+        <include refid="receiptPlanPage_orderby"></include>
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectReceiptPlanPageCount" resultType="int">
+        SELECT COUNT(*) FROM (
+        SELECT  rp.id,rp.name,p.name AS productName,rp.amount,rp.create_date,rp.is_delete,
+        (SELECT COUNT(1) FROM receipt_record rr WHERE  rr.receipt_plan_id=rp.id AND rr.is_delete=0) AS receiptCount,
+        (SELECT IFNULL(SUM(rr.amount),0) FROM receipt_record rr WHERE  rr.receipt_plan_id=rp.id AND rr.is_delete=0) AS actualReceiptAmount,
+        (SELECT COUNT(1) FROM receipt_declaration rd WHERE rd.receipt_plan_id=rp.id AND rd.is_delete=0) AS declarationCount
+        FROM receipt_plan rp
+        LEFT JOIN product p ON rp.product_id=p.id AND p.is_delete=0) t
+        <include refid="receiptPlanPage_where" ></include>
+    </select>
+
+    <sql id="receiptPlanPage_where">
+    <where>
+        t.is_delete=0
+        <if test="name!=null and name!=''">
+            AND t.name LIKE CONCAT('%', #{name},'%')
+        </if>
+        <if test="productName!=null and productName!=''">
+            AND t.productName LIKE CONCAT('%', #{productName},'%')
+        </if>
+        <if test="declarationCountBegin!=null and declarationCountBegin!=''">
+            AND t.declarationCount &gt;= #{declarationCountBegin}
+        </if>
+        <if test="declarationCountEnd!=null and declarationCountEnd!=''">
+            AND t.declarationCount &lt;= #{declarationCountEnd}
+        </if>
+        <if test="amountBegin!=null and amountBegin!=''">
+            AND t.amount &gt;= #{amountBegin}
+        </if>
+        <if test="amountEnd!=null and amountEnd!=''">
+            AND t.amount &lt;= #{amountEnd}
+        </if>
+        <if test="receiptCountBegin!=null and receiptCountBegin!=''">
+            AND t.receiptCount &gt;= #{receiptCountBegin}
+        </if>
+        <if test="receiptCountEnd!=null and receiptCountEnd!=''">
+            AND t.receiptCount &lt;= #{receiptCountEnd}
+        </if>
+        <if test="actualReceiptAmountBegin!=null and actualReceiptAmountBegin!=''">
+            AND t.actualReceiptAmount &gt;= #{actualReceiptAmountBegin}
+        </if>
+        <if test="actualReceiptAmountEnd!=null and actualReceiptAmountEnd!=''">
+            AND t.actualReceiptAmount &lt;= #{actualReceiptAmountEnd}
+        </if>
+        <if test="createDateBegin!=null and createDateBegin!=''">
+            AND t.create_date &gt;= #{createDateBegin}
+        </if>
+
+        <if test="createDateEnd!=null and createDateEnd!=''">
+            AND t.create_date &lt;= #{createDateEnd}
+        </if>
+        <if test="scope!=null and scope=='month'">
+            AND date_format(t.create_date,'%Y-%m')=date_format(now(),'%Y-%m')
+        </if>
+        <if test="scope!=null and scope=='undone'">
+            AND t.actualReceiptAmount=0
+        </if>
+    </where>
+    </sql>
+
+
+    <sql id="receiptPlanPage_orderby">
+        <choose>
+            <when test="orderColumn!=null and orderColumn!=''">
+                ORDER BY
+                <if test="orderColumn=='declarationCount'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.declarationCount DESC,
+                        </when>
+                        <otherwise>
+                            t.declarationCount,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='amount'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.amount DESC,
+                        </when>
+                        <otherwise>
+                            t.amount,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='receiptCount'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.receiptCount DESC,
+                        </when>
+                        <otherwise>
+                            t.receiptCount,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='actualReceiptAmount'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.actualReceiptAmount DESC,
+                        </when>
+                        <otherwise>
+                            t.actualReceiptAmount,
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='createDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            t.create_date DESC,
+                        </when>
+                        <otherwise>
+                            t.create_date,
+                        </otherwise>
+                    </choose>
+                </if>
+                t.create_date DESC
+            </when>
+            <otherwise>
+                ORDER BY t.create_date DESC, t.id DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+        LIMIT #{offset}, #{pageSize}
+    </sql>
+
+</mapper>

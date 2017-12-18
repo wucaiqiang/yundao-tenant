@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.user.visit.UserVisitMapper">
+    <resultMap id="customerDetailVisitPageDto"
+               type="com.yundao.tenant.dto.customer.customer.CustomerDetailVisitPageResDto">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="customer_id" jdbcType="BIGINT" property="customerId"/>
+        <result column="visit_date" jdbcType="VARCHAR" property="visitDate"/>
+        <result column="matter" jdbcType="VARCHAR" property="matter"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="real_name" jdbcType="VARCHAR" property="userName"/>
+    </resultMap>
+
+    <resultMap id="visitPageDto"
+               type="com.yundao.tenant.dto.user.visit.UserVisitPageResDto">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="customerId" jdbcType="BIGINT" property="customerId"/>
+        <result column="customerName" jdbcType="VARCHAR" property="customerName"/>
+        <result column="customerNumber" jdbcType="VARCHAR" property="customerNumber"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="sex" jdbcType="INTEGER" property="sex"/>
+        <result column="province_code" jdbcType="VARCHAR" property="provinceCode"/>
+        <result column="city_code" jdbcType="VARCHAR" property="cityCode"/>
+        <result column="fpId" jdbcType="BIGINT" property="fpId"/>
+        <result column="fpName" jdbcType="VARCHAR" property="fpName"/>
+        <result column="matter" jdbcType="VARCHAR" property="matter"/>
+        <result column="sub_date" jdbcType="VARCHAR" property="subDate"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="visit_date" jdbcType="VARCHAR" property="visitDate"/>
+        <result column="customerStatus"  property="customerStatus"/>
+    </resultMap>
+
+    <resultMap id="visitForLeads" type="com.yundao.tenant.dto.user.visit.UserVisitDetailForLeads">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="customerId" jdbcType="BIGINT" property="customerId"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="matter" jdbcType="VARCHAR" property="matter"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="visit_date" jdbcType="VARCHAR" property="visitDate"/>
+        <result column="customerStatus" jdbcType="INTEGER" property="customerStatus"/>
+    </resultMap>
+    
+    <select id="selectForLeads" resultMap="visitForLeads">
+        SELECT uv.id,c.id AS customerId,uv.type,uv.status,uv.content,uv.matter,uv.user_id,uv.visit_date,c.status as customerStatus,
+         ud.real_name AS userName FROM
+        leads_visit_rel
+        lvr LEFT JOIN  user_visit uv ON lvr.user_visit_id=uv.id
+        LEFT JOIN customer c ON c.id=uv.customer_id
+        LEFT JOIN user_detail ud ON ud.user_account_id=uv.user_id
+        WHERE lvr.leads_id=${leadsId} ORDER BY uv.create_date DESC LIMIT 1
+    </select>
+
+    <!--获取客户详情页回访数据-->
+    <select id="selectCustomerDetailVisitPage" resultMap="customerDetailVisitPageDto">
+        SELECT uv.customer_id,uv.id,visit_date,matter,status,type,content,ud.real_name
+        FROM user_visit uv LEFT JOIN user_detail ud ON uv.user_id=ud.user_account_id
+        LEFT JOIN user_customer uc ON uc.customer_id=uv.customer_id AND uc.is_delete=0
+        <include refid="selectCustomerDetailVisitPage_where"></include>
+        ORDER BY visit_date DESC,ud.id DESC
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectCustomerDetailVisitPageCount" resultType="int">
+        SELECT COUNT(*)
+        FROM user_visit uv LEFT JOIN user_detail ud ON uv.user_id=ud.user_account_id
+        LEFT JOIN user_customer uc ON uc.customer_id=uv.customer_id AND uc.is_delete=0
+        <include refid="selectCustomerDetailVisitPage_where"></include>
+    </select>
+
+    <sql id="selectCustomerDetailVisitPage_where">
+        <where>
+            uv.is_delete=0 AND uv.customer_id=${customerId} AND uv.status IS NOT NULL
+            <!--我的-->
+            <if test="permission==10">
+                AND (uv.user_id =${userId} OR uc.user_id=${userId})
+            </if>
+            <!--部门的-->
+            <if test="permission==30">
+                AND (uv.user_id IN(${userIds}) OR uc.user_id IN(${userIds}))
+            </if>
+            <if test="permission==0">
+                <![CDATA[
+                AND uv.id < -1
+                ]]>
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPage" resultMap="visitPageDto">
+        SELECT uv.id,c.id AS customerId,c.name AS customerName,c.number AS
+        customerNumber,c.mobile,c.sex,cd.province_code,cd.city_code,
+        ufp.user_account_id AS fpId,ufp.real_name AS
+        fpName,uv.matter,uv.sub_date,uv.type,uv.status,uv.content,uv.user_id,ud.real_name AS userName,uv.visit_date,
+        c.status as customerStatus
+        FROM user_visit uv
+        LEFT JOIN customer c ON uv.customer_id=c.id
+        LEFT JOIN customer_detail cd ON cd.id=c.id
+        LEFT JOIN user_detail ud ON uv.user_id=ud.user_account_id
+        LEFT JOIN user_customer uc ON uc.customer_id=uv.customer_id AND uc.is_delete=0
+        LEFT JOIN user_detail ufp ON ufp.user_account_id=uc.user_id
+        <include refid="selectPage_where"></include>
+        <include refid="selectPage_orderby"></include>
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectPageCount" resultType="int">
+        SELECT COUNT(*)
+        FROM user_visit uv
+        LEFT JOIN customer c ON uv.customer_id=c.id
+        LEFT JOIN customer_detail cd ON cd.id=c.id
+        LEFT JOIN user_detail ud ON uv.user_id=ud.user_account_id
+        LEFT JOIN user_customer uc ON uc.customer_id=uv.customer_id AND uc.is_delete=0
+        LEFT JOIN user_detail ufp ON ufp.user_account_id=uc.user_id
+        <include refid="selectPage_where"></include>
+    </select>
+
+    <sql id="selectPage_where">
+        <where>
+            uv.is_delete=0
+            <if test="customerName!=null and customerName!=''">
+                AND c.name LIKE CONCAT('%', #{customerName},'%')
+            </if>
+            <if test="customerNumber!=null and customerNumber!=''">
+                AND c.number LIKE CONCAT('%', #{customerNumber},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                AND c.mobile = #{mobile}
+            </if>
+
+            <if test="sexs!=null and sexs!=''">
+                AND c.sex IN (${sexs})
+            </if>
+            <choose>
+                <when test="cityCodes!=null and cityCodes!='' and provinceCodes!=null and provinceCodes!=''">
+                    AND cd.city_code IN (${cityCodes})
+                </when>
+                <otherwise>
+                    <if test="cityCodes!=null and cityCodes!=''">
+                        AND cd.city_code IN (${cityCodes})
+                    </if>
+                    <if test="provinceCodes!=null and provinceCodes!=''">
+                        AND cd.province_code IN (${provinceCodes})
+                    </if>
+                </otherwise>
+            </choose>
+            <if test="fpName!=null and fpName!=''">
+                AND ufp.real_name LIKE CONCAT('%', #{fpName},'%')
+            </if>
+            <if test="matter!=null and matter!=''">
+                AND uv.matter LIKE CONCAT('%', #{matter},'%')
+            </if>
+            <if test="subDateBegin!=null and subDateBegin!=''">
+                <![CDATA[
+                AND uv.sub_date >=#{subDateBegin}
+                ]]>
+            </if>
+            <if test="subDateEnd!=null and subDateEnd!=''">
+                <![CDATA[
+                AND uv.sub_date <=#{subDateEnd}
+                ]]>
+            </if>
+            <if test="types!=null and types!=''">
+                AND uv.type IN (${types})
+            </if>
+            <if test="statuss!=null and statuss!=''">
+                AND uv.status IN (${statuss})
+            </if>
+            <if test="customerStatuss!=null and customerStatuss!=''">
+                AND c.status IN (${customerStatuss})
+            </if>
+            <if test="userName!=null and userName!=''">
+                AND ud.real_name LIKE CONCAT('%', #{userName},'%')
+            </if>
+            <if test="visitDateBegin!=null and visitDateBegin!=''">
+                <![CDATA[
+                AND uv.visit_date >=#{visitDateBegin}
+                ]]>
+            </if>
+            <if test="visitDateEnd!=null and visitDateEnd!=''">
+                <![CDATA[
+                AND uv.visit_date <=#{visitDateEnd}
+                ]]>
+            </if>
+            <!--我的-->
+            <if test="permission==10">
+                AND uv.user_id =${userId}
+            </if>
+            <!--部门的-->
+            <if test="permission==30">
+                AND uv.user_id IN(${userIds})
+            </if>
+            <if test="permission==0">
+                <![CDATA[
+                AND uv.id < -1
+                ]]>
+            </if>
+            <if test="scope!=null and scope=='todo'">
+                AND uv.status IS NULL
+            </if>
+        </where>
+    </sql>
+
+    <sql id="selectPage_orderby">
+        <choose>
+            <when test="orderColumn!=null and orderColumn!=''">
+                ORDER BY
+                <if test="orderColumn=='subDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            uv.sub_date DESC
+                        </when>
+                        <otherwise>
+                            uv.sub_date
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="orderColumn=='visitDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            uv.visit_date DESC
+                        </when>
+                        <otherwise>
+                            uv.visit_date
+                        </otherwise>
+                    </choose>
+                </if>
+                ,uv.id DESC
+            </when>
+            <otherwise>
+                ORDER BY uv.sub_date DESC, uv.id DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+        LIMIT #{offset}, #{pageSize}
+    </sql>
+</mapper>

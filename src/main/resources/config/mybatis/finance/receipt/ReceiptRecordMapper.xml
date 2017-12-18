@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.finance.receipt.ReceiptRecordMapper">
+
+    <resultMap id="receiptPlanRecordListDto"
+               type="com.yundao.tenant.dto.finance.receipt.plan.ReceiptPlanRecordListDto">
+        <id property="id" jdbcType="BIGINT" column="id" />
+        <result property="payDate" jdbcType="VARCHAR" column="pay_date" />
+        <result property="amount" jdbcType="VARCHAR" column="amount" />
+        <result property="payUnit" jdbcType="VARCHAR" column="pay_unit" />
+        <result property="bankName" jdbcType="VARCHAR" column="bank_name" />
+        <result property="payAccount" jdbcType="VARCHAR" column="pay_account" />
+        <result property="isInvoiced" jdbcType="INTEGER" column="is_invoiced" />
+        <result property="invoicedDate" jdbcType="VARCHAR" column="invoiced_date" />
+        <result property="remark" jdbcType="VARCHAR" column="remark" />
+    </resultMap>
+
+    <select id="selectForReceiptPlan" resultMap="receiptPlanRecordListDto">
+  SELECT rr.id,rr.pay_date,rr.amount,rr.pay_unit,rr.bank_name,rr.pay_account,rr.is_invoiced,rr.invoiced_date,rr.remark FROM receipt_record rr
+  WHERE receipt_plan_id=${receiptPlanId} AND rr.is_delete=0 ORDER BY rr.create_date DESC
+    </select>
+
+    <select id="selectActualReceiptAmount" resultType="double">
+        SELECT IFNULL(SUM(rr.amount),0) FROM receipt_record rr WHERE rr.receipt_plan_id=${receiptPlanId} AND rr.is_delete=0
+    </select>
+
+
+
+</mapper>

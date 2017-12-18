@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.customer.BaseUserCustomerMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.customer.BaseUserCustomer">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="source_type" jdbcType="TINYINT" property="sourceType" />
+    <result column="distribution_date" jdbcType="TIMESTAMP" property="distributionDate" />
+    <result column="distribution_user_id" jdbcType="BIGINT" property="distributionUserId" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, customer_id, user_id, source_type, distribution_date, distribution_user_id, 
+    is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_customer
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_customer
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomerExample">
+    delete from user_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomer" useGeneratedKeys="true">
+    insert into user_customer (id, tenant_id, customer_id, 
+      user_id, source_type, distribution_date, 
+      distribution_user_id, is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, 
+      #{userId,jdbcType=BIGINT}, #{sourceType,jdbcType=TINYINT}, #{distributionDate,jdbcType=TIMESTAMP}, 
+      #{distributionUserId,jdbcType=BIGINT}, #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomer" useGeneratedKeys="true">
+    insert into user_customer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="customerId != null">
+        customer_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="sourceType != null">
+        source_type,
+      </if>
+      <if test="distributionDate != null">
+        distribution_date,
+      </if>
+      <if test="distributionUserId != null">
+        distribution_user_id,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="sourceType != null">
+        #{sourceType,jdbcType=TINYINT},
+      </if>
+      <if test="distributionDate != null">
+        #{distributionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="distributionUserId != null">
+        #{distributionUserId,jdbcType=BIGINT},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomerExample" resultType="java.lang.Integer">
+    select count(*) from user_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_customer
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerId != null">
+        customer_id = #{record.customerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.sourceType != null">
+        source_type = #{record.sourceType,jdbcType=TINYINT},
+      </if>
+      <if test="record.distributionDate != null">
+        distribution_date = #{record.distributionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.distributionUserId != null">
+        distribution_user_id = #{record.distributionUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_customer
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      customer_id = #{record.customerId,jdbcType=BIGINT},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      source_type = #{record.sourceType,jdbcType=TINYINT},
+      distribution_date = #{record.distributionDate,jdbcType=TIMESTAMP},
+      distribution_user_id = #{record.distributionUserId,jdbcType=BIGINT},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomer">
+    update user_customer
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="sourceType != null">
+        source_type = #{sourceType,jdbcType=TINYINT},
+      </if>
+      <if test="distributionDate != null">
+        distribution_date = #{distributionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="distributionUserId != null">
+        distribution_user_id = #{distributionUserId,jdbcType=BIGINT},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomer">
+    update user_customer
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      customer_id = #{customerId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      source_type = #{sourceType,jdbcType=TINYINT},
+      distribution_date = #{distributionDate,jdbcType=TIMESTAMP},
+      distribution_user_id = #{distributionUserId,jdbcType=BIGINT},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.customer.BaseUserCustomerExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from user_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

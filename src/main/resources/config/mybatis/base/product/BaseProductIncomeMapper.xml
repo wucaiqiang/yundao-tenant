@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.product.BaseProductIncomeMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.product.BaseProductIncome">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="income_rule_id" jdbcType="BIGINT" property="incomeRuleId" />
+    <result column="buy_max" jdbcType="DOUBLE" property="buyMax" />
+    <result column="buy_min" jdbcType="DOUBLE" property="buyMin" />
+    <result column="buy_time_limit" jdbcType="BIGINT" property="buyTimeLimit" />
+    <result column="income_type" jdbcType="VARCHAR" property="incomeType" />
+    <result column="fix_income_rate" jdbcType="DOUBLE" property="fixIncomeRate" />
+    <result column="float_income_rate" jdbcType="DOUBLE" property="floatIncomeRate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, income_rule_id, buy_max, buy_min, buy_time_limit, income_type, fix_income_rate, 
+    float_income_rate, create_user_id, create_date, update_user_id, update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductIncomeExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from product_income
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from product_income
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from product_income
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductIncomeExample">
+    delete from product_income
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductIncome" useGeneratedKeys="true">
+    insert into product_income (id, tenant_id, income_rule_id, 
+      buy_max, buy_min, buy_time_limit, 
+      income_type, fix_income_rate, float_income_rate, 
+      create_user_id, create_date, update_user_id, 
+      update_date, is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{incomeRuleId,jdbcType=BIGINT}, 
+      #{buyMax,jdbcType=DOUBLE}, #{buyMin,jdbcType=DOUBLE}, #{buyTimeLimit,jdbcType=BIGINT}, 
+      #{incomeType,jdbcType=VARCHAR}, #{fixIncomeRate,jdbcType=DOUBLE}, #{floatIncomeRate,jdbcType=DOUBLE}, 
+      #{createUserId,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.product.BaseProductIncome" useGeneratedKeys="true">
+    insert into product_income
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="incomeRuleId != null">
+        income_rule_id,
+      </if>
+      <if test="buyMax != null">
+        buy_max,
+      </if>
+      <if test="buyMin != null">
+        buy_min,
+      </if>
+      <if test="buyTimeLimit != null">
+        buy_time_limit,
+      </if>
+      <if test="incomeType != null">
+        income_type,
+      </if>
+      <if test="fixIncomeRate != null">
+        fix_income_rate,
+      </if>
+      <if test="floatIncomeRate != null">
+        float_income_rate,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="incomeRuleId != null">
+        #{incomeRuleId,jdbcType=BIGINT},
+      </if>
+      <if test="buyMax != null">
+        #{buyMax,jdbcType=DOUBLE},
+      </if>
+      <if test="buyMin != null">
+        #{buyMin,jdbcType=DOUBLE},
+      </if>
+      <if test="buyTimeLimit != null">
+        #{buyTimeLimit,jdbcType=BIGINT},
+      </if>
+      <if test="incomeType != null">
+        #{incomeType,jdbcType=VARCHAR},
+      </if>
+      <if test="fixIncomeRate != null">
+        #{fixIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="floatIncomeRate != null">
+        #{floatIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.product.BaseProductIncomeExample" resultType="java.lang.Integer">
+    select count(*) from product_income
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update product_income
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.incomeRuleId != null">
+        income_rule_id = #{record.incomeRuleId,jdbcType=BIGINT},
+      </if>
+      <if test="record.buyMax != null">
+        buy_max = #{record.buyMax,jdbcType=DOUBLE},
+      </if>
+      <if test="record.buyMin != null">
+        buy_min = #{record.buyMin,jdbcType=DOUBLE},
+      </if>
+      <if test="record.buyTimeLimit != null">
+        buy_time_limit = #{record.buyTimeLimit,jdbcType=BIGINT},
+      </if>
+      <if test="record.incomeType != null">
+        income_type = #{record.incomeType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fixIncomeRate != null">
+        fix_income_rate = #{record.fixIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="record.floatIncomeRate != null">
+        float_income_rate = #{record.floatIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update product_income
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      income_rule_id = #{record.incomeRuleId,jdbcType=BIGINT},
+      buy_max = #{record.buyMax,jdbcType=DOUBLE},
+      buy_min = #{record.buyMin,jdbcType=DOUBLE},
+      buy_time_limit = #{record.buyTimeLimit,jdbcType=BIGINT},
+      income_type = #{record.incomeType,jdbcType=VARCHAR},
+      fix_income_rate = #{record.fixIncomeRate,jdbcType=DOUBLE},
+      float_income_rate = #{record.floatIncomeRate,jdbcType=DOUBLE},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.product.BaseProductIncome">
+    update product_income
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="incomeRuleId != null">
+        income_rule_id = #{incomeRuleId,jdbcType=BIGINT},
+      </if>
+      <if test="buyMax != null">
+        buy_max = #{buyMax,jdbcType=DOUBLE},
+      </if>
+      <if test="buyMin != null">
+        buy_min = #{buyMin,jdbcType=DOUBLE},
+      </if>
+      <if test="buyTimeLimit != null">
+        buy_time_limit = #{buyTimeLimit,jdbcType=BIGINT},
+      </if>
+      <if test="incomeType != null">
+        income_type = #{incomeType,jdbcType=VARCHAR},
+      </if>
+      <if test="fixIncomeRate != null">
+        fix_income_rate = #{fixIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="floatIncomeRate != null">
+        float_income_rate = #{floatIncomeRate,jdbcType=DOUBLE},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProductIncome">
+    update product_income
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      income_rule_id = #{incomeRuleId,jdbcType=BIGINT},
+      buy_max = #{buyMax,jdbcType=DOUBLE},
+      buy_min = #{buyMin,jdbcType=DOUBLE},
+      buy_time_limit = #{buyTimeLimit,jdbcType=BIGINT},
+      income_type = #{incomeType,jdbcType=VARCHAR},
+      fix_income_rate = #{fixIncomeRate,jdbcType=DOUBLE},
+      float_income_rate = #{floatIncomeRate,jdbcType=DOUBLE},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.product.BaseProductIncomeExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product_income
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

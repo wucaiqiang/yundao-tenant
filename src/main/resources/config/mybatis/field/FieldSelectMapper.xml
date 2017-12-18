@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.field.FieldSelectMapper">
+
+	<resultMap id="dataObjectDto" type="com.yundao.tenant.dto.field.FiledSelectDetailDto">
+		<id column="name"  property="fieldLable" />
+		<result column="code" property="fieldName" />
+		<result column="label" property="selectLable" />
+		<result column="value"  property="selectValue" />
+		<result column="sequence" property="sequence" />
+	</resultMap>
+
+	<!--获取数据对象字段-->
+  <select id="getFiledSelectDetails" resultMap="dataObjectDto">
+		SELECT
+			f.`name`,
+			f.`code`,
+			sc.label,
+			sc.`value`,
+			sc.sequence,
+			sc.id
+		FROM
+			field f
+		LEFT JOIN object_field of ON f.id = of.field_id
+		LEFT JOIN select_config sc ON sc.object_field_id = of.id
+		WHERE
+			f.is_delete = 0
+		AND sc.is_delete = 0
+		AND f.`code` IN 
+		      <foreach close=")" collection="fieldNames" item="item" open="(" separator=",">
+	               #{item}
+	           </foreach>
+		ORDER BY
+			sc.sequence ASC
+  </select>
+</mapper>

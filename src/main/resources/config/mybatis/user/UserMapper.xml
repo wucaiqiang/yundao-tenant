@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.user.UserMapper">
+	<resultMap id="userListReqDto" type="com.yundao.tenant.dto.user.UserListResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="username" jdbcType="VARCHAR" property="username" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+	</resultMap>
+
+	<resultMap id="userRoleResPageDto"
+		type="com.yundao.tenant.dto.user.role.UserRolePageResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="role_id" jdbcType="BIGINT" property="roleId" />
+		<result column="department_id" jdbcType="BIGINT" property="departmentId" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="department_name" jdbcType="VARCHAR" property="departmentName" />
+		<result column="job_number" jdbcType="VARCHAR" property="jobNumber" />
+		<result column="leaderName" jdbcType="VARCHAR" property="leaderName" />
+	</resultMap>
+
+
+	<resultMap id="userDimissionListResDto"
+		type="com.yundao.tenant.dto.user.UserDimissionListResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="department_id" jdbcType="BIGINT" property="departmentId" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="job_number" jdbcType="VARCHAR" property="jobNumber" />
+		<result column="username" jdbcType="VARCHAR" property="username" />
+		<result column="is_dimission" property="isDimission" />
+		<result column="leader_id" property="leaderId" />
+		<result column="is_system" property="isSystem" />
+	</resultMap>
+
+
+	<resultMap id="userDetailResDto" type="com.yundao.tenant.dto.user.UserDetailResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="email" property="email" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="username" jdbcType="VARCHAR" property="username" />
+		<result column="is_lock" property="isLock" />
+		<result column="is_enabled" property="isEnabled" />
+		<result column="birth" property="birth" />
+		<result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="sex" property="sex" />
+		<result column="tenant_id" property="tenantId" />
+		<result column="register_source" property="registerSource" />
+		<result column="job_number" jdbcType="VARCHAR" property="jobNumber" />
+		<result column="is_dimission" property="isDimission" />
+		<result column="leader_id" property="leaderId" />
+		<result column="card_introduce" property="cardIntroduce" />
+		<result column="card_header_bit" property="cardHeaderBit" />
+		<result column="address" property="address" />
+		<result column="avatar" property="avatar" />
+	</resultMap>
+
+	<resultMap id="userOptionDto" type="com.yundao.tenant.dto.user.UserOptionResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+	</resultMap>
+
+	<resultMap id="userOrgDetailDto" type="com.yundao.tenant.dto.user.UserOrgDetailDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="username" jdbcType="VARCHAR" property="username" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="job_number" jdbcType="VARCHAR" property="jobNumber" />
+		<result column="departmentId" jdbcType="BIGINT" property="departmentId" />
+		<result column="departmentName" jdbcType="VARCHAR" property="departmentName" />
+		<result column="leader_id" jdbcType="BIGINT" property="leaderId" />
+		<result column="leaderName" jdbcType="VARCHAR" property="leaderName" />
+		<result column="is_system" jdbcType="BIGINT" property="isSystem" />
+	</resultMap>
+	<resultMap id="UserSimpleInfoDto" type="com.yundao.tenant.dto.user.UserSimpleInfoDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="avatar" jdbcType="VARCHAR" property="avatar" />
+	</resultMap>
+
+	<select id="getUserNotBelongToDepartment" resultMap="UserSimpleInfoDto">
+		SELECT ua.id,ua.mobile,ud.real_name,ud.avatar
+		from user_account ua
+		LEFT JOIN user_detail ud on ua.id=ud.user_account_id
+		LEFT JOIN user_department udt on ua.id=udt.user_account_id and
+		IFNULL(udt.is_delete,0) =0
+		where udt.id is null and ua.is_enabled=1 and IFNULL(ua.is_delete,0) =0 and
+		IFNULL(ud.is_delete,0) =0;
+
+	</select>
+	<select id="selectUserDetailForOrg" resultMap="userOrgDetailDto">
+		SELECT
+		ua.id,ud.real_name,ua.username,ua.mobile,us.job_number,d.id AS
+		departmentId,d.name AS departmentName,
+		us.leader_id,ud2.real_name AS
+		leaderName,ua.is_system
+		FROM user_account ua
+		LEFT JOIN user_detail ud ON
+		ua.id=ud.user_account_id AND ud.is_delete=0
+		LEFT JOIN user_staff us ON
+		ua.id=us.user_account_id AND us.is_delete=0
+		LEFT JOIN user_detail ud2
+		ON ud2.user_account_id=us.leader_id
+		LEFT JOIN user_department udep ON
+		udep.user_account_id=ua.id AND
+		udep.is_delete=0
+		LEFT JOIN department d
+		ON d.id=udep.department_id AND d.is_delete=0
+		WHERE ua.is_delete=0 AND
+		ua.id=${userId}
+	</select>
+
+	<select id="getUsers" resultMap="userListReqDto">
+		SELECT
+		DISTINCT ua.id,
+		ua.mobile,
+		ua.username,
+		ua.is_lock,
+		us.is_dimission,
+		us.job_number,
+		ud.real_name
+		FROM
+		user_account ua
+		LEFT JOIN
+		user_detail ud ON ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on
+		ua.id = us.user_account_id
+		<if test="roleId!=null">
+			LEFT JOIN user_role ur on ua.id = ur.user_account_id
+		</if>
+		<if test="departmentId!=null">
+			LEFT JOIN user_department de on ua.id = de.user_account_id
+		</if>
+		<include refid="getUsers_where" />
+		<include refid="limitSql" />
+	</select>
+
+	<select id="getUsersCount" resultType="int">
+		SELECT
+		count(DISTINCT ua.id)
+		FROM
+		user_account ua
+		LEFT JOIN user_detail ud
+		ON ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on ua.id =
+		us.user_account_id
+		<if test="roleId!=null">
+			LEFT JOIN user_role ur on ua.id = ur.user_account_id
+		</if>
+		<if test="departmentId!=null">
+			LEFT JOIN user_department de on ua.id = de.user_account_id
+		</if>
+		<include refid="getUsers_where" />
+	</select>
+
+
+	<sql id="getUsers_where">
+		<where>
+			ua.is_delete = 0
+			<if test="realName!=null and realName!=''">
+				and ud.real_name like CONCAT('%', #{realName},'%')
+			</if>
+			<if test="roleId!=null">
+				and ur.role_id = #{roleId}
+			</if>
+
+			<if test="departmentId!=null">
+				and de.department_id = #{departmentId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="getUserRolePage" resultMap="userRoleResPageDto">
+		SELECT ua.id,ud.real_name,dep.name AS
+		department_name,ua.mobile,us.job_number,ur.role_id,udep.department_id,udLeader.real_name
+		AS leaderName
+		FROM
+		user_account ua
+		INNER JOIN user_role ur ON
+		ua.id=ur.user_account_id AND ur.is_delete=0
+		LEFT JOIN user_detail ud ON
+		ua.id=ud.user_account_id AND ud.is_delete=0
+		LEFT JOIN user_department
+		udep ON ua.id=udep.user_account_id AND udep.is_delete=0
+		LEFT JOIN
+		department dep ON dep.id=udep.department_id AND dep.is_delete=0
+		LEFT
+		JOIN user_staff us ON ua.id=us.user_account_id AND us.is_delete=0
+		LEFT
+		JOIN user_detail udLeader ON us.leader_id=udLeader.user_account_id AND
+		udLeader.is_delete=0
+		<include refid="getUserRolePageCondition"></include>
+		<include refid="limitSql" />
+	</select>
+
+	<select id="getUserRolePageCount" resultType="Integer">
+		SELECT COUNT(*) FROM user_account ua
+		INNER JOIN user_role ur ON
+		ua.id=ur.user_account_id AND ur.is_delete=0
+		LEFT JOIN user_detail ud ON
+		ua.id=ud.user_account_id AND ud.is_delete=0
+		LEFT JOIN user_department
+		udep ON ua.id=udep.user_account_id AND udep.is_delete=0
+		LEFT JOIN
+		department dep ON dep.id=udep.department_id AND dep.is_delete=0
+		LEFT
+		JOIN user_staff us ON ua.id=us.user_account_id AND us.is_delete=0
+		LEFT
+		JOIN user_detail udLeader ON us.leader_id=udLeader.user_account_id AND
+		udLeader.is_delete=0
+		<include refid="getUserRolePageCondition"></include>
+	</select>
+
+	<sql id="getUserRolePageCondition">
+		<where>
+			ur.role_id=${roleId} AND ua.is_delete=0
+			<if test="realName!=null and realName!=''">
+				and ud.real_name like CONCAT('%', #{realName},'%')
+			</if>
+			<if test="departmentName !=null and departmentName!=''">
+				and udep.name like CONCAT('%',#{departmentName},'%')
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				and ua.mobile like CONCAT('%', #{mobile},'%')
+			</if>
+			<if test="jobNumber!=null and jobNumber!=''">
+				and us.job_number like CONCAT('%',#{jobNumber},'%')
+			</if>
+			<if test="leaderName!=null and leaderName!=''">
+				and udLeader.real_name like CONCAT('%',#{leaderName},'%')
+			</if>
+		</where>
+	</sql>
+
+
+	<select id="getDimissionUsersPage" resultMap="userDimissionListResDto">
+		SELECT
+		DISTINCT ua.id,
+		ua.mobile,
+		ua.username,
+		us.is_dimission,
+		us.job_number,
+		ud.real_name,
+		us.leader_id,
+		ua.is_system
+		FROM
+		user_account
+		ua
+		LEFT JOIN user_detail ud ON ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on ua.id = us.user_account_id
+		LEFT JOIN user_role ur on
+		ua.id = ur.user_account_id
+		LEFT JOIN role ro on ur.role_id = ro.id
+
+		LEFT
+		JOIN user_department ude on ua.id = ude.user_account_id and
+		ude.is_delete = 0
+		LEFT JOIN department de on ude.department_id = de.id
+		and de.is_delete = 0
+
+		LEFT JOIN user_detail udetail on us.leader_id =
+		udetail.user_account_id and udetail.is_delete = 0
+
+		<include refid="getDimissionUsers_where" />
+		<include refid="getDimissionUsers_orderBy"></include>
+		<include refid="limitSql" />
+	</select>
+	<sql id="getDimissionUsers_orderBy">
+		<if
+			test="orderColumn ==null or orderColumn =='' or sort ==null or sort ==''">
+			order by ua.create_date desc
+		</if>
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+	</sql>
+
+	<select id="getDimissionUsersPageCount" resultType="int">
+		SELECT
+		count(DISTINCT ua.id)
+		FROM
+		user_account ua
+		LEFT JOIN user_detail ud
+		ON ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on ua.id =
+		us.user_account_id
+		LEFT JOIN user_role ur on ua.id = ur.user_account_id
+		LEFT JOIN role ro on ur.role_id = ro.id
+
+		LEFT JOIN user_department ude
+		on ua.id = ude.user_account_id and
+		ude.is_delete = 0
+		LEFT JOIN
+		department de on ude.department_id = de.id and de.is_delete = 0
+
+		LEFT
+		JOIN user_detail udetail on us.leader_id =
+		udetail.user_account_id and
+		udetail.is_delete = 0
+		<include refid="getDimissionUsers_where" />
+	</select>
+
+	<sql id="getDimissionUsers_where">
+		<where>
+			ua.is_delete = 0
+			and us.is_delete = 0
+			<if test="realName!=null and realName!=''">
+				and ud.real_name like CONCAT('%', #{realName},'%')
+			</if>
+			<if test="roleName != null and roleName != ''">
+				and ro.is_delete = 0
+				and ro.name like CONCAT('%',
+				#{roleName},'%')
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				and ua.mobile like CONCAT('%', #{mobile},'%')
+			</if>
+			<if test="isEnabled!=null">
+				and ua.is_enabled = #{isEnabled}
+			</if>
+			<if test="jobNumber!=null and jobNumber!=''">
+				and us.job_number like CONCAT('%',#{jobNumber},'%')
+			</if>
+			<if test="departmentIds!=null ">
+				and ude.department_id in
+				<foreach close=")" collection="departmentIds" item="item"
+					open="(" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="departmentName!=null and departmentName!=''">
+				and de.name like CONCAT('%',#{departmentName},'%')
+			</if>
+			<if test="leaderName!=null and leaderName!=''">
+				and udetail.real_name like CONCAT('%',#{leaderName},'%')
+			</if>
+
+		</where>
+	</sql>
+
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+	<sql id="orderBy">
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+	</sql>
+
+
+	<select id="getUserDetail" resultMap="userDetailResDto">
+		SELECT
+		ua.id,
+		ua.tenant_id,
+		ua.email,
+		ua.mobile,
+		ua.username,
+		ua.is_lock,
+		ua.is_enabled,
+		ud.birth,
+		ud.nick_name,
+		ud.real_name,
+		ud.sex,
+		ud.register_source,
+		ud.card_introduce,
+		ud.card_header_bit,
+		ud.address,
+		ud.avatar,
+		us.is_dimission,
+		us.job_number,
+		us.leader_id
+		FROM
+		user_account ua
+		LEFT JOIN
+		user_detail ud on ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on
+		ua.id = us.user_account_id
+		where ua.is_delete = 0
+		and
+		ud.is_delete = 0
+		and us.is_delete = 0
+		and ua.id = #{userId}
+	</select>
+
+
+	<select id="getUsersByRealName" resultMap="userOptionDto">
+		select
+		ua.id,
+		ud.real_name,
+		ua.mobile
+		FROM
+		user_account ua
+		LEFT JOIN user_detail ud on
+		ua.id = ud.user_account_id
+		LEFT JOIN user_staff us on ua.id =
+		us.user_account_id
+		where ua.is_delete = 0
+		and ud.is_delete = 0
+		and
+		us.is_delete = 0
+		and
+		ua.is_enabled=1
+		and ud.real_name like
+		CONCAT('%',#{realName},'%')
+		ORDER BY ua.create_date desc
+		limit 0,
+		#{count}
+	</select>
+
+
+	<select id="getUserIds" resultType="long">
+		select
+		ua.id
+		FROM
+		user_account
+		ua
+		LEFT JOIN user_detail ud on ua.id = ud.user_account_id
+		LEFT JOIN
+		user_staff us on ua.id = us.user_account_id
+		where ua.is_delete = 0
+		and
+		ud.is_delete = 0
+		and us.is_delete = 0
+		and
+		ua.is_enabled = 1
+	</select>
+
+	<!--获取同一部门及下属部门所有用户 -->
+	<select id="selectSameDepUsers" resultType="long">
+		SELECT
+		ud.user_account_id FROM user_department ud LEFT JOIN department d
+		ON
+		ud.department_id=d.id
+		WHERE d.code LIKE CONCAT(#{departmentCode},'%');
+	</select>
+
+	<update id="updateEnabled">
+		update user_account set is_enabled = #{isEnabled}
+		<if test="isEnabled==0">
+			,enabled_date = now()
+		</if>
+		WHERE id in
+		<foreach close=")" collection="ids" item="item" open="("
+			separator=",">
+			#{item}
+		</foreach>
+	</update>
+
+	<select id="selectLikeDepartmentName" resultType="long">
+		SELECT ua.id
+		FROM user_department ud
+		LEFT JOIN department d ON ud.department_id=d.id
+		LEFT JOIN user_account ua ON ua.id=ud.user_account_id
+		WHERE
+		d.is_delete=0 AND ud.is_delete=0 AND ua.is_delete=0 AND
+		ua.is_enabled=1
+		AND d.name LIKE CONCAT('%',#{departmentName},'%')
+	</select>
+
+
+
+</mapper>

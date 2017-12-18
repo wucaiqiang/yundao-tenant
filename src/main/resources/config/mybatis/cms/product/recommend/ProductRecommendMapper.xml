@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.cms.product.recommend.ProductRecommendMapper">
+
+
+	<resultMap id="recommendListResDto" type="com.yundao.tenant.dto.cms.product.recommend.RecommendListResDto">
+	    <id column="id" jdbcType="BIGINT" property="id" />
+	    <result column="product_id" jdbcType="BIGINT" property="productId" />
+	    <result column="platform_id" jdbcType="BIGINT" property="platformId" />
+	    <result column="position_id" jdbcType="BIGINT" property="positionId" />
+	    <result column="status" jdbcType="TINYINT" property="status" />
+	    <result column="sort" jdbcType="INTEGER" property="sort" />
+	    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+	    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+	    <result column="real_name"  property="updateUserName" />
+	    <result column="productName"  property="productName" />
+	    <result column="platformName"  property="platformName" />
+	    <result column="positionName"  property="positionName" />
+	    <result column="productType"  property="productType" />
+	    <result column="real_name"  property="updateUserName" />
+	</resultMap>
+
+
+	<select id="getPage" resultMap="recommendListResDto">
+		SELECT
+		  pr.id,
+		  pr.product_id,
+		  p.`name` as productName,
+		  pl.`name`as platformName,
+		  pr.platform_id,
+		  pr.position_id,
+		  po.name as positionName,
+		  pr.sort,
+		  pr.`status`,
+		  fg.`name` as productType,
+		  ud.real_name,
+		  pr.update_date,
+		  pr.update_user_id
+		FROM
+			product_recommend pr
+		LEFT JOIN product p ON pr.product_id = p.id
+		LEFT JOIN field_group fg on p.type_id = fg.id
+		LEFT JOIN platform pl on pr.platform_id = pl.id
+		LEFT JOIN user_detail ud on pr.update_user_id = ud.user_account_id
+		LEFT JOIN position po on pr.position_id = po.id
+		<include refid="getPage_where"></include>
+		<include refid="orderBy"></include>
+		<include refid="limitSql"></include>
+	</select>
+
+
+
+	<select id="getPageCount" resultType="int">
+		SELECT
+		  count(pr.id)
+		FROM
+			product_recommend pr
+		LEFT JOIN product p ON pr.product_id = p.id
+		LEFT JOIN field_group fg on p.type_id = fg.id
+		LEFT JOIN platform pl on pr.platform_id = pl.id
+		LEFT JOIN user_detail ud on pr.update_user_id = ud.user_account_id
+		LEFT JOIN position po on pr.position_id = po.id
+      <include refid="getPage_where"></include>
+	</select>
+
+	<sql id="getPage_where">
+		<where>pr.is_delete = 0
+		and p.is_delete = 0
+		and pl.is_delete = 0
+		and fg.is_delete = 0
+		<if test="productName!=null and productName!=''">
+			AND p.name like '%${productName}%'
+		</if>
+		<if test="productType!=null and productType!=''">
+			AND fg.name like '%${productType}%'
+		</if>
+		<if test="updateUserName!=null and updateUserName!=''">
+			AND ud.real_name like '%${updateUserName}%'
+		</if>
+		
+		<if test="updateDateStart!=null and updateDateStart!=''">
+			AND pr.update_date &gt;= #{updateDateStart}
+		</if>
+		<if test="updateDateEnd!=null and updateDateEnd!=''">
+			AND pr.update_date &lt;= #{updateDateEnd}
+		</if>
+        <if test="platformIds!=null and platformIds!=''">
+			AND pr.platform_id in (${productName})
+		</if>
+		<if test="positions!=null and positions!=''">
+			AND pr.position in (${positions})
+		</if>
+		<if test="statuss!=null and statuss!=''">
+			AND pr.status in (${statuss})
+		</if>
+		</where>
+	</sql>
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	
+	<sql id="orderBy">
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+		<if test="orderColumn == null">
+			order by pr.sort asc, pr.create_date desc
+		</if>
+	</sql>
+</mapper>

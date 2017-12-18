@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.product.examine.ProductExamineMapper">
+
+    <resultMap id="productExaminePageDto" type="com.yundao.tenant.dto.product.examine.ProductExaminePageResDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="product_id" jdbcType="BIGINT" property="productId" />
+        <result column="product_name" jdbcType="VARCHAR" property="productName" />
+        <result column="product_type" jdbcType="BIGINT" property="productType" />
+        <result column="product_type_text" jdbcType="VARCHAR" property="productTypeText" />
+        <result column="product_scale" jdbcType="DOUBLE" property="productScale" />
+        <result column="receiver" jdbcType="VARCHAR" property="receiver" />
+        <result column="assistant" jdbcType="VARCHAR" property="assistant" />
+        <result column="issued_status" jdbcType="INTEGER" property="issuedStatus" />
+        <result column="proposer" jdbcType="VARCHAR" property="proposer" />
+        <result column="create_User_id" jdbcType="BIGINT" property="createUserId" />
+        <result column="req_issued_status" jdbcType="INTEGER" property="reqIssuedStatus" />
+        <result column="status" jdbcType="INTEGER" property="status" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="approve_date" jdbcType="TIMESTAMP" property="approveDate" />
+        <result column="business_type" jdbcType="VARCHAR" property="businessType" />
+    </resultMap>
+
+    <select id="selectPage" parameterType="map" resultMap="productExaminePageDto" >
+    SELECT <include refid="selectPage_Columns"></include>
+    <include refid="selectPage_BodySql"></include>
+    <include refid="selectPage_where"></include>
+     <include refid="orderby"></include>
+    LIMIT #{params.offset}, #{params.pageSize}
+    </select>
+
+    <select id="selectPageCount" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+        <include refid="selectPage_BodySql"></include>
+        <include refid="selectPage_where"></include>
+    </select>
+
+    <sql id="selectPage_Columns">
+        pe.id,
+     p.id AS product_id,
+     p.name AS product_name,
+     fg.id AS product_type,
+     fg.name AS product_type_text,
+     ps.product_scale,
+     udReceiver.real_name AS receiver,
+     udAssistant.real_name AS assistant,
+     udCreator.real_name AS proposer,
+     pe.issued_status,
+     pe.create_User_id,
+     pe.req_issued_status,
+     pe.create_date,
+     pe.approve_date,
+     pe.status,
+     pe.reason,
+     pe.business_type
+    </sql>
+
+    <sql id="selectPage_BodySql">
+        FROM product_examine pe INNER JOIN product p ON pe.product_id=p.id
+    LEFT JOIN field_group fg ON fg.id=p.type_id
+    LEFT JOIN product_sale ps ON ps.product_id=p.id
+    LEFT JOIN user_detail udReceiver ON udReceiver.user_account_id=p.receiver_id
+    LEFT JOIN user_detail udAssistant ON udAssistant.user_account_id=p.assistant_id
+    LEFT JOIN user_detail udCreator ON udCreator.user_account_id=pe.create_User_id
+    </sql>
+
+    <sql id="selectPage_where">
+        <where>
+            pe.is_delete=0 AND  p.is_delete=0
+            and fg.is_delete = 0
+			and fg.is_enabled = 1
+            <if test="params.productName!=null and params.productName!=''">
+                AND p.name LIKE CONCAT('%',#{params.productName},'%')
+            </if>
+            <if test="params.productTypeIds!=null and params.productTypeIds!=''">
+                AND fg.id IN(${params.productTypeIds})
+            </if>
+            <choose>
+                    <when test="params.receiver!=null and params.receiver!='' and params.assistant!=null and params.assistant!=''">
+                        AND (udReceiver.real_name LIKE CONCAT('%',#{params.receiver},'%') OR  udAssistant.real_name LIKE CONCAT('%',#{params.assistant},'%'))
+                    </when>
+                    <otherwise>
+                        <if test="params.receiver!=null and params.receiver!=''">
+                            AND udReceiver.real_name LIKE CONCAT('%',#{params.receiver},'%')
+                        </if>
+                        <if test="params.assistant!=null and params.assistant!=''">
+                            AND  udAssistant.real_name LIKE CONCAT('%',#{params.assistant},'%')
+                        </if>
+                    </otherwise>
+            </choose>
+
+            <if test="params.issuedStatusIds!=null and params.issuedStatusIds!=''">
+                AND pe.issued_status IN(${params.issuedStatusIds})
+            </if>
+            <if test="params.statuss!=null and params.statuss!=''">
+                AND pe.status IN(${params.statuss})
+            </if>
+            <if test="params.proposer!=null and params.proposer!=''">
+                AND udCreator.real_name LIKE CONCAT('%',#{params.proposer},'%')
+            </if>
+            <if test="params.reqIssuedStatusIds!=null and params.reqIssuedStatusIds!=''">
+                AND pe.req_issued_status IN(${params.reqIssuedStatusIds})
+            </if>
+            <if test="params.createDateBegin!=null and params.createDateBegin !=''">
+            <![CDATA[
+                AND pe.create_date >=#{params.createDateBegin}
+                ]]>
+            </if>
+            <if test="params.createDateEnd!=null and params.createDateEnd!=''">
+                <![CDATA[
+                AND pe.create_date <=#{params.createDateEnd}
+                ]]>
+            </if>
+            <if test="params.approveDateBegin!=null and params.approveDateBegin !=''">
+                <![CDATA[
+                AND pe.approve_date >=#{params.approveDateBegin}
+                ]]>
+            </if>
+            <if test="params.approveDateEnd!=null and params.approveDateEnd!=''">
+                <![CDATA[
+                AND pe.approve_date <=#{params.approveDateEnd}
+                ]]>
+            </if>
+            <if test="params.scope!=null and params.scope=='unprocess'">
+                AND pe.status=1
+            </if>
+        </where>
+    </sql>
+
+    <sql id="orderby">
+        <choose>
+            <when test="params.orderColumn!=null and params.orderColumn!=''">
+                ORDER BY
+                <if test="params.orderColumn=='productName'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            p.name DESC
+                        </when>
+                        <otherwise>
+                            p.name
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='productType'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            fg.name DESC
+                        </when>
+                        <otherwise>
+                            fg.name
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='receiver'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            udReceiver.real_name DESC
+                        </when>
+                        <otherwise>
+                            udReceiver.real_name
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='assistant'">
+                <choose>
+                    <when test="params.sort=='desc'">
+                        udAssistant.real_name DESC
+                    </when>
+                    <otherwise>
+                        udAssistant.real_name
+                    </otherwise>
+                </choose>
+                </if>
+                <if test="params.orderColumn=='proposer'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            udCreator.real_name DESC
+                        </when>
+                        <otherwise>
+                            udCreator.real_name
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='reqIssuedStatusText'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            pe.req_issued_status DESC
+                        </when>
+                        <otherwise>
+                            pe.req_issued_status
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='createDate'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            pe.create_date DESC
+                        </when>
+                        <otherwise>
+                            pe.create_date
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="params.orderColumn=='approveDate'">
+                    <choose>
+                        <when test="params.sort=='desc'">
+                            pe.approve_date DESC
+                        </when>
+                        <otherwise>
+                            pe.approve_date
+                        </otherwise>
+                    </choose>
+                </if>
+                ,pe.id DESC
+            </when>
+            <otherwise>
+                ORDER BY pe.status,pe.create_date DESC,pe.id DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+        LIMIT #{offset}, #{pageSize}
+    </sql>
+    
+    
+    
+   <update id="updateApplyOnLine" parameterType="map">
+    update product_examine
+    set id = #{record.id,jdbcType=BIGINT},
+      issued_status = #{record.issuedStatus,jdbcType=INTEGER},
+      req_issued_status = #{record.reqIssuedStatus,jdbcType=INTEGER},
+      approve_id = #{record.approveId,jdbcType=BIGINT},
+      approve_date = #{record.approveDate,jdbcType=TIMESTAMP},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      business_type = #{record.businessType,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      apply_user_id= #{record.applyUserId,jdbcType=INTEGER},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP}
+    where id = #{record.id,jdbcType=BIGINT}
+  </update>
+</mapper>

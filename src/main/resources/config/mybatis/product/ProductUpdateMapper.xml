@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductUpdateMapper">
+
+   
+  <update id="updateProductSaleByProductId" parameterType="com.yundao.tenant.model.base.product.BaseProductSale">
+    update product_sale
+    set 
+      sale_start_date = #{saleStartDate,jdbcType=DATE},
+      sale_end_date = #{saleEndDate,jdbcType=DATE},
+      is_scale = #{isScale,jdbcType=TINYINT},
+      product_scale = #{productScale,jdbcType=DOUBLE},
+      currency_code = #{currencyCode,jdbcType=VARCHAR},
+      pay_account = #{payAccount,jdbcType=VARCHAR},
+      account_name = #{accountName,jdbcType=VARCHAR},
+      raise_bank = #{raiseBank,jdbcType=VARCHAR},
+      pay_remark = #{payRemark,jdbcType=VARCHAR},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where product_id = #{productId,jdbcType=BIGINT}
+  </update>
+  
+  
+    <update id="updateProductByPrimaryKey" parameterType="com.yundao.tenant.model.base.product.BaseProduct">
+    update product
+    set
+      type_id = #{typeId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      issued_channel = #{issuedChannel,jdbcType=VARCHAR},
+      invest_domain = #{investDomain,jdbcType=VARCHAR},
+      time_limit = #{timeLimit,jdbcType=VARCHAR},
+      mechanism = #{mechanism,jdbcType=VARCHAR},
+      buy_start_point = #{buyStartPoint,jdbcType=DOUBLE},
+      Incremental_amount = #{incrementalAmount,jdbcType=DOUBLE},
+      buy_person_limit = #{buyPersonLimit,jdbcType=INTEGER},
+      level = #{level,jdbcType=VARCHAR},
+      risk_level = #{riskLevel,jdbcType=VARCHAR},
+      receiver_id = #{receiverId,jdbcType=BIGINT},
+      assistant_id = #{assistantId,jdbcType=BIGINT},
+      highlight = #{highlight,jdbcType=VARCHAR},
+      wx_content = #{wxContent,jdbcType=VARCHAR},
+      maturity_date = #{maturityDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  </mapper>

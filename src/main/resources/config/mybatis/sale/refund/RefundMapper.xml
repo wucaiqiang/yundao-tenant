@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.sale.refund.RefundMapper">
+
+	<resultMap id="myRefundListResDto" type="com.yundao.tenant.dto.sale.refund.MyRefundListResDto">
+		<result column="id" property="id" />
+		<result column="reason" property="reason" />
+		<result column="audit_reason" property="auditReason" />
+		<result column="d_id" property="declarationId" />
+		<result column="number" property="declarationNumber" />
+		<result column="c_id" property="customerId" />
+		<result column="c_name" property="customerName" />
+		<result column="p_id" property="productId" />
+		<result column="p_name" property="productName" />
+		<result column="deal_amount" property="dealAmount" />
+		<result column="pay_date" property="payDate" />
+		<result column="status" property="status" />
+		<result column="create_date" property="declarationDate" />
+	</resultMap>
+	
+	
+	<resultMap id="refundAuditListResDto" type="com.yundao.tenant.dto.sale.refund.RefundAuditListResDto">
+		<result column="id" property="id" />
+		<result column="reason" property="reason" />
+		<result column="d_id" property="declarationId" />
+		<result column="number" property="declarationNumber" />
+		<result column="c_id" property="customerId" />
+		<result column="c_name" property="customerName" />
+		<result column="p_id" property="productId" />
+		<result column="p_name" property="productName" />
+		<result column="deal_amount" property="dealAmount" />
+		<result column="pay_date" property="payDate" />
+		<result column="status" property="status" />
+		<result column="audit_reason" property="auditReason" />
+		<result column="audit_date" property="auditDate" />
+		<result column="user_id" property="applyUserId" />
+		<result column="real_name" property="applyUserName" />
+		<result column="apply_date" property="applyDate" />
+	</resultMap>
+
+
+
+	<select id="getMyRefundPage" resultMap="myRefundListResDto">
+		SELECT
+		  dr.id,
+		  dr.reason,
+		  d.id as d_id,
+		  d.number,
+		  c.id as c_id,
+		  c.`name` as c_name,
+		  p.id as p_id,
+		  p.`name` as p_name,
+		  d.deal_amount,
+		  d.pay_date,
+		  dr.`status`,
+		  d.create_date,
+		  dr.audit_reason
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN product p on d.product_id = p.id
+        <include refid="getMyRefundPage_where"></include>
+        <include refid="orderBy"></include>
+        <include refid="limitSql"></include>
+	</select>
+
+
+
+	<select id="getMyRefundCount" resultType="int">
+       SELECT
+		   count(dr.id)
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN product p on d.product_id = p.id
+		<include refid="getMyRefundPage_where"></include>
+	</select>
+
+	<sql id="getMyRefundPage_where">
+	<where>
+		dr.is_delete = 0
+		and d.is_delete = 0
+		and c.is_delete = 0
+		and p.is_delete = 0
+		and dr.user_id = #{userId}
+		
+		<if test="declarationNumber!=null and declarationNumber!=''">
+			AND d.number like '%${declarationNumber}%'
+		</if>
+
+		<if test="customerName!=null and customerName!=''">
+			AND  c.`name`  like '%${customerName}%'
+		</if>
+
+		<if test="productName!=null and productName!=''">
+				AND  p.`name`  like '%${productName}%'
+		</if>
+		
+		<if test="statuss!=null and statuss!=''">
+				AND dr.`status` in (${statuss})
+		</if>
+		<if test="dealAmountStart!=null">
+			AND d.deal_amount &gt;= #{dealAmountStart}
+		</if>
+
+		<if test="dealAmountEnd!=null">
+			AND d.deal_amount &lt;= #{dealAmountEnd}
+		</if>
+		
+		<if test="payDateStart!=null">
+			AND d.pay_date &gt;= #{payDateStart}
+		</if>
+
+		<if test="payDateEnd!=null">
+			AND d.pay_date &lt;= #{payDateEnd}
+		</if>
+		
+		<if test="declarationDateStart!=null">
+			AND d.create_date &gt;= #{declarationDateStart}
+		</if>
+
+		<if test="declarationDateEnd!=null">
+			AND d.create_date &lt;= #{declarationDateEnd}
+		</if>
+		</where>
+	</sql>
+	
+	
+	
+	<select id="getRefundAuditPage" resultMap="refundAuditListResDto">
+		SELECT
+		  dr.id,
+		  dr.reason,
+		  d.id as d_id,
+		  d.number,
+		  c.id as c_id,
+		  c.`name` as c_name,
+		  p.id as p_id,
+		  p.`name` as p_name,
+		  d.deal_amount,
+		  d.pay_date,
+		  dr.`status`,
+		  dr.audit_reason,
+		  dr.audit_date,
+		  dr.user_id,
+		  ud.real_name,
+		  dr.apply_date
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN product p on d.product_id = p.id
+		LEFT JOIN user_detail ud on dr.user_id = ud.user_account_id
+		LEFT JOIN workflow_business_rel wbr ON wbr.object_id=dr.id AND wbr.type='refund' AND wbr.is_delete=0
+        <include refid="getRefundAudit_where"></include>
+        <include refid="orderBy"></include>
+        <include refid="limitSql"></include>
+	</select>
+
+
+
+	<select id="getRefundAuditCount" resultType="int">
+       SELECT
+		   count(dr.id)
+		FROM
+			declaration_refund dr
+		LEFT JOIN declaration d ON dr.declaration_id = d.id
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN product p on d.product_id = p.id
+		LEFT JOIN user_detail ud on dr.user_id = ud.user_account_id
+		LEFT JOIN workflow_business_rel wbr ON wbr.object_id=dr.id AND wbr.type='refund' AND wbr.is_delete=0
+		<include refid="getRefundAudit_where"></include>
+	</select>
+
+	<sql id="getRefundAudit_where">
+	<where>
+		dr.is_delete = 0
+		and d.is_delete = 0
+		and c.is_delete = 0
+		and p.is_delete = 0
+		<if test="declarationNumber!=null and declarationNumber!=''">
+			AND d.number like '%${declarationNumber}%'
+		</if>
+
+		<if test="customerName!=null and customerName!=''">
+			AND  c.`name`  like '%${customerName}%'
+		</if>
+
+		<if test="productName!=null and productName!=''">
+			AND  p.`name`  like '%${productName}%'
+		</if>
+		
+		<if test="applyUserName!=null and applyUserName!=''">
+			AND  ud.`real_name`  like '%${applyUserName}%'
+		</if>
+		
+		<if test="statuss!=null and statuss!=''">
+			AND dr.`status` in (${statuss})
+		</if>
+		<if test="dealAmountStart!=null">
+			AND d.deal_amount &gt;= #{dealAmountStart}
+		</if>
+
+		<if test="dealAmountEnd!=null">
+			AND d.deal_amount &lt;= #{dealAmountEnd}
+		</if>
+		
+		<if test="payDateStart!=null">
+			AND d.pay_date &gt;= #{payDateStart}
+		</if>
+
+		<if test="payDateEnd!=null">
+			AND d.pay_date &lt;= #{payDateEnd}
+		</if>
+		
+		<if test="auditDateStart!=null">
+			AND dr.audit_date &gt;= #{auditDateStart}
+		</if>
+
+		<if test="auditDateEnd!=null">
+			AND dr.audit_date &lt;= #{auditDateEnd}
+		</if>
+		
+		<if test="applyDateStart!=null">
+			AND dr.apply_date &gt;= #{applyDateStart}
+		</if>
+
+		<if test="applyDateEnd!=null">
+			AND dr.apply_date &lt;= #{applyDateEnd}
+		</if>
+		<if test="scope!=null and scope=='unprocess'">
+			AND wbr.is_complete=0 AND dr.status!=3
+		</if>
+		</where>
+	</sql>
+	
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	
+	<sql id="orderBy">
+		<if
+			test="orderColumn!=null and orderColumn!='' and sort!=null and sort!=''">
+			order by ${orderColumn} ${sort}
+		</if>
+	</sql>
+
+</mapper>

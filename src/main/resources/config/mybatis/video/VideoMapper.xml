@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.video.VideoMapper">
+
+	<resultMap id="VideoResult" type="com.yundao.tenant.model.base.video.BaseVideo"
+		extends="com.yundao.tenant.mapper.base.video.BaseVideoMapper.BaseResultMap">
+	</resultMap>
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	<sql id="orderby">
+		<choose>
+			<when
+				test="orderColumn != null and orderColumn !='' and sort !=null and sort !=''">
+				ORDER BY
+				<choose>
+					<when test="orderColumn=='createDate'">
+						v.create_date ${sort},
+					</when>
+					<otherwise>
+						v.${orderColumn} ${sort},
+					</otherwise>
+				</choose>
+				v.id DESC
+			</when>
+			<otherwise>
+				ORDER BY v.status DESC, v.create_date DESC
+			</otherwise>
+		</choose>
+	</sql>
+
+	<select id="selectPage" parameterType="com.yundao.tenant.dto.video.VideoReqDto"
+		resultMap="VideoResult">
+		select
+		v.*
+		from video v
+		left join user_detail ud on v.create_user_id =
+		ud.user_account_id
+		<include refid="condition"></include>
+		<include refid="orderby"></include>
+		<include refid="limitSql"></include>
+	</select>
+	<select id="selectCount" resultType="int">
+		select
+		COUNT(v.id)
+		from video v
+		left join user_detail ud on
+		v.create_user_id =
+		ud.user_account_id
+		<include refid="condition"></include>
+	</select>
+	<sql id="condition">
+		<where>
+			IFNULL(v.is_delete,0) != 1 and IFNULL(ud.is_delete,0) !=1
+			<if test="name !=null and name != ''">
+				AND v.name like '%${name}%'
+			</if>
+			<if test="category !=null and category != ''">
+				AND v.category =#{category}
+			</if>
+			<if test="createUserName !=null and createUserName != ''">
+				AND ud.real_name like '%${createUserName}%'
+			</if>
+			<if test="statusList !=null">
+				and v.status in
+				<foreach close=")" collection="statusList" item="listItem"
+					open="(" separator=",">
+					#{listItem}
+				</foreach>
+			</if>
+			<if test="createDateBegin !=null ">
+				<![CDATA[
+                AND v.create_date >=#{createDateBegin}
+                ]]>
+			</if>
+			<if test="createDateEnd !=null ">
+				<![CDATA[
+                AND v.create_date <=#{createDateEnd}
+                ]]>
+			</if>
+		</where>
+	</sql>
+</mapper>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.sale.leads.LeadsMapper">
+    <resultMap id="pageDto" type="com.yundao.tenant.dto.sale.leads.LeadsPageResDto">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="customerId" jdbcType="BIGINT" property="customerId"/>
+        <result column="number" jdbcType="VARCHAR" property="number"/>
+        <result column="customerName" jdbcType="VARCHAR" property="customerName"/>
+        <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="fpId" jdbcType="BIGINT" property="fpId"/>
+        <result column="fpName" jdbcType="VARCHAR" property="fpName"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="channel" jdbcType="INTEGER" property="channel"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="create_date" jdbcType="VARCHAR" property="createDate"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="customerStatus" jdbcType="INTEGER" property="customerStatus"/>
+        <result column="userVisitId" jdbcType="INTEGER" property="userVisitId"/>
+        <result column="is_once_invalid" jdbcType="INTEGER" property="isOnceInvalid"/>
+        <result column="is_alloted_cs" jdbcType="INTEGER" property="isAllotedCs"/>
+        <result column="is_alloted_fp" jdbcType="INTEGER" property="isAllotedFp"/>
+    </resultMap>
+
+    <resultMap id="forCustomerDetailDto" type="com.yundao.tenant.dto.sale.leads.LeadsForCustomerDetailResDto">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="channel" jdbcType="INTEGER" property="channel"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="create_date" jdbcType="VARCHAR" property="createDate"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="process_user_id" jdbcType="BIGINT" property="processUserId"/>
+        <result column="processUserName" jdbcType="VARCHAR" property="processUserName"/>
+        <result column="process_date" jdbcType="VARCHAR" property="processDate"/>
+        <result column="fpId" jdbcType="BIGINT" property="fpId"/>
+    </resultMap>
+
+    <resultMap id="leadsRemindResDto" type="com.yundao.tenant.dto.sale.leads.LeadsRemindResDto">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="channel" jdbcType="INTEGER" property="channel"/>
+        <result column="create_date" jdbcType="VARCHAR" property="createDate"/>
+        <result column="userId" jdbcType="BIGINT" property="userId"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+    </resultMap>
+
+    <select id="selectRemindUnAllot" resultMap="leadsRemindResDto">
+        SELECT l.id,l.type,l.channel,l.create_date
+        FROM leads l WHERE l.is_delete=0 AND l.is_alloted_cs=0 AND l.is_once_invalid=0 AND l.customer_id=${customerId} ORDER BY
+        l.create_date
+    </select>
+
+    <select id="selectRemindAlloted" resultMap="leadsRemindResDto" parameterType="map">
+        SELECT l.id,l.type,l.channel,l.create_date,uv.user_id AS userId,ud.real_name AS userName
+        FROM leads l LEFT JOIN leads_visit_rel lvr ON l.id=lvr.leads_id
+        LEFT JOIN user_visit uv ON uv.id=lvr.user_visit_id
+        LEFT JOIN user_detail ud ON ud.user_account_id=uv.user_id
+        WHERE l.is_delete=0 AND l.is_alloted_cs=1 AND l.create_date > #{limitDate}
+         AND uv.user_id !=${userId}
+         AND l.customer_id=${customerId}
+         ORDER BY l.create_date
+    </select>
+
+    <select id="selectPage" resultMap="pageDto" parameterType="map">
+        SELECT l.id,c.id AS customerId,c.name AS customerName,c.number,c.mobile,
+        ud.user_account_id AS fpId,ud.real_name AS fpName,l.type,l.channel,l.status,l.content,l.create_date,
+        c.status AS customerStatus,l.is_once_invalid,l.is_alloted_cs,l.is_alloted_fp,
+        (SELECT lvr.user_visit_id  FROM user_visit uv INNER JOIN
+        leads_visit_rel lvr ON uv.id=lvr.user_visit_id WHERE lvr.leads_id=l.id ORDER BY uv.visit_date DESC LIMIT 1) AS
+        userVisitId
+        FROM leads l LEFT JOIN customer c ON l.customer_id=c.id
+        LEFT JOIN user_customer uc ON c.id=uc.customer_id AND uc.is_delete=0
+        LEFT JOIN user_detail ud ON uc.user_id=ud.user_account_id
+        <include refid="selectPage_where"></include>
+        <include refid="selectPage_orderby"></include>
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectPageCount" resultType="int" parameterType="map">
+        SELECT COUNT(*)
+        FROM leads l LEFT JOIN customer c ON l.customer_id=c.id
+        LEFT JOIN user_customer uc ON c.id=uc.customer_id AND uc.is_delete=0
+        LEFT JOIN user_detail ud ON uc.user_id=ud.user_account_id
+        <include refid="selectPage_where"></include>
+    </select>
+
+    <select id="selectPageForCustomerDetail" resultMap="forCustomerDetailDto" parameterType="map">
+        SELECT l.id,l.channel,l.type,l.content,l.create_date,l.status,l.process_user_id,l.process_date,ud.real_name AS
+        processUserName,uc.user_id AS fpId
+        FROM leads l LEFT JOIN user_detail ud ON l.process_user_id=ud.user_account_id
+        LEFT JOIN user_customer uc ON uc.customer_id=l.customer_id
+        WHERE l.is_delete=0 AND l.customer_id=${customerId}
+        <if test="permission==10">
+            AND uc.user_id=${userId}
+        </if>
+        <!--部门的-->
+        <if test="permission==30">
+            AND uc.user_id IN(${userIds})
+        </if>
+        ORDER BY l.create_date DESC,l.id DESC
+        <include refid="limitSql"></include>
+    </select>
+
+    <select id="selectPageForCustomerDetailCount" resultType="int" parameterType="map">
+		SELECT COUNT(*) FROM leads l LEFT JOIN user_detail ud ON l.process_user_id=ud.user_account_id
+		LEFT JOIN user_customer uc ON uc.customer_id=l.customer_id
+        <if test="permission==10">
+            AND uc.user_id=${userId}
+        </if>
+        <!--部门的-->
+        <if test="permission==30">
+            AND uc.user_id IN(${userIds})
+        </if>
+		WHERE l.is_delete=0 AND l.customer_id=${customerId}
+	</select>
+
+    <sql id="selectPage_where">
+        <where>
+            l.is_delete=0
+            <if test="number!=null and number!=''">
+                AND c.number LIKE CONCAT('%',#{number},'%')
+            </if>
+            <if test="customerName!=null and customerName!=''">
+                AND c.name LIKE CONCAT('%',#{customerName},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                AND c.mobile = #{mobile}
+            </if>
+            <if test="fpName!=null and fpName!=''">
+                AND ud.real_name LIKE CONCAT('%',#{fpName},'%')
+            </if>
+            <if test="types!=null and types!=''">
+                AND l.type IN (${types})
+            </if>
+            <if test="channels!=null and channels!=''">
+                AND l.channel IN (${channels})
+            </if>
+            <if test="content!=null and content!=''">
+                AND l.content LIKE CONCAT('%',#{content},'%')
+            </if>
+            <if test="createDateBegin!=null and createDateBegin!=''">
+                <![CDATA[
+				AND l.create_date >=#{createDateBegin}
+				]]>
+            </if>
+            <if test="createDateEnd!=null and createDateEnd!=''">
+                <![CDATA[
+				AND l.create_date <=#{createDateEnd}
+				 ]]>
+            </if>
+            <if test="statuss!=null and statuss!=''">
+                AND l.status IN (${statuss})
+            </if>
+            <if test="customerStatuss!=null and customerStatuss!=''">
+                AND c.status IN (${customerStatuss})
+            </if>
+            <if test='scope!=null and scope=="unprocess"'>
+                AND (is_once_invalid=0 AND (is_alloted_cs=0 OR is_alloted_fp=0))
+            </if>
+            <if test="permission==10">
+                AND uc.user_id=${userId}
+            </if>
+            <!--部门的-->
+            <if test="permission==30">
+                AND uc.user_id IN(${userIds})
+            </if>
+        </where>
+    </sql>
+
+    <sql id="selectPage_orderby">
+        <choose>
+            <when test="orderColumn!=null and orderColumn!=''">
+                ORDER BY
+                <if test="orderColumn=='createDate'">
+                    <choose>
+                        <when test="sort=='desc'">
+                            l.create_date DESC,
+                        </when>
+                        <otherwise>
+                            l.create_date,
+                        </otherwise>
+                    </choose>
+                </if>
+                l.id DESC
+            </when>
+            <otherwise>
+                ORDER BY l.create_date DESC,l.id DESC
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+	
+	
+	
+	 <select id="getHasConsultFpCustomerIds" resultType="long" >
+		SELECT
+			l.customer_id
+		FROM
+			leads l
+		WHERE
+		    l.is_delete = 0
+			and l.customer_id IN 
+			<foreach collection="customerIds" item="customerId" separator="," open="(" close=")">
+			    #{customerId}
+			</foreach>
+		AND l.type = 3
+		GROUP BY
+			l.customer_id
+    </select>
+	
+	
+</mapper>

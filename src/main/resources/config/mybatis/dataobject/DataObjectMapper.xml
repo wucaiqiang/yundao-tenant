@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.dataobject.DataObjectMapper">
+
+	<resultMap id="dataObjectDto" type="com.yundao.tenant.dto.dataobject.RoleDataObjectDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="role_id" jdbcType="BIGINT" property="roleId" />
+		<result column="read_permission" jdbcType="INTEGER" property="readPermission" />
+		<result column="edit_permission" jdbcType="INTEGER" property="editPermission" />
+		<result column="delete_permission" jdbcType="INTEGER" property="deletePermission" />
+	</resultMap>
+
+	<!--获取角色数据对象字段-->
+  <select id="selectRoleDataObjects" resultMap="dataObjectDto">
+	SELECT do.id,do.name,do.code,doa.role_id,doa.read_permission,doa.edit_permission,doa.delete_permission FROM data_object do INNER
+	  JOIN data_object_access
+	  doa ON
+	  do.id=doa.data_object_id
+	WHERE do.code=#{code} AND do.is_delete=0 AND doa.is_delete=0
+	AND doa.role_id IN
+	<foreach item="id" collection="roleIds" separator="," open="(" close=")" index="">
+		#{id}
+	</foreach>
+  </select>
+</mapper>

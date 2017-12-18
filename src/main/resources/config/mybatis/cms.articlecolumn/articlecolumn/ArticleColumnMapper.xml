@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.cms.articlecolumn.ArticleColumnMapper">
+
+    <resultMap id="ArticleColumnResult" type="com.yundao.tenant.dto.cms.articlecolumn.ArticleColumnPageResDto" extends="com.yundao.tenant.mapper.base.cms.article.BaseArticleColumnMapper.BaseResultMap">
+        <result column="handlers" property="handlers" />
+        <result column="handlerDate" property="handlerDate" />
+        <result column="platformCode" property="platformCode" />
+        <result column="platformName" property="platformName" />
+    </resultMap>
+
+    <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.cms.article.BaseArticleColumn">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+        <result column="platform_id" jdbcType="BIGINT" property="platformId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="cover_url" jdbcType="VARCHAR" property="coverUrl" />
+        <result column="seo_title" jdbcType="VARCHAR" property="seoTitle" />
+        <result column="seo_keywords" jdbcType="VARCHAR" property="seoKeywords" />
+        <result column="seo_description" jdbcType="VARCHAR" property="seoDescription" />
+        <result column="sequence" jdbcType="INTEGER" property="sequence" />
+        <result column="status" jdbcType="TINYINT" property="status" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    </resultMap>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        select * from article_column ac
+        LEFT JOIN platform p ON ac.platform_id=p.id AND p.is_delete=0 AND p.is_enabled=1
+         WHERE  ac.is_delete = 0 and ac.status = 1 AND p.code=#{platformCode}  order by ac.sequence
+        ASC,ac.create_date DESC LIMIT ${count}
+    </select>
+
+    <sql id="ArticleColumn_Where_Clause">
+        ac.is_delete != 1
+        <if test="id!=null">
+            AND ac.id = #{id}
+        </if>
+        <if test="tenantId!=null">
+            AND ac.tenant_id = #{tenantId}
+        </if>
+        <if test="platformId!=null">
+            AND ac.platform_id = #{platformId}
+        </if>
+        <if test="name!=null and ''!=name">
+            AND ac.name like '%${name}%'
+        </if>
+        <if test="code!=null and ''!=code">
+            AND ac.code = #{code}
+        </if>
+        <if test="coverUrl!=null and ''!=coverUrl">
+            AND ac.cover_url = #{coverUrl}
+        </if>
+        <if test="seoTitle!=null and ''!=seoTitle">
+            AND ac.seo_title = #{seoTitle}
+        </if>
+        <if test="seoKeywords!=null and ''!=seoKeywords">
+            AND ac.seo_keywords = #{seoKeywords}
+        </if>
+        <if test="seoDescription!=null and ''!=seoDescription">
+            AND ac.seo_description = #{seoDescription}
+        </if>
+        <if test="sequence!=null">
+            AND ac.sequence = #{sequence}
+        </if>
+        <if test="status!=null">
+            AND ac.status = #{status}
+        </if>
+        <if test="platformIds!=null">
+            AND ac.platform_id in ('${platformIds}')
+        </if>
+        <if test="createDate!=null">
+            AND ac.create_date = #{createDate}
+        </if>
+        <if test="createUserId!=null">
+            AND ac.create_user_id = #{createUserId}
+        </if>
+        <if test="updateUserId!=null">
+            AND ac.update_user_id = #{updateUserId}
+        </if>
+        <if test="updateDate!=null">
+            AND ac.update_date = #{updateDate}
+        </if>
+    </sql>
+
+
+    <select id="queryPageInfo" resultMap="ArticleColumnResult">
+        SELECT
+        ac.*,
+        ifnull(ac.update_date,ac.create_date) as handlerDate,
+        ud.real_name as handlers,
+        p.code platformCode,p.name platformName
+        FROM
+        article_column ac LEFT JOIN user_detail ud on ud.user_account_id = ifnull(ac.update_user_id,ac.create_user_id)
+        left join platform p on p.id = ac.platform_id
+        <where><include refid="ArticleColumn_Where_Clause" />
+            <if test="handlers!=null">
+                AND ud.real_name like '%${handlers}%'
+            </if>
+            <if test="handlerDateStart!=null">
+                AND ifnull(ac.update_date,ac.create_date) >= #{handlerDateStart}
+            </if>
+            <if test="handlerDateEnd!=null">
+                AND ifnull(ac.update_date,ac.create_date) &lt;= #{handlerDateEnd}
+            </if>
+        </where>
+       <if test="order!=null and ''!=order">
+			order by ${order}
+       </if>
+			limit #{offset},#{pageSize}
+    </select>
+
+    <select id="queryPageCount" resultType="java.lang.Integer">
+        select count(*) from article_column ac LEFT JOIN user_detail ud on ud.user_account_id = ifnull(ac.update_user_id,ac.create_user_id)
+    	<where><include refid="ArticleColumn_Where_Clause" />
+            <if test="handlers!=null">
+                AND ud.real_name like '%${handlers}%'
+            </if>
+            <if test="handlerDateStart!=null">
+                AND ifnull(ac.update_date,ac.create_date) >= #{handlerDateStart}
+            </if>
+            <if test="handlerDateEnd!=null">
+                AND ifnull(ac.update_date,ac.create_date) &lt;= #{handlerDateEnd}
+            </if>
+        </where>
+    </select>
+
+</mapper>

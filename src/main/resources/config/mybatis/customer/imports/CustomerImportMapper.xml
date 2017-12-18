@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.yundao.tenant.mapper.customer.imports.CustomerImportMapper">
+
+    <resultMap id="customerIdAndMobile" type="com.yundao.tenant.dto.customer.imports.CustomerIdAndMobileDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    </resultMap>
+
+    <resultMap id="importCredentialDto" type="com.yundao.tenant.dto.customer.imports.ImportCredentialDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="type" jdbcType="BIGINT" property="type" />
+        <result column="number" jdbcType="VARCHAR" property="number" />
+        <result column="customerId" jdbcType="BIGINT" property="customerId" />
+    </resultMap>
+
+    <resultMap id="importBankDto" type="com.yundao.tenant.dto.customer.imports.ImportBankDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="account" jdbcType="BIGINT" property="bankAccount" />
+        <result column="bank_name" jdbcType="VARCHAR" property="bankName" />
+        <result column="customerId" jdbcType="BIGINT" property="customerId" />
+    </resultMap>
+
+    <resultMap id="existTagDto" type="com.yundao.tenant.dto.customer.imports.ImportExistTagDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+    </resultMap>
+
+    <select id="selectExistTags" resultMap="existTagDto">
+        SELECT id,name FROM tag WHERE name IN
+        <foreach collection="tags" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectInsertedBanks" resultMap="importBankDto">
+       SELECT
+          cb.id,
+          cb.bank_name,
+          cb.account,
+          cb.update_user_id AS customerId
+        FROM customer_bank cb
+        WHERE NOT EXISTS(SELECT 1
+                 FROM customer_bank_rel cbr
+                 WHERE cb.id = cbr.bank_id)
+      AND cb.front IS NULL AND cb.back IS NULL AND cb.is_delete = 0 AND cb.create_user_id = ${userId}
+    </select>
+
+    <select id="selectInsertedCredential" resultMap="importCredentialDto">
+        SELECT  cc.id,cc.number,cc.type,cc.update_user_id AS customerId FROM customer_credentials cc WHERE NOT EXISTS(SELECT 1 FROM
+        customer_credentials_rel ccr WHERE cc.id = ccr.credentials_id)
+        AND cc.front IS NULL AND cc.back IS NULL AND cc.is_delete=0 AND cc.create_user_id=${userId}
+    </select>
+
+    <select id="selectExistMobiles" resultMap="customerIdAndMobile">
+        SELECT id,mobile FROM customer WHERE mobile IN
+        <foreach collection="mobiles" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into customer
+        (name,number, mobile,sex,email,remark,tenant_id,create_user_id,create_date,status,belong_type,level,source)
+        values
+        <foreach collection="customers" item="item" index="index" separator=",">
+            (
+            #{item.name},'00000000',#{item.mobile},#{item.sex},#{item.email},
+            #{item.remark},${item.tenantId},${item.createUserId},#{item.createDate},${item.status},${item.belongType}
+            ,${item.level},${item.source})
+        </foreach>
+    </insert>
+
+    <update id="updateCustomerNumber" >
+        UPDATE customer SET number=LPAD(id, 8, 0) WHERE number='00000000';
+    </update>
+
+    <insert id="insertBatchDetail" parameterType="java.util.List">
+        insert into customer_detail
+        (id,wechat,qq,tenant_id,province_code,city_code,address,trade,organization,position)
+        values
+        <foreach collection="customers" item="item" index="index" separator=",">
+            (
+            ${item.id},#{item.wechat},#{item.qq},${item.tenantId},#{item.province},#{item.city},#{item.address},#{item.trade},
+            #{item.organization},#{item.position}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchUserCustomer" parameterType="java.util.List">
+        insert into user_customer
+        (customer_id,user_id,distribution_date,tenant_id,distribution_user_id,source_type)
+        values
+        <foreach collection="userCustomers" item="item" index="index" separator=",">
+            (
+            ${item.customerId},${item.userId},#{item.distributionDate},${item.tenantId},${item.distributionUserId},
+            ${item.sourceType}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchDistributionLog" parameterType="java.util.List">
+        insert into customer_transfer
+        (customer_id,after_user,after_user_id,transfer_date,create_user_id,remark)
+        values
+        <foreach collection="logs" item="item" index="index" separator=",">
+            (
+            ${item.customerId},#{item.afterUser},${item.afterUserId},#{item.transferDate},${item.createUserId}
+            ,#{item.remark}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchCredentials" parameterType="java.util.List">
+        insert into customer_credentials
+        (tenant_id,type,number,create_user_id,create_date,update_user_id)
+        values
+        <foreach collection="credentials" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},${item.type},#{item.number},${item.createUserId},#{item.createDate},${item.updateUserId}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchCredentialsRel" parameterType="java.util.List">
+        insert into customer_credentials_rel
+        (tenant_id,customer_id,credentials_id,create_user_id,create_date)
+        values
+        <foreach collection="rels" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},${item.customerId},${item.credentialsId},${item.createUserId},#{item.createDate}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchBanks" parameterType="java.util.List">
+        insert into customer_bank
+        (tenant_id,account,bank_name,create_user_id,create_date,update_user_id)
+        values
+        <foreach collection="banks" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},#{item.account},#{item.bankName},${item.createUserId},#{item.createDate},
+            ${item.updateUserId}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchBankRel" parameterType="java.util.List">
+        insert into customer_bank_rel
+        (tenant_id,customer_id,bank_id,create_user_id,create_date)
+        values
+        <foreach collection="rels" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},${item.customerId},${item.bankId},${item.createUserId},#{item.createDate}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchTags" parameterType="java.util.List">
+        insert into tag
+        (tenant_id,name,create_user_id,create_date)
+        values
+        <foreach collection="tags" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},#{item.name},${item.createUserId},#{item.createDate}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertBatchTagRel" parameterType="java.util.List">
+        insert into customer_tag
+        (tenant_id,customer_id,tag_id,create_user_id,create_date)
+        values
+        <foreach collection="rels" item="item" index="index" separator=",">
+            (
+            ${item.tenantId},${item.customerId},${item.tagId},${item.createUserId},#{item.createDate}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateRestoreBank" parameterType="java.util.List">
+        UPDATE customer_bank SET update_user_id=NULL WHERE id IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            ${id}
+        </foreach>
+    </update>
+
+    <update id="updateRestoreCredentials" parameterType="java.util.List">
+        UPDATE customer_credentials SET update_user_id=NULL WHERE id IN
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            ${id}
+        </foreach>
+    </update>
+
+</mapper>

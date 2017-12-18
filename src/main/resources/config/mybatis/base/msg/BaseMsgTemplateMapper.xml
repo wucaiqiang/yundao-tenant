@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.msg.BaseMsgTemplateMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.msg.BaseMsgTemplate">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="feed_content" jdbcType="VARCHAR" property="feedContent" />
+    <result column="message_content" jdbcType="VARCHAR" property="messageContent" />
+    <result column="app_content" jdbcType="VARCHAR" property="appContent" />
+    <result column="need_push" jdbcType="TINYINT" property="needPush" />
+    <result column="push_content" jdbcType="VARCHAR" property="pushContent" />
+    <result column="index_content" jdbcType="VARCHAR" property="indexContent" />
+    <result column="app_action" jdbcType="VARCHAR" property="appAction" />
+    <result column="pc_action" jdbcType="VARCHAR" property="pcAction" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="params" jdbcType="VARCHAR" property="params" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, title, feed_content, message_content, app_content, need_push, push_content, 
+    index_content, app_action, pc_action, code, params, remark, create_user_id, create_date, 
+    update_user_id, update_date, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplateExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from msg_template
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from msg_template
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from msg_template
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplateExample">
+    delete from msg_template
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplate" useGeneratedKeys="true">
+    insert into msg_template (id, tenant_id, title, 
+      feed_content, message_content, app_content, 
+      need_push, push_content, index_content, 
+      app_action, pc_action, code, 
+      params, remark, create_user_id, 
+      create_date, update_user_id, update_date, 
+      is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, 
+      #{feedContent,jdbcType=VARCHAR}, #{messageContent,jdbcType=VARCHAR}, #{appContent,jdbcType=VARCHAR}, 
+      #{needPush,jdbcType=TINYINT}, #{pushContent,jdbcType=VARCHAR}, #{indexContent,jdbcType=VARCHAR}, 
+      #{appAction,jdbcType=VARCHAR}, #{pcAction,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, 
+      #{params,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplate" useGeneratedKeys="true">
+    insert into msg_template
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="feedContent != null">
+        feed_content,
+      </if>
+      <if test="messageContent != null">
+        message_content,
+      </if>
+      <if test="appContent != null">
+        app_content,
+      </if>
+      <if test="needPush != null">
+        need_push,
+      </if>
+      <if test="pushContent != null">
+        push_content,
+      </if>
+      <if test="indexContent != null">
+        index_content,
+      </if>
+      <if test="appAction != null">
+        app_action,
+      </if>
+      <if test="pcAction != null">
+        pc_action,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="params != null">
+        params,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="feedContent != null">
+        #{feedContent,jdbcType=VARCHAR},
+      </if>
+      <if test="messageContent != null">
+        #{messageContent,jdbcType=VARCHAR},
+      </if>
+      <if test="appContent != null">
+        #{appContent,jdbcType=VARCHAR},
+      </if>
+      <if test="needPush != null">
+        #{needPush,jdbcType=TINYINT},
+      </if>
+      <if test="pushContent != null">
+        #{pushContent,jdbcType=VARCHAR},
+      </if>
+      <if test="indexContent != null">
+        #{indexContent,jdbcType=VARCHAR},
+      </if>
+      <if test="appAction != null">
+        #{appAction,jdbcType=VARCHAR},
+      </if>
+      <if test="pcAction != null">
+        #{pcAction,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null">
+        #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplateExample" resultType="java.lang.Integer">
+    select count(*) from msg_template
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update msg_template
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.feedContent != null">
+        feed_content = #{record.feedContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.messageContent != null">
+        message_content = #{record.messageContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appContent != null">
+        app_content = #{record.appContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.needPush != null">
+        need_push = #{record.needPush,jdbcType=TINYINT},
+      </if>
+      <if test="record.pushContent != null">
+        push_content = #{record.pushContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.indexContent != null">
+        index_content = #{record.indexContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appAction != null">
+        app_action = #{record.appAction,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pcAction != null">
+        pc_action = #{record.pcAction,jdbcType=VARCHAR},
+      </if>
+      <if test="record.code != null">
+        code = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.params != null">
+        params = #{record.params,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update msg_template
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      title = #{record.title,jdbcType=VARCHAR},
+      feed_content = #{record.feedContent,jdbcType=VARCHAR},
+      message_content = #{record.messageContent,jdbcType=VARCHAR},
+      app_content = #{record.appContent,jdbcType=VARCHAR},
+      need_push = #{record.needPush,jdbcType=TINYINT},
+      push_content = #{record.pushContent,jdbcType=VARCHAR},
+      index_content = #{record.indexContent,jdbcType=VARCHAR},
+      app_action = #{record.appAction,jdbcType=VARCHAR},
+      pc_action = #{record.pcAction,jdbcType=VARCHAR},
+      code = #{record.code,jdbcType=VARCHAR},
+      params = #{record.params,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplate">
+    update msg_template
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="feedContent != null">
+        feed_content = #{feedContent,jdbcType=VARCHAR},
+      </if>
+      <if test="messageContent != null">
+        message_content = #{messageContent,jdbcType=VARCHAR},
+      </if>
+      <if test="appContent != null">
+        app_content = #{appContent,jdbcType=VARCHAR},
+      </if>
+      <if test="needPush != null">
+        need_push = #{needPush,jdbcType=TINYINT},
+      </if>
+      <if test="pushContent != null">
+        push_content = #{pushContent,jdbcType=VARCHAR},
+      </if>
+      <if test="indexContent != null">
+        index_content = #{indexContent,jdbcType=VARCHAR},
+      </if>
+      <if test="appAction != null">
+        app_action = #{appAction,jdbcType=VARCHAR},
+      </if>
+      <if test="pcAction != null">
+        pc_action = #{pcAction,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="params != null">
+        params = #{params,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplate">
+    update msg_template
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      feed_content = #{feedContent,jdbcType=VARCHAR},
+      message_content = #{messageContent,jdbcType=VARCHAR},
+      app_content = #{appContent,jdbcType=VARCHAR},
+      need_push = #{needPush,jdbcType=TINYINT},
+      push_content = #{pushContent,jdbcType=VARCHAR},
+      index_content = #{indexContent,jdbcType=VARCHAR},
+      app_action = #{appAction,jdbcType=VARCHAR},
+      pc_action = #{pcAction,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      params = #{params,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.msg.BaseMsgTemplateExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from msg_template
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

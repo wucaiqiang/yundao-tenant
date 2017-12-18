@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.customercenter.SaleH5Mapper">
+
+	<resultMap id="declarationH5ResDto" type="com.yundao.tenant.dto.customercenter.sale.DeclarationH5ResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="productId"  property="productId" />
+		<result column="productName" jdbcType="VARCHAR" property="productName" />
+		<result column="productIssuedStatus"  property="productIssuedStatus" />
+		<result column="deal_amount"  property="dealAmount" />
+		<result column="create_date"  property="declarationDate" />
+		<result column="fpId"  property="fpId" />
+		<result column="real_name"  property="fpRealName" />
+	</resultMap>
+	
+	<resultMap id="reservationH5ResDto" type="com.yundao.tenant.dto.customercenter.sale.ReservationH5ResDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="productId"  property="productId" />
+		<result column="productName" jdbcType="VARCHAR" property="productName" />
+		<result column="highlight"  property="productHighlight" />
+		<result column="time_limit"  property="productTimeLimit" />
+		<result column="type_id"  property="productTypeId" />
+		<result column="productTypeName"  property="productTypeName" />
+		<result column="fpId"  property="fpId" />
+		<result column="real_name"  property="fpRealName" />
+		<result column="create_date"  property="reservationDate" />
+		
+	</resultMap>
+
+  <!--查询我的报单-->
+  <select id="getMyDeclarations" resultMap="declarationH5ResDto">
+	SELECT
+	 u.id,
+	 p.id as productId,
+	 p.`name` as productName,
+	 p.issued_status as productIssuedStatus,
+	 d.deal_amount,
+	 d.pay_date,
+	 d.create_date,
+	 ud.id as fpId,
+	 ud.real_name
+	FROM
+		cc_user_account u
+	LEFT JOIN cc_customer_user_rel uc ON u.id = uc.user_account_id
+	LEFT JOIN declaration d ON uc.customer_id = d.customer_id
+	LEFT JOIN product p ON d.product_id = p.id
+	LEFT JOIN user_customer ucu on d.customer_id = ucu.customer_id
+	LEFT JOIN user_detail ud on ucu.user_id = ud.user_account_id
+	WHERE
+		u.is_delete = 0
+	AND uc.is_delete = 0
+	AND d.is_delete = 0
+	AND p.is_delete = 0
+	and u.id = #{userId}
+	<include refid="limitSql"></include>
+  </select>
+  
+  
+  <select id="getMyDeclarationCount" resultType="int">
+	SELECT
+	 count(d.id)
+	FROM
+		cc_user_account u
+	LEFT JOIN cc_customer_user_rel uc ON u.id = uc.user_account_id
+	LEFT JOIN declaration d ON uc.customer_id = d.customer_id
+	LEFT JOIN product p ON d.product_id = p.id
+	LEFT JOIN user_customer ucu on d.customer_id = ucu.customer_id
+	LEFT JOIN user_detail ud on ucu.user_id = ud.user_account_id
+	WHERE
+		u.is_delete = 0
+	AND uc.is_delete = 0
+	AND d.is_delete = 0
+	AND p.is_delete = 0
+	and u.id = #{userId}
+  </select>
+  
+  
+    <!--查询我的预约-->
+  <select id="getMyReservations" resultMap="reservationH5ResDto">
+	SELECT
+	 u.id,
+	 p.id as productId,
+	 p.`name` as productName,
+	 p.issued_status as productIssuedStatus,
+	 p.highlight,
+     p.time_limit,
+     p.type_id,
+     fg.`name` as productTypeName ,
+	 d.create_date,
+	 ud.id as fpId,
+	 ud.real_name
+	FROM
+		cc_user_account u
+	LEFT JOIN cc_customer_user_rel uc ON u.id = uc.user_account_id
+	LEFT JOIN cc_product_consult d ON  uc.customer_id = d.customer_id
+	LEFT JOIN product p ON d.product_id = p.id
+	LEFT JOIN field_group fg on p.type_id = fg.id
+	LEFT JOIN user_customer ucu on d.customer_id = ucu.user_id
+	LEFT JOIN user_detail ud on ucu.user_id = ud.user_account_id
+	WHERE
+		u.is_delete = 0
+	AND uc.is_delete = 0
+	AND d.is_delete = 0
+	AND p.is_delete = 0
+	and u.id = #{userId}
+	order by d.create_date desc
+	<include refid="limitSql"></include>
+  </select>
+  
+  
+  <select id="getMyReservationCount" resultType="int">
+	SELECT
+	 count(d.id)
+	FROM
+		cc_user_account u
+	LEFT JOIN cc_customer_user_rel uc ON u.id = uc.user_account_id
+	LEFT JOIN cc_product_consult d ON  uc.customer_id = d.customer_id
+	LEFT JOIN product p ON d.product_id = p.id
+	LEFT JOIN field_group fg on p.type_id = fg.id
+	LEFT JOIN user_customer ucu on d.customer_id = ucu.user_id
+	LEFT JOIN user_detail ud on ucu.user_id = ud.user_account_id
+	WHERE
+		u.is_delete = 0
+	AND uc.is_delete = 0
+	AND d.is_delete = 0
+	AND p.is_delete = 0
+	and u.id = #{userId}
+  </select>
+    
+  <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+  </sql>
+</mapper>

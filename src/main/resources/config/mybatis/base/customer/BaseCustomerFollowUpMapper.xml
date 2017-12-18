@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.customer.BaseCustomerFollowUpMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.customer.BaseCustomerFollowUp">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="map_type" jdbcType="TINYINT" property="mapType" />
+    <result column="itude_x" jdbcType="DOUBLE" property="itudeX" />
+    <result column="itude_y" jdbcType="DOUBLE" property="itudeY" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="next_follow_date" jdbcType="TIMESTAMP" property="nextFollowDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="next_message_send" jdbcType="TINYINT" property="nextMessageSend" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, customer_id, type, status, content, map_type, itude_x, itude_y, address, 
+    next_follow_date, create_user_id, create_date, update_user_id, update_date, is_delete, 
+    next_message_send
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUpExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from customer_follow_up
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from customer_follow_up
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from customer_follow_up
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUpExample">
+    delete from customer_follow_up
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUp" useGeneratedKeys="true">
+    insert into customer_follow_up (id, tenant_id, customer_id, 
+      type, status, content, 
+      map_type, itude_x, itude_y, 
+      address, next_follow_date, create_user_id, 
+      create_date, update_user_id, update_date, 
+      is_delete, next_message_send)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, 
+      #{type,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{content,jdbcType=VARCHAR}, 
+      #{mapType,jdbcType=TINYINT}, #{itudeX,jdbcType=DOUBLE}, #{itudeY,jdbcType=DOUBLE}, 
+      #{address,jdbcType=VARCHAR}, #{nextFollowDate,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=BIGINT}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{isDelete,jdbcType=TINYINT}, #{nextMessageSend,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUp" useGeneratedKeys="true">
+    insert into customer_follow_up
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="customerId != null">
+        customer_id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="mapType != null">
+        map_type,
+      </if>
+      <if test="itudeX != null">
+        itude_x,
+      </if>
+      <if test="itudeY != null">
+        itude_y,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="nextFollowDate != null">
+        next_follow_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="nextMessageSend != null">
+        next_message_send,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="mapType != null">
+        #{mapType,jdbcType=TINYINT},
+      </if>
+      <if test="itudeX != null">
+        #{itudeX,jdbcType=DOUBLE},
+      </if>
+      <if test="itudeY != null">
+        #{itudeY,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="nextFollowDate != null">
+        #{nextFollowDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="nextMessageSend != null">
+        #{nextMessageSend,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUpExample" resultType="java.lang.Integer">
+    select count(*) from customer_follow_up
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update customer_follow_up
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerId != null">
+        customer_id = #{record.customerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=TINYINT},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=TINYINT},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mapType != null">
+        map_type = #{record.mapType,jdbcType=TINYINT},
+      </if>
+      <if test="record.itudeX != null">
+        itude_x = #{record.itudeX,jdbcType=DOUBLE},
+      </if>
+      <if test="record.itudeY != null">
+        itude_y = #{record.itudeY,jdbcType=DOUBLE},
+      </if>
+      <if test="record.address != null">
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nextFollowDate != null">
+        next_follow_date = #{record.nextFollowDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateUserId != null">
+        update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateDate != null">
+        update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="record.nextMessageSend != null">
+        next_message_send = #{record.nextMessageSend,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update customer_follow_up
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      customer_id = #{record.customerId,jdbcType=BIGINT},
+      type = #{record.type,jdbcType=TINYINT},
+      status = #{record.status,jdbcType=TINYINT},
+      content = #{record.content,jdbcType=VARCHAR},
+      map_type = #{record.mapType,jdbcType=TINYINT},
+      itude_x = #{record.itudeX,jdbcType=DOUBLE},
+      itude_y = #{record.itudeY,jdbcType=DOUBLE},
+      address = #{record.address,jdbcType=VARCHAR},
+      next_follow_date = #{record.nextFollowDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{record.updateUserId,jdbcType=BIGINT},
+      update_date = #{record.updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{record.isDelete,jdbcType=TINYINT},
+      next_message_send = #{record.nextMessageSend,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUp">
+    update customer_follow_up
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="mapType != null">
+        map_type = #{mapType,jdbcType=TINYINT},
+      </if>
+      <if test="itudeX != null">
+        itude_x = #{itudeX,jdbcType=DOUBLE},
+      </if>
+      <if test="itudeY != null">
+        itude_y = #{itudeY,jdbcType=DOUBLE},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="nextFollowDate != null">
+        next_follow_date = #{nextFollowDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+      <if test="nextMessageSend != null">
+        next_message_send = #{nextMessageSend,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUp">
+    update customer_follow_up
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      customer_id = #{customerId,jdbcType=BIGINT},
+      type = #{type,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      content = #{content,jdbcType=VARCHAR},
+      map_type = #{mapType,jdbcType=TINYINT},
+      itude_x = #{itudeX,jdbcType=DOUBLE},
+      itude_y = #{itudeY,jdbcType=DOUBLE},
+      address = #{address,jdbcType=VARCHAR},
+      next_follow_date = #{nextFollowDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      is_delete = #{isDelete,jdbcType=TINYINT},
+      next_message_send = #{nextMessageSend,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerFollowUpExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from customer_follow_up
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

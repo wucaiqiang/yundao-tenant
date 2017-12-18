@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.department.DepartmentMapper">
+	<resultMap id="departmentUserDto"
+		type="com.yundao.tenant.dto.department.DepartmentUserDto">
+		<id column="fpId" jdbcType="BIGINT" property="fpId" />
+		<result column="departmentName" jdbcType="VARCHAR" property="departmentName" />
+	</resultMap>
+
+
+	<resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.BaseDepartment">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+		<result column="system_code" jdbcType="VARCHAR" property="systemCode" />
+		<result column="parent_id" jdbcType="BIGINT" property="parentId" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="description" jdbcType="VARCHAR" property="description" />
+		<result column="is_enabled" jdbcType="TINYINT" property="isEnabled" />
+		<result column="sequence" jdbcType="INTEGER" property="sequence" />
+		<result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+		<result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+		<result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+		<result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+		<result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+	</resultMap>
+	<resultMap id="DepartmentUserSimpleResDto"
+		type="com.yundao.tenant.dto.department.DepartmentUserSimpleResDto">
+		<result column="department_id" jdbcType="BIGINT" property="departmentId" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="parent_id" jdbcType="BIGINT" property="parentId" />
+		<result column="system_code" jdbcType="VARCHAR" property="systemCode" />
+		<result column="description" jdbcType="VARCHAR" property="description" />
+		<result column="is_enabled" jdbcType="TINYINT" property="isEnabled" />
+		<result column="user_id" jdbcType="BIGINT" property="userId" />
+		<result column="mobile" jdbcType="VARCHAR" property="mobile" />
+		<result column="real_name" jdbcType="VARCHAR" property="realName" />
+		<result column="avatar" jdbcType="VARCHAR" property="avatar" />
+	</resultMap>
+	<select id="selectDepartmentAndUsers" resultMap="DepartmentUserSimpleResDto">
+		SELECT
+		d.id as
+		department_id,d.name,d.code,d.parent_id,d.system_code,d.is_enabled,d.description,ua.id
+		as
+		user_id,ua.mobile,udl.real_name,udl.avatar
+		from
+		department d LEFT JOIN
+		user_department ud on d.id=ud.department_id
+
+		LEFT JOIN user_account ua
+		on ud.user_account_id=ua.id and ua.is_enabled=1
+		LEFT JOIN
+		user_detail
+		udl on
+		ua.id=udl.user_account_id
+
+		where
+		IFNULL(d.is_delete,0) =0 and
+		IFNULL(ud.is_delete,0) =0 and
+		IFNULL(ua.is_delete,0) =0 and
+		IFNULL(udl.is_delete,0) =0
+		and d.is_enabled=1
+	</select>
+
+	<select id="selectUserDeaprtment" resultMap="departmentUserDto">
+		SELECT ud.user_account_id AS fpId,d.name AS departmentName FROM
+		user_department ud LEFT JOIN department d
+		on ud.department_id=d.id
+		WHERE ud.user_account_id IN
+		<foreach collection="userIds" item="userId" separator=","
+			open="(" close=")">
+			${userId}
+		</foreach>
+	</select>
+
+
+	<select id="selectAllChilds" resultMap="BaseResultMap">
+		select d.* from
+		department d where d.`code` like CONCAT('', #{code},'%')
+	</select>
+
+	<select id="selectChildMaxCodeDepartment" resultMap="BaseResultMap">
+		select d.*
+		from department d where d.parent_id = #{parentId} order by code
+		DESC
+		limit 1;
+	</select>
+
+
+
+</mapper>

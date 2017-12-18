@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.customer.BaseUpdateLogMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.customer.BaseUpdateLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
+    <result column="model" jdbcType="VARCHAR" property="model" />
+    <result column="object_id" jdbcType="BIGINT" property="objectId" />
+    <result column="update_item" jdbcType="VARCHAR" property="updateItem" />
+    <result column="update_before_content" jdbcType="VARCHAR" property="updateBeforeContent" />
+    <result column="update_after_content" jdbcType="VARCHAR" property="updateAfterContent" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_id" jdbcType="BIGINT" property="updateId" />
+    <result column="client" jdbcType="VARCHAR" property="client" />
+    <result column="clolumn_name" jdbcType="VARCHAR" property="clolumnName" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, tenant_id, model, object_id, update_item, update_before_content, update_after_content, 
+    create_user_id, create_date, update_id, client, clolumn_name, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from update_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from update_log
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from update_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLogExample">
+    delete from update_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLog" useGeneratedKeys="true">
+    insert into update_log (id, tenant_id, model, 
+      object_id, update_item, update_before_content, 
+      update_after_content, create_user_id, create_date, 
+      update_id, client, clolumn_name, 
+      is_delete)
+    values (#{id,jdbcType=BIGINT}, #{tenantId,jdbcType=BIGINT}, #{model,jdbcType=VARCHAR}, 
+      #{objectId,jdbcType=BIGINT}, #{updateItem,jdbcType=VARCHAR}, #{updateBeforeContent,jdbcType=VARCHAR}, 
+      #{updateAfterContent,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateId,jdbcType=BIGINT}, #{client,jdbcType=VARCHAR}, #{clolumnName,jdbcType=VARCHAR}, 
+      #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLog" useGeneratedKeys="true">
+    insert into update_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="tenantId != null">
+        tenant_id,
+      </if>
+      <if test="model != null">
+        model,
+      </if>
+      <if test="objectId != null">
+        object_id,
+      </if>
+      <if test="updateItem != null">
+        update_item,
+      </if>
+      <if test="updateBeforeContent != null">
+        update_before_content,
+      </if>
+      <if test="updateAfterContent != null">
+        update_after_content,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateId != null">
+        update_id,
+      </if>
+      <if test="client != null">
+        client,
+      </if>
+      <if test="clolumnName != null">
+        clolumn_name,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="tenantId != null">
+        #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="model != null">
+        #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="objectId != null">
+        #{objectId,jdbcType=BIGINT},
+      </if>
+      <if test="updateItem != null">
+        #{updateItem,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBeforeContent != null">
+        #{updateBeforeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="updateAfterContent != null">
+        #{updateAfterContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        #{updateId,jdbcType=BIGINT},
+      </if>
+      <if test="client != null">
+        #{client,jdbcType=VARCHAR},
+      </if>
+      <if test="clolumnName != null">
+        #{clolumnName,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLogExample" resultType="java.lang.Integer">
+    select count(*) from update_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update update_log
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tenantId != null">
+        tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="record.model != null">
+        model = #{record.model,jdbcType=VARCHAR},
+      </if>
+      <if test="record.objectId != null">
+        object_id = #{record.objectId,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateItem != null">
+        update_item = #{record.updateItem,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateBeforeContent != null">
+        update_before_content = #{record.updateBeforeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateAfterContent != null">
+        update_after_content = #{record.updateAfterContent,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.createDate != null">
+        create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateId != null">
+        update_id = #{record.updateId,jdbcType=BIGINT},
+      </if>
+      <if test="record.client != null">
+        client = #{record.client,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clolumnName != null">
+        clolumn_name = #{record.clolumnName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update update_log
+    set id = #{record.id,jdbcType=BIGINT},
+      tenant_id = #{record.tenantId,jdbcType=BIGINT},
+      model = #{record.model,jdbcType=VARCHAR},
+      object_id = #{record.objectId,jdbcType=BIGINT},
+      update_item = #{record.updateItem,jdbcType=VARCHAR},
+      update_before_content = #{record.updateBeforeContent,jdbcType=VARCHAR},
+      update_after_content = #{record.updateAfterContent,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      create_date = #{record.createDate,jdbcType=TIMESTAMP},
+      update_id = #{record.updateId,jdbcType=BIGINT},
+      client = #{record.client,jdbcType=VARCHAR},
+      clolumn_name = #{record.clolumnName,jdbcType=VARCHAR},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLog">
+    update update_log
+    <set>
+      <if test="tenantId != null">
+        tenant_id = #{tenantId,jdbcType=BIGINT},
+      </if>
+      <if test="model != null">
+        model = #{model,jdbcType=VARCHAR},
+      </if>
+      <if test="objectId != null">
+        object_id = #{objectId,jdbcType=BIGINT},
+      </if>
+      <if test="updateItem != null">
+        update_item = #{updateItem,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBeforeContent != null">
+        update_before_content = #{updateBeforeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="updateAfterContent != null">
+        update_after_content = #{updateAfterContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateId != null">
+        update_id = #{updateId,jdbcType=BIGINT},
+      </if>
+      <if test="client != null">
+        client = #{client,jdbcType=VARCHAR},
+      </if>
+      <if test="clolumnName != null">
+        clolumn_name = #{clolumnName,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLog">
+    update update_log
+    set tenant_id = #{tenantId,jdbcType=BIGINT},
+      model = #{model,jdbcType=VARCHAR},
+      object_id = #{objectId,jdbcType=BIGINT},
+      update_item = #{updateItem,jdbcType=VARCHAR},
+      update_before_content = #{updateBeforeContent,jdbcType=VARCHAR},
+      update_after_content = #{updateAfterContent,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_id = #{updateId,jdbcType=BIGINT},
+      client = #{client,jdbcType=VARCHAR},
+      clolumn_name = #{clolumnName,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.customer.BaseUpdateLogExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from update_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

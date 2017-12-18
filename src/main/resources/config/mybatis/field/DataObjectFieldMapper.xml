@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.field.DataObjectFieldMapper">
+
+	<resultMap id="dataObjectDto" type="com.yundao.tenant.dto.field.DataObjectFieldDto">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="code" jdbcType="VARCHAR" property="code" />
+		<result column="dataObjectId" jdbcType="BIGINT" property="dataObjectId" />
+		<result column="dataObjectCode" jdbcType="VARCHAR" property="dataObjectCode" />
+	</resultMap>
+
+	<!--获取数据对象字段-->
+  <select id="selectDataObjectFields" resultMap="dataObjectDto">
+	SELECT f.id,f.name,f.code,do.id AS 'dataObjectId',do.code AS 'dataObjectCode' FROM data_object do INNER JOIN data_object_field dof
+	ON do.id=dof.data_object_id
+	INNER JOIN field f ON f.id=dof.field_id
+	WHERE f.is_delete=0 AND do.is_delete=0
+  </select>
+
+	<select id="selectByCodes" resultMap="dataObjectDto">
+	SELECT f.id,f.name,f.code,do.id AS 'dataObjectId',do.code AS 'dataObjectCode' FROM data_object do INNER JOIN data_object_field dof
+	ON do.id=dof.data_object_id
+	INNER JOIN field f ON f.id=dof.field_id
+	WHERE f.is_delete=0 AND do.is_delete=0
+	AND f.code IN
+	<foreach collection="codes" separator="," open="(" close=")" item="code">
+		#{code}
+	</foreach>
+	</select>
+
+</mapper>

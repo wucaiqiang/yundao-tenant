@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductIncomeRuleMapper">
+	<resultMap id="ProductIncomeRuleDto"
+		type="com.yundao.tenant.dto.product.add.ProductIncomeRuleDto">
+		<result column="id" property="id" />
+		<result column="rule_name" property="ruleName" />
+		<result column="remark" property="remark" />
+		<result column="product_id" property="productId" />
+		<collection property="productIncomeDtos" select="selectProductIncomeList"
+			column="id"></collection>
+	</resultMap>
+	<resultMap id="ProductIncomeDto"
+		type="com.yundao.tenant.dto.product.add.ProductIncomeDto">
+		<result column="id" property="id" />
+		<result column="buy_max" property="buyMax" />
+		<result column="buy_min" property="buyMin" />
+		<result column="buy_time_limit" property="buyTimeLimit" />
+		<result column="income_type" property="incomeType" />
+		<result column="fix_income_rate" property="fixIncomeRate" />
+		<result column="float_income_rate" property="floatIncomeRate" />
+	</resultMap>
+	<select id="selectList" resultMap="ProductIncomeRuleDto"
+		parameterType="string">
+		SELECT
+		*
+		FROM
+		product_income_rule
+		where product_id in
+		(${productIds})
+		and is_delete = 0
+		
+	</select>
+	<select id="selectProductIncomeList" parameterType="long"
+		resultMap="ProductIncomeDto">
+		select *from product_income where income_rule_id=#{id} and is_delete = 0
+	</select>
+
+</mapper>

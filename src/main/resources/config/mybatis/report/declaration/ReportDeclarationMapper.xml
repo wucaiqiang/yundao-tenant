@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.report.declaration.ReportDeclarationMapper">
+  <resultMap id="indexTopDto" type="com.yundao.tenant.dto.report.declaration.IndexTopDto">
+    <result column="user_id"  property="userId" />
+    <result column="deal_amount"  property="sumDealAmount" />
+    <result column="real_name"  property="usermame" />
+  </resultMap>
+  
+  
+   <resultMap id="reportDto" type="com.yundao.tenant.dto.report.declaration.ReportDto">
+    <result column="date"  property="date" />
+    <result column="sumDealAmount" property="sumDealAmount" />
+  </resultMap>
+  
+  
+  
+  <resultMap id="departmentDeclarationReportDto" type="com.yundao.tenant.dto.report.declaration.DepartmentReportDto">
+    <result column="id"  property="departmentId" />
+    <result column="name"  property="departmentName" />
+    <result column="code"  property="departmentCode" />
+    <result column="sumDealAmount"  property="sumDealAmount" />
+  </resultMap>
+  
+  
+  
+    
+  <resultMap id="departmentUserDeclarationReportDto" type="com.yundao.tenant.dto.report.declaration.DepartmentReportDto">
+    <result column="user_id"  property="userId" />
+    <result column="sumDealAmount"  property="sumDealAmount" />
+  </resultMap>
+  
+
+    <select id="getDepartmentOrUserMonthGroupReport" resultMap="reportDto" >
+		SELECT
+			sum(d.deal_amount)  as sumDealAmount,
+			date_format(d.apply_date, '%Y-%m') as date
+		FROM
+			declaration d
+		  LEFT JOIN user_department ud on d.user_id = ud.user_account_id
+		  LEFT JOIN department de on ud.department_id = de.id
+		WHERE
+		  d.is_delete = 0
+		  and d.`status` = 2
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and   de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			    and d.apply_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and d.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+		GROUP BY
+			date_format(d.apply_date, '%Y-%m');
+  </select>
+  
+  
+  <select id="getDepartmentOrUserDayGroupReport" resultMap="reportDto" >
+		SELECT
+			sum(d.deal_amount)  as sumDealAmount,
+			date_format(d.apply_date, '%Y-%m-%d') as date
+		FROM
+			declaration d
+		  LEFT JOIN user_department ud on d.user_id = ud.user_account_id
+		  LEFT JOIN department de on ud.department_id = de.id
+		WHERE
+		  d.is_delete = 0
+		  and d.`status` = 2
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and   de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			    and d.apply_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and d.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+		GROUP BY
+			date_format(d.apply_date, '%Y-%m-%d');
+  </select>
+  
+  
+  <select id="getIndexReportDtos" resultMap="reportDto" >
+	select 
+	sum(d.deal_amount) as sumDealAmount,
+	date_format(d.apply_date, '%Y-%m') as date
+	from declaration d 
+	where 
+	 d.is_delete = 0
+	and d.apply_date &gt; #{month}
+	and d.`status` = 2
+	group by date_format(d.apply_date, '%Y-%m');
+  </select>
+  
+    <select id="getIndexTopDtos" resultMap="indexTopDto" >
+	select 
+	SUM(d.deal_amount) as deal_amount,
+	MAX(d.apply_date) as apply_date,
+	d.user_id, 
+	ud.real_name 
+	from declaration d 
+	LEFT JOIN user_detail ud on d.user_id = ud.user_account_id
+	where 
+	 d.is_delete = 0
+	and d.apply_date &gt; #{month}
+	 and d.`status` = 2
+	GROUP BY d.user_id
+	ORDER BY deal_amount desc,apply_date asc
+	limit 0,#{count}
+  </select>
+  
+  
+    <select id="getDepartmentReportDtos" resultMap="departmentDeclarationReportDto" >
+		select 
+		  sum(de.deal_amount) as sumDealAmount,
+		  d.id,
+		  d.`code`,
+		  d.name 
+		from declaration de
+			LEFT JOIN user_account uc on de.user_id = uc.id 
+			LEFT JOIN user_department ud on ud.user_account_id = uc.id
+			LEFT JOIN department d on ud.department_id = d.id
+		where 
+		    de.is_delete = 0
+			and de.`status` = 2
+			and d.is_delete = 0
+			<if test="departmentCode!=null">
+			 and  d.code like  CONCAT('', #{departmentCode},'%')
+			 and d.`code` != #{departmentCode}
+			</if>
+			<if test="startDate!=null">
+			    and de.apply_date &gt; #{startDate}
+			</if>
+			<if test="endDate!=null">
+			    and de.apply_date &lt; CONCAT('', #{endDate},' 23:59:59')
+			</if>
+			
+		GROUP BY d.id
+  </select>
+  
+  
+    
+    <select id="getDepartmentUserReportDtos" resultMap="departmentUserDeclarationReportDto" >
+  		select 
+		  sum(de.deal_amount) as sumDealAmount,
+		  de.user_id
+		from declaration de
+			LEFT JOIN user_department ud on ud.user_account_id = de.user_id
+		where 
+		    de.is_delete = 0
+			and de.`status` = 2
+			<if test="departmentId!= null">
+			   and ud.department_id  = #{departmentId}
+			</if>
+			<if test="startDate!=null">
+			    and de.apply_date &gt; #{startDate}
+			</if>
+			<if test="endDate!=null">
+			    and de.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+			</if>
+		GROUP BY de.user_id
+        ORDER BY sumDealAmount desc
+  </select>
+  
+   <resultMap id="departmentUserDeclarationDto" type="com.yundao.tenant.dto.report.declaration.DepartmentUserDeclarationDto">
+    <result column="id"  property="id" />
+    <result column="status"  property="declarationStatus" />
+    <result column="product_id"  property="productId" />
+    <result column="deal_amount"  property="dealAmount" />
+     <result column="pay_date"  property="payDate" />
+    <result column="productName"  property="productName" />
+    <result column="customerName"  property="customerName" />
+    <result column="customer_id"  property="customerId" />
+    <result column="apply_date"  property="applyDate" />
+  </resultMap>
+  
+   <select id="getDepartmentUserDeclarationDtoPage" resultMap="departmentUserDeclarationDto" >
+		SELECT
+		  d.id,
+		  d.apply_date,
+		  d.product_id,
+		  d.customer_id,
+		  d.`status`,
+		  d.deal_amount,
+		  d.pay_date,
+		  p.`name` as productName,
+		  c.`name` as customerName,
+		  de.`code`,
+		  d.user_id,
+		  d.apply_date
+		FROM
+			declaration d
+		LEFT JOIN product p ON d.product_id = p.id
+		LEFT JOIN customer c ON d.customer_id = c.id
+		LEFT JOIN user_department ud on d.user_id = ud.user_account_id
+		LEFT JOIN department de on ud.department_id = de.id
+		WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and   de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			 and d.apply_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and d.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+		<include refid="limitSql" />
+  </select>
+  
+  <sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+  
+     <select id="getDepartmentUserDeclarationDtoCount" resultType="int" >
+		SELECT
+		    count(d.id)
+		FROM
+			declaration d
+		LEFT JOIN product p ON d.product_id = p.id
+		LEFT JOIN customer c ON d.customer_id = c.id
+		LEFT JOIN user_department ud on d.user_id = ud.user_account_id
+		LEFT JOIN department de on ud.department_id = de.id
+		WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and   de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			    and d.apply_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and d.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+  </select>
+
+
+   <resultMap id="userDeclarationRankDto" type="com.yundao.tenant.dto.report.declaration.UserDeclarationRankResDto">
+     <result column="user_id"  property="userId" />
+     <result column="real_name"  property="username" />
+     <result column="sumDealAmount" property="sumDealAmount" />
+  </resultMap>
+
+  
+     <select id="getUserDeclarationRankPage" resultMap="userDeclarationRankDto" >
+        SELECT
+		  SUM(d.deal_amount) AS sumDealAmount,
+		  MAX(d.apply_date) as apply_date,
+		  d.user_id,
+		  ud.real_name
+		FROM
+			declaration d
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_department ude on d.user_id = ude.user_account_id
+		LEFT JOIN department de on ude.department_id = de.id
+        <include refid="getUserDeclarationRankPage_where" />
+		GROUP BY
+			d.user_id
+		ORDER BY
+			sumDealAmount DESC ,apply_date asc
+		<include refid="limitSql" />
+     </select>
+     
+     <select id="getUserDeclarationRankCount" resultType="int" >
+        SELECT
+		  count(DISTINCT d.user_id)
+		FROM
+			declaration d
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_department ude on d.user_id = ude.user_account_id
+		LEFT JOIN department de on ude.department_id = de.id
+        <include refid="getUserDeclarationRankPage_where" />
+     </select>
+     
+     <sql id="getUserDeclarationRankPage_where">
+       WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and   de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="startDate!=null">
+			and d.apply_date &gt; #{startDate}
+		</if>
+		<if test="endDate!=null">
+		    and d.apply_date &lt;  CONCAT('', #{endDate},' 23:59:59')
+		</if>
+     </sql>
+     
+     
+     
+     
+	  <resultMap id="customerDeclarationRankResDto" type="com.yundao.tenant.dto.report.declaration.customer.DeclarationRankResDto">
+	     <result column="customer_id"  property="customerId" />
+	     <result column="name" property="customerName" />
+	     <result column="sumDealAmount" property="sumDealAmount" />
+	     <result column="declarationCount" property="declarationCount" />
+	  </resultMap>
+       
+     <select id="getCustomerDeclarationRankResDtoPage" resultMap="customerDeclarationRankResDto" >
+		SELECT
+			d.customer_id, c.`name`, SUM(d.deal_amount) as sumDealAmount,
+			count(d.id) declarationCount 
+		FROM
+			declaration d
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_department ude on d.user_id = ude.user_account_id
+		LEFT JOIN department de on ude.department_id = de.id
+		<include refid="getCustomerDeclarationRankResDtoPage_where" />
+		GROUP BY d.customer_id
+		ORDER BY sumDealAmount desc
+		<include refid="limitSql" />
+     </select>
+     
+     
+      <sql id="getCustomerDeclarationRankResDtoPage_where">
+        where d.is_delete = 0
+		and d.`status` = 2
+		<if test="customerIds!= null">
+			and d.customer_id in
+			<foreach close=")" collection="customerIds" item="customerId"
+					open="(" separator=",">
+					#{customerId}
+			</foreach>
+		</if>
+		<if test="userId!= null">
+			  and d.user_id   = #{userId}
+		</if>
+		<if test="departmentCode!=null">
+			 and de.`code` like  CONCAT('', #{departmentCode},'%')
+		</if>
+		<if test="customStart!=null">
+			and d.apply_date &gt; #{customStart}
+		</if>
+		<if test="customEnd!=null">
+		    and d.apply_date &lt;  CONCAT('', #{customEnd},' 23:59:59')
+		</if>
+     </sql>
+     
+      <select id="getCustomerDeclarationRankResDtoPageCount" resultType="int" >
+      select count(*) from (
+		SELECT
+			count(d.customer_id)
+		FROM
+			declaration d
+		LEFT JOIN customer c on d.customer_id = c.id
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_department ude on d.user_id = ude.user_account_id
+		LEFT JOIN department de on ude.department_id = de.id
+		<include refid="getCustomerDeclarationRankResDtoPage_where" />
+		GROUP BY d.customer_id
+		) a
+     </select>
+     
+     <select id="getCustomerByCustomerType" resultType="long" >
+		select a.customer_id from (
+			SELECT
+				d.customer_id,
+				count(d.id) declarationCount
+			FROM
+				declaration d
+			WHERE
+				d.is_delete = 0
+			AND d.`status` = 2
+			GROUP BY
+				d.customer_id
+			HAVING
+			<if test="customerType == 1">
+		      declarationCount = 1
+		    </if>
+		    <if test="customerType == 2">
+		      declarationCount > 1
+		    </if>
+		)a
+     </select>
+     
+     
+     
+     <resultMap id="customerDeclarationUserDto" type="com.yundao.tenant.dto.report.declaration.customer.CustomerDeclarationUserDto">
+	     <result column="id"  property="id" />
+	     <result column="user_id"  property="userId" />
+	     <result column="real_name" property="username" />
+	     <result column="customer_id"  property="customerId" />
+	    
+	  </resultMap>
+     <select id="getCustomerDeclarationUsers" resultMap="customerDeclarationUserDto" >
+		SELECT
+			d.id ,d.user_id,ud.real_name,d.customer_id
+		FROM
+			declaration d
+		LEFT JOIN user_detail ud ON d.user_id = ud.user_account_id
+		LEFT JOIN user_department ude on d.user_id = ude.user_account_id
+		LEFT JOIN department de on ude.department_id = de.id
+		<include refid="getCustomerDeclarationRankResDtoPage_where" />
+     </select>
+     
+   <select id="getCustomerDeclarationPage" resultMap="departmentUserDeclarationDto" >
+		SELECT
+		  d.id,
+		  d.apply_date,
+		  d.product_id,
+		  d.customer_id,
+		  d.`status`,
+		  d.deal_amount,
+		  d.pay_date,
+		  p.`name` as productName,
+		  c.`name` as customerName,
+		  d.user_id,
+		  d.apply_date
+		FROM
+			declaration d
+		LEFT JOIN product p ON d.product_id = p.id
+		LEFT JOIN customer c ON d.customer_id = c.id
+		WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="customerId!= null">
+			  and d.customer_id   = #{customerId}
+		</if>
+		<if test="customStart!=null">
+			 and d.apply_date &gt; #{customStart}
+		</if>
+		<if test="customEnd!=null">
+		    and d.apply_date &lt; CONCAT('', #{customEnd},' 23:59:59')
+		</if>
+		<include refid="limitSql" />
+  </select>
+  
+  
+       
+   <select id="getCustomerDeclarationPageCount" resultType="int">
+		SELECT
+		  count(d.id)
+		FROM
+			declaration d
+		LEFT JOIN product p ON d.product_id = p.id
+		LEFT JOIN customer c ON d.customer_id = c.id
+		WHERE
+			d.is_delete = 0
+		AND d.`status` = 2
+		<if test="customerId!= null">
+			  and d.customer_id   = #{customerId}
+		</if>
+		<if test="customStart!=null">
+			 and d.apply_date &gt; #{customStart}
+		</if>
+		<if test="customEnd!=null">
+		    and d.apply_date &lt; CONCAT('', #{customEnd},' 23:59:59')
+		</if>
+  </select>
+  
+</mapper>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.product.ProductH5SelectMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.yundao.tenant.dto.product.h5.ProductH5BaseResDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="type_id" property="typeId" />
+		<result column="typeName" property="typeName" />
+		<result column="highlight" property="highlight" />
+		<result column="time_limit" property="timeLimit" />
+		<result column="buy_start_point" property="buyStartPoint" />
+	</resultMap>
+
+	<resultMap id="productNoticeDto"
+		type="com.yundao.tenant.dto.product.h5.ProductNoticeDto">
+		<id column="id" property="id" />
+		<result column="content" property="content" />
+		<result column="title" property="title" />
+		<result column="send_time" property="sendTime" />
+		<result column="notice_type_id" property="noticeTypeId" />
+		<result column="name" property="noticeTypeName" />
+	</resultMap>
+
+	<resultMap id="ProductBaseResDto"
+		type="com.yundao.tenant.dto.product.ProductBaseResDto">
+		<id column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="issued_channel" property="issuedChannel" />
+		<result column="invest_domain" property="investDomain" />
+		<result column="type_id" property="typeId" />
+		<result column="typeName" property="typeName" />
+		<result column="time_limit" property="timeLimit" />
+		<result column="buy_start_point" property="buyStartPoint" />
+		<result column="incremental_amount" property="incrementalAmount" />
+		<result column="create_user_id" property="createUserId" />
+		<result column="is_scale" property="isScale" />
+		<result column="product_scale" property="productScale" />
+		<result column="currency_code" property="currencyCode" />
+		<result column="issued_status" property="issuedStatus" />
+		<result column="declaration_model" property="declarationModel" />
+	</resultMap>
+
+	<select id="getProductNoticeDtos" resultMap="productNoticeDto">
+		SELECT
+		n.id,
+		n.content,
+		n.title,
+		n.send_time,
+		n.notice_type_id,
+		pnt.`name`
+		FROM
+		product_notice n
+		LEFT JOIN product_notice_type pnt ON n.notice_type_id
+		= pnt.id
+		where
+		n.is_delete = 0
+		and pnt.is_delete = 0
+		and n.is_send = 1
+		and
+		n.`status` =
+		3
+		and n.product_id = #{productId}
+	</select>
+
+
+
+	<select id="getReCommendedList" resultMap="ProductBaseResDto"
+		parameterType="com.yundao.tenant.dto.product.h5.ProductH5BaseQueryReqDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.issued_channel,
+		p.invest_domain,
+		p.time_limit,
+		p.buy_start_point,
+		p.incremental_amount,
+		p.type_id,
+		p.issued_status,
+		p.declaration_model,
+		p.create_user_id,
+		fg.name as typeName,
+		ps.is_scale,
+		ps.product_scale,
+		ps.currency_code
+		FROM
+		product_recommend pr
+		LEFT JOIN product
+		p on pr.product_id = p.id
+		LEFT JOIN product_sale ps on
+		p.id=ps.product_id
+		LEFT JOIN field_group fg ON
+		p.type_id = fg.id
+		<include refid="getProductListCount_where" />
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+
+	<select id="getProductList" resultMap="BaseResultMap"
+		parameterType="com.yundao.tenant.dto.product.h5.ProductH5BaseQueryReqDto">
+		SELECT
+		p.id,
+		p.`name`,
+		p.type_id,
+		fg.`name` as typeName,
+		p.time_limit,
+		p.highlight,
+		p.buy_start_point
+		FROM
+		product_recommend pr
+		LEFT JOIN product
+		p on pr.product_id = p.id
+		LEFT JOIN field_group fg ON
+		p.type_id = fg.id
+		<include refid="getProductListCount_where" />
+		<include refid="orderBy" />
+		<include refid="limitSql" />
+	</select>
+
+
+	<select id="getProductListCount" resultType="Integer"
+		parameterType="com.yundao.tenant.dto.product.h5.ProductH5BaseQueryReqDto">
+		SELECT
+		count(p.id)
+		FROM
+		product_recommend pr
+		LEFT JOIN product p on
+		pr.product_id = p.id
+		LEFT JOIN field_group fg ON
+		p.type_id = fg.id
+		<include refid="getProductListCount_where" />
+	</select>
+
+	<sql id="getProductListCount_where">
+		<where>
+			pr.is_delete = 0
+			AND p.is_delete = 0
+			AND fg.is_delete = 0
+			AND
+			fg.is_enabled = 1
+			<!-- AND pr.is_enabled = 0 -->
+			AND pr.status = 1
+			AND pr.platform_id = #{platformId}
+			AND pr.position_id
+			= #{positionId}
+			<if test="name!=null and name!=''">
+				and p.`name` like CONCAT('%', #{name},'%')
+			</if>
+			<if test="issuedStatusList!=null">
+				and p.issued_status in
+				<foreach close=")" collection="issuedStatusList" item="issuedStatus"
+					open="(" separator=",">
+					#{issuedStatus}
+				</foreach>
+			</if>
+		</where>
+	</sql>
+
+
+	<sql id="limitSql">
+		LIMIT #{offset}, #{pageSize}
+	</sql>
+
+	<sql id="orderBy">
+		ORDER BY pr.sort asc,pr.create_date desc
+	</sql>
+
+
+</mapper>

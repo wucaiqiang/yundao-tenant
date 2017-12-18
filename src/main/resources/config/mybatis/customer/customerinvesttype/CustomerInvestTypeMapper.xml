@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper
+	namespace="com.yundao.tenant.mapper.customer.customerinvesttype.CustomerInvestTypeMapper">
+
+	<resultMap id="CustomerInvestTypeResult"
+		type="com.yundao.tenant.model.base.customer.BaseCustomerInvestType"
+		extends="com.yundao.tenant.mapper.base.customer.BaseCustomerInvestTypeMapper.BaseResultMap">
+	</resultMap>
+	<resultMap id="CustomerInvestTypeDtoResult"
+		type="com.yundao.tenant.dto.customer.customerinvesttype.CustomerInvestTypeDto"
+		extends="CustomerInvestTypeResult">
+		<result column="group_name" jdbcType="VARCHAR" property="productTypeIdText" />
+	</resultMap>
+	<select id="selectByCustomerId" resultMap="CustomerInvestTypeDtoResult">
+		select cit.*,fg.name as group_name from customer_invest_type cit left join
+		field_group fg on cit.product_type_id=fg.id
+		where cit.is_delete !=1 and fg.is_delete !=1
+		and cit.customer_id =#{customerId}
+	</select>
+</mapper>

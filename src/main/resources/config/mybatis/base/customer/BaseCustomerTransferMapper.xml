@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.base.customer.BaseCustomerTransferMapper">
+  <resultMap id="BaseResultMap" type="com.yundao.tenant.model.base.customer.BaseCustomerTransfer">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="customer_id" jdbcType="BIGINT" property="customerId" />
+    <result column="after_user" jdbcType="VARCHAR" property="afterUser" />
+    <result column="after_user_id" jdbcType="BIGINT" property="afterUserId" />
+    <result column="before_user" jdbcType="VARCHAR" property="beforeUser" />
+    <result column="before_user_id" jdbcType="BIGINT" property="beforeUserId" />
+    <result column="transfer_date" jdbcType="TIMESTAMP" property="transferDate" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, customer_id, after_user, after_user_id, before_user, before_user_id, transfer_date, 
+    create_user_id, remark, is_delete
+  </sql>
+  <select id="selectByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransferExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from customer_transfer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+    <if test="limit == null">
+      <if test="limitStart gt 0 and limitEnd gt 0 ">
+        limit ${limitStart} , ${limitEnd}
+      </if>
+      <if test="limitStart lt 1 and limitEnd lt 0 ">
+        limit ${limitEnd}
+      </if>
+    </if>
+    <if test="limit != null ">
+      limit ${limit.start} , ${limit.size}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from customer_transfer
+    where id = #{id,jdbcType=BIGINT}
+     AND is_delete=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from customer_transfer
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransferExample">
+    delete from customer_transfer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransfer" useGeneratedKeys="true">
+    insert into customer_transfer (id, customer_id, after_user, 
+      after_user_id, before_user, before_user_id, 
+      transfer_date, create_user_id, remark, 
+      is_delete)
+    values (#{id,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, #{afterUser,jdbcType=VARCHAR}, 
+      #{afterUserId,jdbcType=BIGINT}, #{beforeUser,jdbcType=VARCHAR}, #{beforeUserId,jdbcType=BIGINT}, 
+      #{transferDate,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, 
+      #{isDelete,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" keyProperty="id" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransfer" useGeneratedKeys="true">
+    insert into customer_transfer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="customerId != null">
+        customer_id,
+      </if>
+      <if test="afterUser != null">
+        after_user,
+      </if>
+      <if test="afterUserId != null">
+        after_user_id,
+      </if>
+      <if test="beforeUser != null">
+        before_user,
+      </if>
+      <if test="beforeUserId != null">
+        before_user_id,
+      </if>
+      <if test="transferDate != null">
+        transfer_date,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="afterUser != null">
+        #{afterUser,jdbcType=VARCHAR},
+      </if>
+      <if test="afterUserId != null">
+        #{afterUserId,jdbcType=BIGINT},
+      </if>
+      <if test="beforeUser != null">
+        #{beforeUser,jdbcType=VARCHAR},
+      </if>
+      <if test="beforeUserId != null">
+        #{beforeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="transferDate != null">
+        #{transferDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransferExample" resultType="java.lang.Integer">
+    select count(*) from customer_transfer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update customer_transfer
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerId != null">
+        customer_id = #{record.customerId,jdbcType=BIGINT},
+      </if>
+      <if test="record.afterUser != null">
+        after_user = #{record.afterUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.afterUserId != null">
+        after_user_id = #{record.afterUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.beforeUser != null">
+        before_user = #{record.beforeUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.beforeUserId != null">
+        before_user_id = #{record.beforeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.transferDate != null">
+        transfer_date = #{record.transferDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isDelete != null">
+        is_delete = #{record.isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update customer_transfer
+    set id = #{record.id,jdbcType=BIGINT},
+      customer_id = #{record.customerId,jdbcType=BIGINT},
+      after_user = #{record.afterUser,jdbcType=VARCHAR},
+      after_user_id = #{record.afterUserId,jdbcType=BIGINT},
+      before_user = #{record.beforeUser,jdbcType=VARCHAR},
+      before_user_id = #{record.beforeUserId,jdbcType=BIGINT},
+      transfer_date = #{record.transferDate,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=BIGINT},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      is_delete = #{record.isDelete,jdbcType=TINYINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransfer">
+    update customer_transfer
+    <set>
+      <if test="customerId != null">
+        customer_id = #{customerId,jdbcType=BIGINT},
+      </if>
+      <if test="afterUser != null">
+        after_user = #{afterUser,jdbcType=VARCHAR},
+      </if>
+      <if test="afterUserId != null">
+        after_user_id = #{afterUserId,jdbcType=BIGINT},
+      </if>
+      <if test="beforeUser != null">
+        before_user = #{beforeUser,jdbcType=VARCHAR},
+      </if>
+      <if test="beforeUserId != null">
+        before_user_id = #{beforeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="transferDate != null">
+        transfer_date = #{transferDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransfer">
+    update customer_transfer
+    set customer_id = #{customerId,jdbcType=BIGINT},
+      after_user = #{afterUser,jdbcType=VARCHAR},
+      after_user_id = #{afterUserId,jdbcType=BIGINT},
+      before_user = #{beforeUser,jdbcType=VARCHAR},
+      before_user_id = #{beforeUserId,jdbcType=BIGINT},
+      transfer_date = #{transferDate,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectOne" parameterType="com.yundao.tenant.model.base.customer.BaseCustomerTransferExample" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from customer_transfer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+     limit 1
+  </select>
+</mapper>

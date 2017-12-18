@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yundao.tenant.mapper.resource.ResourceMapper">
+  <resultMap id="authResDto" type="com.yundao.tenant.dto.resource.AuthResDto">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="url" jdbcType="VARCHAR" property="path" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+  </resultMap>
+  
+ <resultMap id="userResDto" type="com.yundao.tenant.dto.resource.UserResDto">
+    <id column="id" jdbcType="BIGINT" property="userId" />
+    <result column="code" jdbcType="VARCHAR" property="resCode" />
+  </resultMap>
+
+
+  <select id="getUserAuths" resultMap="authResDto">
+	SELECT
+		DISTINCT(re.id),
+		re.`code`,
+		re.`name`,
+		re.url
+	FROM
+	  user_account ac
+	LEFT JOIN user_role ur ON ac.id = ur.user_account_id
+	LEFT JOIN role r on ur.role_id = r.id
+	LEFT JOIN role_resource rr ON r.id = rr.role_id
+	LEFT JOIN resource re ON rr.resource_id = re.id
+	WHERE
+	ac.is_delete = 0
+	AND r.is_delete = 0
+	AND rr.is_delete = 0
+	and ur.is_delete = 0
+	AND re.is_delete = 0
+	AND re.is_menu = 0
+	and ac.id = #{userId}
+  </select>
+  
+  
+  <select id="getResourceCodes" resultType="java.lang.String">
+    SELECT
+		re.`code`
+	FROM
+		user_account u
+	LEFT JOIN user_role ur ON u.id = ur.user_account_id
+	LEFT JOIN role_resource rr on ur.role_id = rr.role_id
+	LEFT JOIN resource re on rr.resource_id = re.id
+	where  u.id = #{userId}
+	<if test="resourceCodes!=null">
+		and re.`code`  in 
+		 <foreach close=")" collection="resourceCodes" item="resourceCode" open="(" separator=",">
+           #{resourceCode}
+         </foreach>
+	</if>
+  </select>
+  
+  <select id="getUserResDtos" resultMap="userResDto">
+	SELECT
+		re.`code`,
+		u.id
+	FROM
+		user_account u
+	LEFT JOIN user_role ur ON u.id = ur.user_account_id
+	LEFT JOIN role_resource rr ON ur.role_id = rr.role_id
+	LEFT JOIN resource re ON rr.resource_id = re.id
+	WHERE
+	u.is_delete = 0
+	<if test="resourceCodes!=null">
+		and re.`code`  in 
+		 <foreach close=")" collection="resourceCodes" item="resourceCode" open="(" separator=",">
+           #{resourceCode}
+         </foreach>
+	</if>
+	GROUP BY
+	re.`code`,
+	u.id
+  </select>
+
+	<!--获取系统管理菜单-->
+	<select id="selectSystemMgrResourceId" resultType="long">
+		SELECT id FROM resource WHERE parent_id IN (SELECT id from resource WHERE code='system') OR code='system'
+	</select>
+</mapper>
