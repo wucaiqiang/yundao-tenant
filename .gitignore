@@ -1,0 +1,10 @@
+/target/
+/bin/
+.project
+.classpath
+.settings/
+*.pdb
+.idea/
+yundao-tenant.iml
+.externalToolBuilders
+.DS_Store
